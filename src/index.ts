@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "path";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -11,7 +12,7 @@ import pointRoutes from "./routes/points";
 const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
 
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 
@@ -26,6 +27,13 @@ app.use("/merchants", merchantRoutes);
 // Authenticated routes — cards and points require a valid merchant API key
 app.use("/cards", authenticateMerchant, cardRoutes);
 app.use("/points", authenticateMerchant, pointRoutes);
+
+// Serve the merchant dashboard (production build)
+const dashboardPath = path.join(__dirname, "../../dashboard/dist");
+app.use(express.static(dashboardPath));
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(dashboardPath, "index.html"));
+});
 
 // Error handler (must be last)
 app.use(errorHandler);

@@ -4,3 +4,7 @@ dist
 .env
 
 /generated/prisma
+
+# Dashboard build output
+dashboard/dist
+dashboard/node_modules

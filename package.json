@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:dashboard",
+    "build:dashboard": "cd dashboard && npm run build",
     "start": "node dist/src/index.js",
     "dev": "ts-node src/index.ts",
+    "dev:dashboard": "cd dashboard && npm run dev",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "ts-node prisma/seed/seed.ts",
