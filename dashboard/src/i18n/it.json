@@ -1,0 +1,91 @@
+{
+  "common": {
+    "loading": "Caricamento...",
+    "previous": "Precedente",
+    "next": "Successivo",
+    "page": "Pagina {{page}} di {{totalPages}}",
+    "signOut": "Esci",
+    "na": "-"
+  },
+  "nav": {
+    "brand": "Dashboard Fedeltà",
+    "overview": "Panoramica",
+    "loyaltyCards": "Carte Fedeltà"
+  },
+  "login": {
+    "title": "Dashboard Commerciante",
+    "subtitle": "Accedi con la tua chiave API commerciante per accedere alla dashboard della piattaforma fedeltà.",
+    "error": "Chiave API non valida. Controlla il tuo ID commerciante e riprova.",
+    "apiKeyLabel": "Chiave API (ID Commerciante)",
+    "apiKeyPlaceholder": "Inserisci il tuo UUID commerciante",
+    "signingIn": "Accesso in corso...",
+    "signIn": "Accedi"
+  },
+  "overview": {
+    "title": "Panoramica",
+    "totalCustomers": "Clienti Totali",
+    "activeCards": "Carte Attive",
+    "totalCards": "Carte Totali",
+    "pointsIssued": "Punti Emessi",
+    "pointsRedeemed": "Punti Riscattati",
+    "merchantInfo": "Info Commerciante",
+    "value": "Valore",
+    "name": "Nome",
+    "email": "Email",
+    "plan": "Piano",
+    "location": "Sede"
+  },
+  "cards": {
+    "title": "Carte Fedeltà",
+    "allStatuses": "Tutti gli stati",
+    "active": "Attiva",
+    "suspended": "Sospesa",
+    "expired": "Scaduta",
+    "cancelled": "Annullata",
+    "noCards": "Nessuna carta fedeltà trovata.",
+    "cardNumber": "Numero Carta",
+    "customer": "Cliente",
+    "status": "Stato",
+    "balance": "Saldo",
+    "earned": "Guadagnati",
+    "redeemed": "Riscattati",
+    "actions": "Azioni",
+    "suspend": "Sospendi",
+    "activate": "Attiva"
+  },
+  "cardDetail": {
+    "cardTitle": "Carta: {{cardNumber}}",
+    "backToCards": "Torna alle Carte",
+    "notFound": "Carta non trovata",
+    "customer": "Cliente",
+    "email": "Email",
+    "status": "Stato",
+    "pointsBalance": "Saldo Punti",
+    "totalEarned": "Totale Guadagnati",
+    "totalRedeemed": "Totale Riscattati",
+    "template": "Modello",
+    "issued": "Emessa",
+    "issueRedeemPoints": "Emetti / Riscatta Punti",
+    "action": "Azione",
+    "earnPoints": "Guadagna Punti",
+    "redeemPoints": "Riscatta Punti",
+    "points": "Punti",
+    "descriptionOptional": "Descrizione (opzionale)",
+    "descriptionPlaceholder": "Acquisto, premio, ecc.",
+    "processing": "Elaborazione...",
+    "addPoints": "Aggiungi Punti",
+    "transactionHistory": "Storico Transazioni",
+    "noTransactions": "Nessuna transazione.",
+    "date": "Data",
+    "type": "Tipo",
+    "balanceAfter": "Saldo Dopo",
+    "description": "Descrizione",
+    "operationFailed": "Operazione fallita"
+  },
+  "locale": {
+    "label": "Lingua",
+    "en": "English",
+    "it": "Italiano",
+    "es": "Español"
+  }
+}

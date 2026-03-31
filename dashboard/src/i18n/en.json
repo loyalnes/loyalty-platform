@@ -1,0 +1,91 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{totalPages}}",
+    "signOut": "Sign Out",
+    "na": "-"
+  },
+  "nav": {
+    "brand": "Loyalty Dashboard",
+    "overview": "Overview",
+    "loyaltyCards": "Loyalty Cards"
+  },
+  "login": {
+    "title": "Merchant Dashboard",
+    "subtitle": "Sign in with your merchant API key to access the loyalty platform dashboard.",
+    "error": "Invalid API key. Please check your merchant ID and try again.",
+    "apiKeyLabel": "API Key (Merchant ID)",
+    "apiKeyPlaceholder": "Enter your merchant UUID",
+    "signingIn": "Signing in...",
+    "signIn": "Sign In"
+  },
+  "overview": {
+    "title": "Overview",
+    "totalCustomers": "Total Customers",
+    "activeCards": "Active Cards",
+    "totalCards": "Total Cards",
+    "pointsIssued": "Points Issued",
+    "pointsRedeemed": "Points Redeemed",
+    "merchantInfo": "Merchant Info",
+    "value": "Value",
+    "name": "Name",
+    "email": "Email",
+    "plan": "Plan",
+    "location": "Location"
+  },
+  "cards": {
+    "title": "Loyalty Cards",
+    "allStatuses": "All statuses",
+    "active": "Active",
+    "suspended": "Suspended",
+    "expired": "Expired",
+    "cancelled": "Cancelled",
+    "noCards": "No loyalty cards found.",
+    "cardNumber": "Card Number",
+    "customer": "Customer",
+    "status": "Status",
+    "balance": "Balance",
+    "earned": "Earned",
+    "redeemed": "Redeemed",
+    "actions": "Actions",
+    "suspend": "Suspend",
+    "activate": "Activate"
+  },
+  "cardDetail": {
+    "cardTitle": "Card: {{cardNumber}}",
+    "backToCards": "Back to Cards",
+    "notFound": "Card not found",
+    "customer": "Customer",
+    "email": "Email",
+    "status": "Status",
+    "pointsBalance": "Points Balance",
+    "totalEarned": "Total Earned",
+    "totalRedeemed": "Total Redeemed",
+    "template": "Template",
+    "issued": "Issued",
+    "issueRedeemPoints": "Issue / Redeem Points",
+    "action": "Action",
+    "earnPoints": "Earn Points",
+    "redeemPoints": "Redeem Points",
+    "points": "Points",
+    "descriptionOptional": "Description (optional)",
+    "descriptionPlaceholder": "Purchase, reward, etc.",
+    "processing": "Processing...",
+    "addPoints": "Add Points",
+    "transactionHistory": "Transaction History",
+    "noTransactions": "No transactions yet.",
+    "date": "Date",
+    "type": "Type",
+    "balanceAfter": "Balance After",
+    "description": "Description",
+    "operationFailed": "Operation failed"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "it": "Italiano",
+    "es": "Español"
+  }
+}
