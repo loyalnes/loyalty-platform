@@ -1,0 +1,37 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import { authenticateMerchant } from "./middleware/auth";
+import { errorHandler } from "./middleware/errorHandler";
+import merchantRoutes from "./routes/merchants";
+import cardRoutes from "./routes/cards";
+import pointRoutes from "./routes/points";
+
+const app = express();
+const port = parseInt(process.env.PORT || "3000", 10);
+
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Health check
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
+// Public routes — merchant registration and listing
+app.use("/merchants", merchantRoutes);
+
+// Authenticated routes — cards and points require a valid merchant API key
+app.use("/cards", authenticateMerchant, cardRoutes);
+app.use("/points", authenticateMerchant, pointRoutes);
+
+// Error handler (must be last)
+app.use(errorHandler);
+
+app.listen(port, () => {
+  console.log(`Loyalty API listening on port ${port}`);
+});
+
+export default app;

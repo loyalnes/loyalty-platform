@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Merchants ───────────────────────────────────────────────
+
+model Merchant {
+  id        String       @id @default(uuid()) @db.Uuid
+  name      String
+  email     String       @unique
+  phone     String?
+  address   String?
+  city      String?
+  country   String?
+  plan      MerchantPlan @default(FREE)
+  settings  Json         @default("{}")
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  loyaltyCards  LoyaltyCard[]
+  cardTemplates CardTemplate[]
+
+  @@map("merchants")
+}
+
+enum MerchantPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+// ─── Customers ───────────────────────────────────────────────
+
+model Customer {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  phone     String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  loyaltyCards LoyaltyCard[]
+
+  @@map("customers")
+}
+
+// ─── Loyalty Cards ───────────────────────────────────────────
+
+model LoyaltyCard {
+  id             String            @id @default(uuid()) @db.Uuid
+  cardNumber     String            @unique @map("card_number")
+  merchantId     String            @map("merchant_id") @db.Uuid
+  customerId     String            @map("customer_id") @db.Uuid
+  cardTemplateId String?           @map("card_template_id") @db.Uuid
+  status         LoyaltyCardStatus @default(ACTIVE)
+  pointsBalance  Int               @default(0) @map("points_balance")
+  totalEarned    Int               @default(0) @map("total_earned")
+  totalRedeemed  Int               @default(0) @map("total_redeemed")
+  issuedAt       DateTime          @default(now()) @map("issued_at")
+  expiresAt      DateTime?         @map("expires_at")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  merchant     Merchant          @relation(fields: [merchantId], references: [id])
+  customer     Customer          @relation(fields: [customerId], references: [id])
+  cardTemplate CardTemplate?     @relation(fields: [cardTemplateId], references: [id])
+  transactions PointsTransaction[]
+
+  @@unique([merchantId, customerId])
+  @@index([merchantId])
+  @@index([customerId])
+  @@map("loyalty_cards")
+}
+
+enum LoyaltyCardStatus {
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  CANCELLED
+}
+
+// ─── Card Templates / Tiers ──────────────────────────────────
+
+model CardTemplate {
+  id                String   @id @default(uuid()) @db.Uuid
+  merchantId        String   @map("merchant_id") @db.Uuid
+  name              String
+  description       String?
+  tier              CardTier @default(STANDARD)
+  pointsPerCurrency Decimal  @default(1) @map("points_per_currency") @db.Decimal(10, 2)
+  redemptionRate    Decimal  @default(0.01) @map("redemption_rate") @db.Decimal(10, 4)
+  minRedeemPoints   Int      @default(100) @map("min_redeem_points")
+  bonusMultiplier   Decimal  @default(1) @map("bonus_multiplier") @db.Decimal(5, 2)
+  validityDays      Int?     @map("validity_days")
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  merchant     Merchant      @relation(fields: [merchantId], references: [id])
+  loyaltyCards LoyaltyCard[]
+
+  @@index([merchantId])
+  @@map("card_templates")
+}
+
+enum CardTier {
+  STANDARD
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+// ─── Points Transactions ─────────────────────────────────────
+
+model PointsTransaction {
+  id            String                @id @default(uuid()) @db.Uuid
+  loyaltyCardId String                @map("loyalty_card_id") @db.Uuid
+  type          PointsTransactionType
+  points        Int
+  balanceAfter  Int                   @map("balance_after")
+  description   String?
+  referenceId   String?               @map("reference_id")
+  createdAt     DateTime              @default(now()) @map("created_at")
+
+  loyaltyCard LoyaltyCard @relation(fields: [loyaltyCardId], references: [id])
+
+  @@index([loyaltyCardId])
+  @@index([createdAt])
+  @@map("points_transactions")
+}
+
+enum PointsTransactionType {
+  EARN
+  REDEEM
+  ADJUST
+  EXPIRE
+  BONUS
+}
