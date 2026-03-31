@@ -32,6 +32,7 @@ export interface Merchant {
   city: string | null;
   country: string | null;
   plan: string;
+  preferredLocale: 'en' | 'it' | 'es';
   active: boolean;
   createdAt: string;
   cardTemplates?: CardTemplate[];

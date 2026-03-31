@@ -76,7 +76,7 @@ router.patch("/:id", async (req: Request, res: Response, next: NextFunction) => 
       throw new ApiError(403, "You can only update your own merchant profile");
     }
 
-    const allowed = ["name", "phone", "address", "city", "country", "settings"] as const;
+    const allowed = ["name", "phone", "address", "city", "country", "settings", "preferredLocale"] as const;
     const data: Record<string, unknown> = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) {

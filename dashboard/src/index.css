@@ -85,6 +85,21 @@ a:hover {
   color: var(--text-secondary);
 }
 
+.locale-switcher {
+  margin-bottom: 0.5rem;
+}
+
+.locale-switcher select {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8125rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
 .sidebar-footer button {
   background: none;
   border: none;

@@ -18,6 +18,7 @@ model Merchant {
   country   String?
   plan      MerchantPlan @default(FREE)
   settings  Json         @default("{}")
+  preferredLocale Locale   @default(en) @map("preferred_locale")
   active    Boolean      @default(true)
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
@@ -35,6 +36,12 @@ enum MerchantPlan {
   ENTERPRISE
 }
 
+enum Locale {
+  en
+  it
+  es
+}
+
 // ─── Customers ───────────────────────────────────────────────
 
 model Customer {
@@ -44,6 +51,7 @@ model Customer {
   lastName  String   @map("last_name")
   phone     String?
   avatarUrl String?  @map("avatar_url")
+  preferredLocale Locale   @default(en) @map("preferred_locale")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

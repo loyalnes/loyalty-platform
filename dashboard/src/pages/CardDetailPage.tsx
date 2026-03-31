@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   getCard,
   getTransactionHistory,
@@ -8,9 +9,11 @@ import {
   type LoyaltyCard,
   type PointsTransaction,
 } from '../api';
+import { formatNumber, formatDate, formatDateTime } from '../i18n';
 
 export default function CardDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { t, i18n } = useTranslation();
   const [card, setCard] = useState<LoyaltyCard | null>(null);
   const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
   const [txTotal, setTxTotal] = useState(0);
@@ -25,10 +28,11 @@ export default function CardDetailPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const txLimit = 20;
+  const lng = i18n.language;
 
   function loadCard() {
     if (!id) return;
-    getCard(id).then(setCard).catch(() => setError('Card not found'));
+    getCard(id).then(setCard).catch(() => setError(t('cardDetail.notFound')));
   }
 
   function loadTransactions() {
@@ -52,7 +56,7 @@ export default function CardDetailPage() {
         setTransactions(tx.data);
         setTxTotal(tx.total);
       })
-      .catch(() => setError('Card not found'))
+      .catch(() => setError(t('cardDetail.notFound')))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -77,58 +81,58 @@ export default function CardDetailPage() {
       loadCard();
       loadTransactions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Operation failed');
+      setError(err instanceof Error ? err.message : t('cardDetail.operationFailed'));
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (loading) return <div className="empty-state">Loading...</div>;
-  if (!card) return <div className="empty-state">{error || 'Card not found'}</div>;
+  if (loading) return <div className="empty-state">{t('common.loading')}</div>;
+  if (!card) return <div className="empty-state">{error || t('cardDetail.notFound')}</div>;
 
   const txTotalPages = Math.ceil(txTotal / txLimit);
 
   return (
     <div>
       <div className="page-header">
-        <h1>Card: {card.cardNumber}</h1>
-        <Link to="/cards" className="btn">Back to Cards</Link>
+        <h1>{t('cardDetail.cardTitle', { cardNumber: card.cardNumber })}</h1>
+        <Link to="/cards" className="btn">{t('cardDetail.backToCards')}</Link>
       </div>
 
       <div className="detail-grid">
         <div className="detail-item">
-          <label>Customer</label>
+          <label>{t('cardDetail.customer')}</label>
           <div className="value">{card.customer.firstName} {card.customer.lastName}</div>
         </div>
         <div className="detail-item">
-          <label>Email</label>
+          <label>{t('cardDetail.email')}</label>
           <div className="value">{card.customer.email}</div>
         </div>
         <div className="detail-item">
-          <label>Status</label>
+          <label>{t('cardDetail.status')}</label>
           <div className="value">
             <span className={`badge badge-${card.status.toLowerCase()}`}>{card.status}</span>
           </div>
         </div>
         <div className="detail-item">
-          <label>Points Balance</label>
-          <div className="value">{card.pointsBalance.toLocaleString()}</div>
+          <label>{t('cardDetail.pointsBalance')}</label>
+          <div className="value">{formatNumber(card.pointsBalance, lng)}</div>
         </div>
         <div className="detail-item">
-          <label>Total Earned</label>
-          <div className="value">{card.totalEarned.toLocaleString()}</div>
+          <label>{t('cardDetail.totalEarned')}</label>
+          <div className="value">{formatNumber(card.totalEarned, lng)}</div>
         </div>
         <div className="detail-item">
-          <label>Total Redeemed</label>
-          <div className="value">{card.totalRedeemed.toLocaleString()}</div>
+          <label>{t('cardDetail.totalRedeemed')}</label>
+          <div className="value">{formatNumber(card.totalRedeemed, lng)}</div>
         </div>
         <div className="detail-item">
-          <label>Template</label>
-          <div className="value">{card.cardTemplate?.name || '-'} {card.cardTemplate ? `(${card.cardTemplate.tier})` : ''}</div>
+          <label>{t('cardDetail.template')}</label>
+          <div className="value">{card.cardTemplate?.name || t('common.na')} {card.cardTemplate ? `(${card.cardTemplate.tier})` : ''}</div>
         </div>
         <div className="detail-item">
-          <label>Issued</label>
-          <div className="value">{new Date(card.issuedAt).toLocaleDateString()}</div>
+          <label>{t('cardDetail.issued')}</label>
+          <div className="value">{formatDate(card.issuedAt, lng)}</div>
         </div>
       </div>
 
@@ -136,17 +140,17 @@ export default function CardDetailPage() {
 
       {card.status === 'ACTIVE' && (
         <div style={{ marginBottom: '2rem' }}>
-          <h2 className="section-title">Issue / Redeem Points</h2>
+          <h2 className="section-title">{t('cardDetail.issueRedeemPoints')}</h2>
           <form onSubmit={handlePointsSubmit} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
             <div className="form-group" style={{ margin: 0 }}>
-              <label>Action</label>
+              <label>{t('cardDetail.action')}</label>
               <select value={action} onChange={(e) => setAction(e.target.value as 'earn' | 'redeem')}>
-                <option value="earn">Earn Points</option>
-                <option value="redeem">Redeem Points</option>
+                <option value="earn">{t('cardDetail.earnPoints')}</option>
+                <option value="redeem">{t('cardDetail.redeemPoints')}</option>
               </select>
             </div>
             <div className="form-group" style={{ margin: 0 }}>
-              <label>Points</label>
+              <label>{t('cardDetail.points')}</label>
               <input
                 type="number"
                 min="1"
@@ -157,48 +161,48 @@ export default function CardDetailPage() {
               />
             </div>
             <div className="form-group" style={{ margin: 0, flex: 1, minWidth: '150px' }}>
-              <label>Description (optional)</label>
+              <label>{t('cardDetail.descriptionOptional')}</label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Purchase, reward, etc."
+                placeholder={t('cardDetail.descriptionPlaceholder')}
               />
             </div>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? 'Processing...' : action === 'earn' ? 'Add Points' : 'Redeem Points'}
+              {submitting ? t('cardDetail.processing') : action === 'earn' ? t('cardDetail.addPoints') : t('cardDetail.redeemPoints')}
             </button>
           </form>
         </div>
       )}
 
-      <h2 className="section-title">Transaction History</h2>
+      <h2 className="section-title">{t('cardDetail.transactionHistory')}</h2>
       {transactions.length === 0 ? (
-        <div className="empty-state">No transactions yet.</div>
+        <div className="empty-state">{t('cardDetail.noTransactions')}</div>
       ) : (
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Points</th>
-                <th>Balance After</th>
-                <th>Description</th>
+                <th>{t('cardDetail.date')}</th>
+                <th>{t('cardDetail.type')}</th>
+                <th>{t('cardDetail.points')}</th>
+                <th>{t('cardDetail.balanceAfter')}</th>
+                <th>{t('cardDetail.description')}</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.id}>
-                  <td>{new Date(tx.createdAt).toLocaleString()}</td>
+                  <td>{formatDateTime(tx.createdAt, lng)}</td>
                   <td>
                     <span className={`badge badge-${tx.type.toLowerCase()}`}>{tx.type}</span>
                   </td>
                   <td style={{ color: tx.points >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                    {tx.points > 0 ? '+' : ''}{tx.points.toLocaleString()}
+                    {tx.points > 0 ? '+' : ''}{formatNumber(tx.points, lng)}
                   </td>
-                  <td>{tx.balanceAfter.toLocaleString()}</td>
-                  <td>{tx.description || '-'}</td>
+                  <td>{formatNumber(tx.balanceAfter, lng)}</td>
+                  <td>{tx.description || t('common.na')}</td>
                 </tr>
               ))}
             </tbody>
@@ -207,11 +211,11 @@ export default function CardDetailPage() {
           {txTotalPages > 1 && (
             <div className="pagination">
               <button className="btn btn-sm" disabled={txPage <= 1} onClick={() => setTxPage(txPage - 1)}>
-                Previous
+                {t('common.previous')}
               </button>
-              <span>Page {txPage} of {txTotalPages}</span>
+              <span>{t('common.page', { page: txPage, totalPages: txTotalPages })}</span>
               <button className="btn btn-sm" disabled={txPage >= txTotalPages} onClick={() => setTxPage(txPage + 1)}>
-                Next
+                {t('common.next')}
               </button>
             </div>
           )}

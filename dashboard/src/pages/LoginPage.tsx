@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,7 +16,7 @@ export default function LoginPage() {
     try {
       await login(apiKey.trim());
     } catch {
-      setError('Invalid API key. Please check your merchant ID and try again.');
+      setError(t('login.error'));
     } finally {
       setLoading(false);
     }
@@ -23,25 +25,25 @@ export default function LoginPage() {
   return (
     <div className="login-wrapper">
       <div className="login-card">
-        <h1>Merchant Dashboard</h1>
-        <p>Sign in with your merchant API key to access the loyalty platform dashboard.</p>
+        <h1>{t('login.title')}</h1>
+        <p>{t('login.subtitle')}</p>
 
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="apiKey">API Key (Merchant ID)</label>
+            <label htmlFor="apiKey">{t('login.apiKeyLabel')}</label>
             <input
               id="apiKey"
               type="text"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your merchant UUID"
+              placeholder={t('login.apiKeyPlaceholder')}
               required
             />
           </div>
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('login.signingIn') : t('login.signIn')}
           </button>
         </form>
       </div>

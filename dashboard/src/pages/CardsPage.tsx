@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { listCards, updateCardStatus, type LoyaltyCard } from '../api';
+import { formatNumber } from '../i18n';
 
 export default function CardsPage() {
+  const { t, i18n } = useTranslation();
   const [cards, setCards] = useState<LoyaltyCard[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -37,7 +40,7 @@ export default function CardsPage() {
   return (
     <div>
       <div className="page-header">
-        <h1>Loyalty Cards</h1>
+        <h1>{t('cards.title')}</h1>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div className="form-group" style={{ margin: 0 }}>
             <select
@@ -45,32 +48,32 @@ export default function CardsPage() {
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
               style={{ padding: '0.4rem 0.5rem', fontSize: '0.8125rem' }}
             >
-              <option value="">All statuses</option>
-              <option value="ACTIVE">Active</option>
-              <option value="SUSPENDED">Suspended</option>
-              <option value="EXPIRED">Expired</option>
-              <option value="CANCELLED">Cancelled</option>
+              <option value="">{t('cards.allStatuses')}</option>
+              <option value="ACTIVE">{t('cards.active')}</option>
+              <option value="SUSPENDED">{t('cards.suspended')}</option>
+              <option value="EXPIRED">{t('cards.expired')}</option>
+              <option value="CANCELLED">{t('cards.cancelled')}</option>
             </select>
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="empty-state">Loading...</div>
+        <div className="empty-state">{t('common.loading')}</div>
       ) : cards.length === 0 ? (
-        <div className="empty-state">No loyalty cards found.</div>
+        <div className="empty-state">{t('cards.noCards')}</div>
       ) : (
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>Card Number</th>
-                <th>Customer</th>
-                <th>Status</th>
-                <th>Balance</th>
-                <th>Earned</th>
-                <th>Redeemed</th>
-                <th>Actions</th>
+                <th>{t('cards.cardNumber')}</th>
+                <th>{t('cards.customer')}</th>
+                <th>{t('cards.status')}</th>
+                <th>{t('cards.balance')}</th>
+                <th>{t('cards.earned')}</th>
+                <th>{t('cards.redeemed')}</th>
+                <th>{t('cards.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,16 +88,16 @@ export default function CardsPage() {
                       {card.status}
                     </span>
                   </td>
-                  <td>{card.pointsBalance.toLocaleString()}</td>
-                  <td>{card.totalEarned.toLocaleString()}</td>
-                  <td>{card.totalRedeemed.toLocaleString()}</td>
+                  <td>{formatNumber(card.pointsBalance, i18n.language)}</td>
+                  <td>{formatNumber(card.totalEarned, i18n.language)}</td>
+                  <td>{formatNumber(card.totalRedeemed, i18n.language)}</td>
                   <td>
                     {card.status === 'ACTIVE' && (
                       <button
                         className="btn btn-sm"
                         onClick={() => handleStatusChange(card.id, 'SUSPENDED')}
                       >
-                        Suspend
+                        {t('cards.suspend')}
                       </button>
                     )}
                     {card.status === 'SUSPENDED' && (
@@ -102,7 +105,7 @@ export default function CardsPage() {
                         className="btn btn-sm"
                         onClick={() => handleStatusChange(card.id, 'ACTIVE')}
                       >
-                        Activate
+                        {t('cards.activate')}
                       </button>
                     )}
                   </td>
@@ -114,11 +117,11 @@ export default function CardsPage() {
           {totalPages > 1 && (
             <div className="pagination">
               <button className="btn btn-sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-                Previous
+                {t('common.previous')}
               </button>
-              <span>Page {page} of {totalPages}</span>
+              <span>{t('common.page', { page, totalPages })}</span>
               <button className="btn btn-sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-                Next
+                {t('common.next')}
               </button>
             </div>
           )}
