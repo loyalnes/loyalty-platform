@@ -1,0 +1,13 @@
+# Staging overrides
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+
+  app:
+    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_IMAGE:-loyalty-platform}:${IMAGE_TAG:-staging}
+    build: !reset null
+    environment:
+      NODE_ENV: staging
+    ports:
+      - "3001:3000"

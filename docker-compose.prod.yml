@@ -1,0 +1,23 @@
+# Production overrides
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+
+  app:
+    image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_IMAGE:-loyalty-platform}:${IMAGE_TAG:-latest}
+    build: !reset null
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+
+volumes:
+  pgdata_prod:

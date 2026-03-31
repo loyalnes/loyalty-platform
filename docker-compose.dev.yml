@@ -1,0 +1,23 @@
+# Development overrides — hot reload, exposed DB, no build
+services:
+  db:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: devpassword
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+      DB_PASSWORD: devpassword
+      DATABASE_URL: postgresql://loyalty:devpassword@db:5432/loyalty_platform?schema=public
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dashboard/node_modules
+    command: npx ts-node src/index.ts
+    ports:
+      - "3000:3000"
