@@ -123,24 +123,12 @@ mkdir -p "$NGINX_PREVIEW_DIR"
 
 echo "==> Configuring nginx for ${PREVIEW_DOMAIN}..."
 
-# Check if wildcard SSL cert exists, otherwise fall back to HTTP-only
-if [ -f "/etc/letsencrypt/live/preview.loyali.online/fullchain.pem" ]; then
-  cat > "$NGINX_PREVIEW_CONF" <<NGINXEOF
+# Start with HTTP-only server block so certbot can verify the domain
+cat > "$NGINX_PREVIEW_CONF" <<NGINXEOF
 # Auto-generated preview for PR #${PR_NUMBER} — do not edit
 server {
     listen 80;
     server_name ${PREVIEW_DOMAIN};
-    return 301 https://\$host\$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name ${PREVIEW_DOMAIN};
-
-    ssl_certificate /etc/letsencrypt/live/preview.loyali.online/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/preview.loyali.online/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     auth_basic "Loyali Preview PR #${PR_NUMBER}";
     auth_basic_user_file /etc/nginx/.htpasswd;
@@ -174,49 +162,14 @@ server {
     }
 }
 NGINXEOF
-else
-  # HTTP-only fallback (no wildcard cert yet)
-  cat > "$NGINX_PREVIEW_CONF" <<NGINXEOF
-# Auto-generated preview for PR #${PR_NUMBER} — do not edit (HTTP-only)
-server {
-    listen 80;
-    server_name ${PREVIEW_DOMAIN};
-
-    auth_basic "Loyali Preview PR #${PR_NUMBER}";
-    auth_basic_user_file /etc/nginx/.htpasswd;
-
-    location / {
-        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
-        proxy_http_version 1.1;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-
-    location /api/ {
-        auth_basic off;
-        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
-        proxy_http_version 1.1;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-
-    location = /health {
-        auth_basic off;
-        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
-        proxy_http_version 1.1;
-        proxy_set_header Host \$host;
-    }
-}
-NGINXEOF
-fi
 
 nginx -t && systemctl reload nginx && echo "==> Nginx reloaded for ${PREVIEW_DOMAIN}" || \
   echo "==> Warning: nginx reload failed — preview still accessible on port ${PREVIEW_PORT}"
+
+# Issue SSL cert via standard HTTP challenge (DNS already points here)
+echo "==> Requesting SSL certificate for ${PREVIEW_DOMAIN}..."
+certbot --nginx -d "${PREVIEW_DOMAIN}" --non-interactive --agree-tos --redirect \
+  --register-unsafely-without-email 2>&1 || \
+  echo "==> Warning: SSL cert failed — preview available over HTTP"
 
 echo "==> Preview deployment complete!"
