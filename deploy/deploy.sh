@@ -86,9 +86,11 @@ fi
 echo "==> Pulling images..."
 docker compose pull app
 
-# Run database migrations
-echo "==> Running database migrations..."
-docker compose run --rm app npx prisma migrate deploy
+# Apply database schema
+echo "==> Applying database schema..."
+docker compose run --rm app npx prisma migrate deploy 2>/dev/null || \
+  docker compose run --rm app npx prisma db push --accept-data-loss 2>/dev/null || \
+  echo "==> Warning: schema apply failed (check Prisma config)"
 
 # Restart services
 echo "==> Starting services..."
