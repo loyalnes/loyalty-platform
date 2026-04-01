@@ -51,7 +51,7 @@ jobs:
 
       # Dashboard
       - name: Install dashboard dependencies
-        run: cd dashboard && npm ci
+        run: cd dashboard && npm install
 
       - name: Build dashboard
         run: cd dashboard && npm run build
