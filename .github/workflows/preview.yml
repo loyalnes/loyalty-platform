@@ -44,6 +44,8 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Deploy preview
         uses: appleboy/ssh-action@v1
