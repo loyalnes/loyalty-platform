@@ -27,6 +27,26 @@ cd "$DEPLOY_DIR"
 
 echo "==> Deploying $ENV environment"
 
+# Update nginx config on every deploy (picks up domain/auth changes)
+# Requires root or sudo — skip gracefully if not available
+if [ -f "$DEPLOY_DIR/deploy/nginx.conf" ] && [ -w /etc/nginx/sites-available/ ]; then
+  echo "==> Updating nginx configuration..."
+  cp "$DEPLOY_DIR/deploy/nginx.conf" /etc/nginx/sites-available/loyalty-platform
+  cp "$DEPLOY_DIR/deploy/nginx-rate-limit.conf" /etc/nginx/conf.d/rate-limit.conf 2>/dev/null || true
+  ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
+  rm -f /etc/nginx/sites-enabled/default
+
+  # Create basic auth if not yet set up
+  if [ ! -f /etc/nginx/.htpasswd ]; then
+    command -v htpasswd >/dev/null 2>&1 || apt-get install -y apache2-utils 2>/dev/null || true
+    HTPASSWD=$(openssl rand -base64 16 | tr -d '/+=' | head -c 16)
+    htpasswd -bc /etc/nginx/.htpasswd loyali "$HTPASSWD"
+    echo "==> Basic auth created — user: loyali, password: $HTPASSWD"
+  fi
+
+  nginx -t && systemctl reload nginx && echo "==> Nginx reloaded" || echo "==> Warning: nginx reload failed"
+fi
+
 # Load env file if present
 if [ -f "$ENV_FILE" ]; then
   set -a
