@@ -29,6 +29,7 @@ services:
       DATABASE_URL: postgresql://${DB_USER:-loyalty}:${DB_PASSWORD}@db:5432/loyalty_platform?schema=public
       PORT: 3000
       NODE_ENV: ${NODE_ENV:-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
     ports:
       - "${APP_PORT:-3000}:3000"
 
