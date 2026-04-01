@@ -36,6 +36,15 @@ echo "==> Dropping preview database ${DB_NAME}..."
 docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T db \
   psql -U "${DB_USER:-loyalty}" -c "DROP DATABASE IF EXISTS ${DB_NAME};" 2>/dev/null || true
 
+# Remove nginx preview config
+NGINX_PREVIEW_CONF="/etc/nginx/previews/pr-${PR_NUMBER}.conf"
+if [ -f "$NGINX_PREVIEW_CONF" ]; then
+  rm -f "$NGINX_PREVIEW_CONF"
+  nginx -t && systemctl reload nginx && echo "==> Nginx config removed for pr-${PR_NUMBER}.preview.loyali.online" || true
+else
+  echo "==> No nginx preview config found for PR #${PR_NUMBER}"
+fi
+
 # Clean up dangling images
 docker image prune -f 2>/dev/null || true
 

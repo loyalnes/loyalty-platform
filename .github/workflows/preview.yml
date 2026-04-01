@@ -72,16 +72,18 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const port = 4000 + ${{ github.event.number }};
-            const body = `### Preview deployed\n\nAccess: \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}\`\n\n- Dashboard: \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}/dashboard/\`\n- API: \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}/api/health\`\n\n_Auto-deployed by preview workflow. Will be cleaned up when this PR is closed._`;
+            const prNum = ${{ github.event.number }};
+            const domain = `pr-${prNum}.preview.loyali.online`;
+            const port = 4000 + prNum;
+            const body = `### 🔗 Preview deployed\n\n**${domain}**\n\n- Dashboard: https://${domain}/dashboard/\n- API: https://${domain}/api/health\n- Fallback (IP): \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}\`\n\n_Auto-deployed by preview workflow. Will be cleaned up when this PR is closed._`;
 
             // Find existing preview comment to update
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ github.event.number }},
+              issue_number: prNum,
             });
-            const existing = comments.find(c => c.body.includes('### Preview deployed'));
+            const existing = comments.find(c => c.body.includes('### 🔗 Preview deployed'));
 
             if (existing) {
               await github.rest.issues.updateComment({
@@ -94,7 +96,7 @@ jobs:
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: ${{ github.event.number }},
+                issue_number: prNum,
                 body,
               });
             }
