@@ -11,10 +11,15 @@ RUN npm ci
 COPY dashboard/package.json dashboard/package-lock.json* ./dashboard/
 RUN cd dashboard && npm install
 
+# Install marketing dependencies
+COPY marketing/package.json marketing/package-lock.json* ./marketing/
+RUN cd marketing && npm install
+
 # Copy source and build
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+RUN cd marketing && npm run build
 
 # ── Stage 2: Production ──────────────────────────────────────
 FROM node:20-alpine AS production
@@ -33,7 +38,7 @@ RUN npx prisma generate
 # Copy built artifacts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dashboard/dist ./dashboard/dist
-COPY --from=builder /app/marketing ./marketing
+COPY --from=builder /app/marketing/out ./marketing
 
 # Non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
