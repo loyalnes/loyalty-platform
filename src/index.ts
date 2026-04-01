@@ -16,17 +16,19 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 
-// Health check
-app.get("/health", (_req, res) => {
+// Health check (available at both /health and /api/health for Docker healthcheck compatibility)
+const healthHandler = (_req: express.Request, res: express.Response) => {
   res.json({ status: "ok" });
-});
+};
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
 // Public routes — merchant registration and listing
-app.use("/merchants", merchantRoutes);
+app.use("/api/merchants", merchantRoutes);
 
 // Authenticated routes — cards and points require a valid merchant API key
-app.use("/cards", authenticateMerchant, cardRoutes);
-app.use("/points", authenticateMerchant, pointRoutes);
+app.use("/api/cards", authenticateMerchant, cardRoutes);
+app.use("/api/points", authenticateMerchant, pointRoutes);
 
 // Serve the merchant dashboard (production build)
 const dashboardPath = path.join(__dirname, "../../dashboard/dist");
