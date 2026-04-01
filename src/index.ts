@@ -16,10 +16,12 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 
-// Health check
-app.get("/api/health", (_req, res) => {
+// Health check (available at both /health and /api/health for Docker healthcheck compatibility)
+const healthHandler = (_req: express.Request, res: express.Response) => {
   res.json({ status: "ok" });
-});
+};
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
 // Public routes — merchant registration and listing
 app.use("/api/merchants", merchantRoutes);
