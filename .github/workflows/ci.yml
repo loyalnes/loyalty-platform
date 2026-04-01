@@ -36,11 +36,9 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Backend
       - name: Install backend dependencies
         run: npm ci
-
-      - name: Install dashboard dependencies
-        run: cd dashboard && npm ci
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -51,8 +49,22 @@ jobs:
       - name: Build backend
         run: npx tsc
 
+      # Dashboard
+      - name: Install dashboard dependencies
+        run: cd dashboard && npm ci
+
       - name: Build dashboard
         run: cd dashboard && npm run build
 
       - name: Lint dashboard
         run: cd dashboard && npm run lint
+
+      # Marketing
+      - name: Install marketing dependencies
+        run: cd marketing && npm install
+
+      - name: Copy design tokens for marketing build
+        run: cp packages/ui/src/tokens.css marketing/src/app/tokens.css
+
+      - name: Build marketing site
+        run: cd marketing && npm run build
