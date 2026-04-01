@@ -30,11 +30,18 @@ app.use("/api/merchants", merchantRoutes);
 app.use("/api/cards", authenticateMerchant, cardRoutes);
 app.use("/api/points", authenticateMerchant, pointRoutes);
 
-// Serve the merchant dashboard (production build)
+// Serve the merchant dashboard at /dashboard (production build)
 const dashboardPath = path.join(__dirname, "../../dashboard/dist");
-app.use(express.static(dashboardPath));
-app.get("*", (_req, res) => {
+app.use("/dashboard", express.static(dashboardPath));
+app.get("/dashboard/*", (_req, res) => {
   res.sendFile(path.join(dashboardPath, "index.html"));
+});
+
+// Serve the marketing website at root /
+const marketingPath = path.join(__dirname, "../../marketing");
+app.use(express.static(marketingPath));
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(marketingPath, "index.html"));
 });
 
 // Error handler (must be last)
