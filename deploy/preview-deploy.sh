@@ -55,6 +55,7 @@ services:
       PORT: 3000
       NODE_ENV: preview
     ports:
+      !override
       - "${PREVIEW_PORT}:3000"
     depends_on:
       db:
