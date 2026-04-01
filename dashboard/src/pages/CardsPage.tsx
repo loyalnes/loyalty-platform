@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listCards, updateCardStatus, type LoyaltyCard } from '../api';
@@ -13,7 +13,7 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true);
   const limit = 20;
 
-  function load() {
+  const load = useCallback(() => {
     setLoading(true);
     listCards(page, limit, statusFilter || undefined)
       .then((res) => {
@@ -22,9 +22,12 @@ export default function CardsPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }
+  }, [page, statusFilter]);
 
-  useEffect(() => { load(); }, [page, statusFilter]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard data-fetching pattern
+    load();
+  }, [load]);
 
   async function handleStatusChange(cardId: string, newStatus: string) {
     try {

@@ -33,6 +33,7 @@ RUN npx prisma generate
 # Copy built artifacts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dashboard/dist ./dashboard/dist
+COPY --from=builder /app/marketing ./marketing
 
 # Non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
