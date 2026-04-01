@@ -21,7 +21,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json();
 }
 
-// ---------- Merchants ----------
+// ---------- Auth ----------
 
 export interface Merchant {
   id: string;
@@ -38,12 +38,82 @@ export interface Merchant {
   cardTemplates?: CardTemplate[];
 }
 
+interface AuthResponse {
+  merchant: Merchant;
+  apiKey: string;
+}
+
+export function signup(name: string, email: string, password: string) {
+  return request<AuthResponse>('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password }),
+  });
+}
+
+export function login(email: string, password: string) {
+  return request<AuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
 export function getMerchant(id: string) {
   return request<Merchant>(`/merchants/${id}`);
 }
 
 export function getMerchantByEmail(email: string) {
   return request<Merchant>(`/merchants/by-email/${encodeURIComponent(email)}`);
+}
+
+// ---------- Loyalty Programs ----------
+
+export interface RewardTier {
+  id: string;
+  name: string;
+  threshold: number;
+  rewardName: string;
+  sortOrder: number;
+}
+
+export interface LoyaltyProgram {
+  id: string;
+  merchantId: string;
+  type: 'POINTS' | 'STAMPS';
+  goalStamps: number | null;
+  welcomeStamps: number | null;
+  pointsPerCurrency: string | null;
+  active: boolean;
+  rewardTiers: RewardTier[];
+}
+
+export interface CreateProgramPayload {
+  type: 'POINTS' | 'STAMPS';
+  goalStamps?: number;
+  welcomeStamps?: number;
+  pointsPerCurrency?: number;
+  rewardTiers: { name: string; threshold: number; rewardName: string }[];
+}
+
+export function createLoyaltyProgram(data: CreateProgramPayload) {
+  return request<LoyaltyProgram>('/programs', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function getMyProgram() {
+  return request<LoyaltyProgram | null>('/programs/mine');
+}
+
+// ---------- Stats ----------
+
+export interface Stats {
+  activeCommunity: number;
+  newUsers: number;
+}
+
+export function getStats(period: '7d' | '15d' | '30d' = '7d') {
+  return request<Stats>(`/stats?period=${period}`);
 }
 
 // ---------- Cards ----------
