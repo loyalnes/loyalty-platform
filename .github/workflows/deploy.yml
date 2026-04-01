@@ -75,9 +75,9 @@ jobs:
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
             cd /opt/loyalty-platform
-            export IMAGE_TAG=${{ github.sha }}
-            export DOCKER_REGISTRY=${{ env.DOCKER_REGISTRY }}
-            export DOCKER_IMAGE=${{ env.DOCKER_IMAGE }}
+            export IMAGE_TAG=staging
+            export DOCKER_REGISTRY=ghcr.io
+            export DOCKER_IMAGE=${{ github.repository }}
             bash deploy/deploy.sh staging
 
   bootstrap-production:
@@ -205,8 +205,9 @@ jobs:
             # Re-auth GHCR (token may have changed)
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
             cd /opt/loyalty-platform
+            git config --global --add safe.directory /opt/loyalty-platform
             git fetch origin && git reset --hard origin/main
-            export IMAGE_TAG=${{ github.sha }}
-            export DOCKER_REGISTRY=${{ env.DOCKER_REGISTRY }}
-            export DOCKER_IMAGE=${{ env.DOCKER_IMAGE }}
+            export IMAGE_TAG=latest
+            export DOCKER_REGISTRY=ghcr.io
+            export DOCKER_IMAGE=${{ github.repository }}
             bash deploy/deploy.sh production
