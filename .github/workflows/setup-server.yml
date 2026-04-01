@@ -1,15 +1,8 @@
 name: Bootstrap Server
 # One-time workflow to set up Hetzner server infrastructure
 on:
-  workflow_dispatch:
-    inputs:
-      target:
-        description: "Target environment"
-        required: true
-        type: choice
-        options:
-          - production
-          - staging
+  repository_dispatch:
+    types: [bootstrap-server]
 
 concurrency:
   group: bootstrap-server
@@ -18,7 +11,7 @@ concurrency:
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target }}
+    environment: production
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         with:
-          host: ${{ inputs.target == 'production' && secrets.HETZNER_PROD_HOST || secrets.HETZNER_STAGING_HOST }}
+          host: ${{ secrets.HETZNER_PROD_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           command_timeout: 10m
