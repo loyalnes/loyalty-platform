@@ -63,7 +63,8 @@ jobs:
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
             cd /opt/loyalty-platform
             git config --global --add safe.directory /opt/loyalty-platform
-            git fetch origin && git reset --hard origin/main
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git 2>/dev/null || true
+            git fetch origin ${{ github.head_ref }} && git reset --hard origin/${{ github.head_ref }}
             export DOCKER_REGISTRY=ghcr.io
             export DOCKER_IMAGE=${{ github.repository }}
             bash deploy/preview-deploy.sh ${{ github.event.number }} pr-${{ github.event.number }}
