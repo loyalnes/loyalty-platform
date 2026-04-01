@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
+import { validateUuid } from "../middleware/validateUuid";
 
 const router = Router();
 
@@ -89,7 +90,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /cards/:id — Get a specific card
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const card = await prisma.loyaltyCard.findUnique({
       where: { id: req.params.id },
@@ -107,7 +108,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // PATCH /cards/:id — Update card status (activate, suspend, cancel)
-router.patch("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.patch("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { status } = req.body;
     const validStatuses = ["ACTIVE", "SUSPENDED", "CANCELLED"];
