@@ -164,12 +164,12 @@ server {
 }
 NGINXEOF
 
-nginx -t && systemctl reload nginx && echo "==> Nginx reloaded for ${PREVIEW_DOMAIN}" || \
+sudo nginx -t && sudo systemctl reload nginx && echo "==> Nginx reloaded for ${PREVIEW_DOMAIN}" || \
   echo "==> Warning: nginx reload failed — preview still accessible on port ${PREVIEW_PORT}"
 
 # Issue SSL cert via standard HTTP challenge (DNS already points here)
 echo "==> Requesting SSL certificate for ${PREVIEW_DOMAIN}..."
-certbot --nginx -d "${PREVIEW_DOMAIN}" --non-interactive --agree-tos --redirect \
+sudo certbot --nginx -d "${PREVIEW_DOMAIN}" --non-interactive --agree-tos --redirect \
   --register-unsafely-without-email 2>&1 || \
   echo "==> Warning: SSL cert failed — preview available over HTTP"
 

@@ -41,13 +41,13 @@ PREVIEW_DOMAIN="pr-${PR_NUMBER}.preview.loyali.online"
 NGINX_PREVIEW_CONF="/etc/nginx/previews/pr-${PR_NUMBER}.conf"
 if [ -f "$NGINX_PREVIEW_CONF" ]; then
   rm -f "$NGINX_PREVIEW_CONF"
-  nginx -t && systemctl reload nginx && echo "==> Nginx config removed for ${PREVIEW_DOMAIN}" || true
+  sudo nginx -t && sudo systemctl reload nginx && echo "==> Nginx config removed for ${PREVIEW_DOMAIN}" || true
 else
   echo "==> No nginx preview config found for PR #${PR_NUMBER}"
 fi
 
 # Delete the SSL cert (non-blocking)
-certbot delete --cert-name "${PREVIEW_DOMAIN}" --non-interactive 2>/dev/null || true
+sudo certbot delete --cert-name "${PREVIEW_DOMAIN}" --non-interactive 2>/dev/null || true
 
 # Clean up dangling images
 docker image prune -f 2>/dev/null || true
