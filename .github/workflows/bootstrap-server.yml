@@ -1,0 +1,100 @@
+name: Bootstrap Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+
+concurrency:
+  group: bootstrap-server
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run server setup
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ inputs.target == 'production' && secrets.HETZNER_PROD_HOST || secrets.HETZNER_STAGING_HOST }}
+          username: ${{ secrets.HETZNER_SSH_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -euo pipefail
+            echo "==> Running setup-server.sh..."
+
+            # Download and run setup script
+            apt-get update && apt-get install -y git
+
+            # Clone repo to /opt/loyalty-platform
+            if [ -d /opt/loyalty-platform/.git ]; then
+              cd /opt/loyalty-platform && git pull
+            else
+              rm -rf /opt/loyalty-platform
+              git clone https://github.com/${{ github.repository }}.git /opt/loyalty-platform
+            fi
+
+            cd /opt/loyalty-platform
+
+            # Run server setup
+            bash deploy/setup-server.sh
+
+            # Set up deploy user SSH access (copy root authorized_keys)
+            mkdir -p /home/deploy/.ssh
+            cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+            chown -R deploy:deploy /home/deploy/.ssh
+            chmod 700 /home/deploy/.ssh
+            chmod 600 /home/deploy/.ssh/authorized_keys
+
+            # Configure nginx
+            cp deploy/nginx.conf /etc/nginx/sites-available/loyalty-platform
+            ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
+            rm -f /etc/nginx/sites-enabled/default
+            cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf
+
+            # Use IP-based server_name for now (no domain yet)
+            sed -i 's/loyalty.example.com/${{ inputs.target == 'production' && secrets.HETZNER_PROD_HOST || secrets.HETZNER_STAGING_HOST }}/g' /etc/nginx/sites-available/loyalty-platform
+            sed -i 's/staging.loyalty.example.com/${{ inputs.target == 'production' && secrets.HETZNER_PROD_HOST || secrets.HETZNER_STAGING_HOST }}/g' /etc/nginx/sites-available/loyalty-platform
+
+            # Remove SSL config lines (no domain/cert yet, will use HTTP for now)
+            sed -i '/ssl_certificate/d' /etc/nginx/sites-available/loyalty-platform
+            sed -i '/ssl_dhparam/d' /etc/nginx/sites-available/loyalty-platform
+            sed -i '/include.*letsencrypt/d' /etc/nginx/sites-available/loyalty-platform
+            sed -i 's/listen 443 ssl http2;/listen 80;/' /etc/nginx/sites-available/loyalty-platform
+            sed -i '/return 301 https/d' /etc/nginx/sites-available/loyalty-platform
+            sed -i '/Strict-Transport-Security/d' /etc/nginx/sites-available/loyalty-platform
+
+            nginx -t && systemctl reload nginx
+            echo "==> Nginx configured"
+
+            # Generate DB password and create .env.prod
+            DB_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
+            cat > /opt/loyalty-platform/deploy/.env.prod <<ENVEOF
+            DB_USER=loyalty
+            DB_PASSWORD=${DB_PASSWORD}
+            DOCKER_REGISTRY=ghcr.io
+            DOCKER_IMAGE=${{ github.repository }}
+            NODE_ENV=production
+            ENVEOF
+            # Remove leading whitespace from heredoc
+            sed -i 's/^            //' /opt/loyalty-platform/deploy/.env.prod
+
+            chown -R deploy:deploy /opt/loyalty-platform
+            echo "==> Environment file created"
+
+            # Log in to GHCR as deploy user for pulling images
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "==> GHCR login configured"
+
+            echo "==> Bootstrap complete! Server is ready for deployments."
