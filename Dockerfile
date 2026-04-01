@@ -9,7 +9,7 @@ RUN npm ci
 
 # Install dashboard dependencies
 COPY dashboard/package.json dashboard/package-lock.json* ./dashboard/
-RUN cd dashboard && npm ci
+RUN cd dashboard && npm install
 
 # Copy source and build
 COPY . .
