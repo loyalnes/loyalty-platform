@@ -80,8 +80,111 @@ jobs:
             export DOCKER_IMAGE=${{ env.DOCKER_IMAGE }}
             bash deploy/deploy.sh staging
 
-  deploy-production:
+  bootstrap-production:
     needs: build-image
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap server if needed
+        uses: appleboy/ssh-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        with:
+          host: ${{ secrets.HETZNER_PROD_HOST }}
+          username: ${{ secrets.HETZNER_SSH_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          command_timeout: 10m
+          envs: GH_TOKEN,REPO
+          script: |
+            set -euo pipefail
+            # Skip bootstrap if server is already set up
+            if command -v docker &>/dev/null && [ -d /opt/loyalty-platform/.git ]; then
+              echo "==> Server already bootstrapped, skipping setup"
+              exit 0
+            fi
+
+            echo "==> First-time server bootstrap..."
+            apt-get update && apt-get install -y git
+
+            # Clone repo
+            if [ ! -d /opt/loyalty-platform/.git ]; then
+              rm -rf /opt/loyalty-platform
+              git clone https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git /opt/loyalty-platform
+              cd /opt/loyalty-platform
+              git remote set-url origin https://github.com/${REPO}.git
+            fi
+
+            cd /opt/loyalty-platform
+            bash deploy/setup-server.sh
+
+            # Set up deploy user SSH access
+            mkdir -p /home/deploy/.ssh
+            cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+            chown -R deploy:deploy /home/deploy/.ssh
+            chmod 700 /home/deploy/.ssh
+            chmod 600 /home/deploy/.ssh/authorized_keys
+
+            # Configure nginx
+            cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf
+            cat > /etc/nginx/sites-available/loyalty-platform <<'NGINXEOF'
+            server {
+                listen 80 default_server;
+                server_name _;
+                add_header X-Frame-Options "SAMEORIGIN" always;
+                add_header X-Content-Type-Options "nosniff" always;
+                gzip on;
+                gzip_types text/plain application/json application/javascript text/css;
+                gzip_min_length 256;
+                location / {
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection "upgrade";
+                }
+                location /api/ {
+                    limit_req zone=api burst=20 nodelay;
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+            }
+            NGINXEOF
+            sed -i 's/^            //' /etc/nginx/sites-available/loyalty-platform
+            ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
+            rm -f /etc/nginx/sites-enabled/default
+            nginx -t && systemctl reload nginx
+
+            # Generate .env.prod
+            DB_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
+            cat > /opt/loyalty-platform/deploy/.env.prod <<ENVEOF
+            DB_USER=loyalty
+            DB_PASSWORD=${DB_PASSWORD}
+            DOCKER_REGISTRY=ghcr.io
+            DOCKER_IMAGE=${REPO}
+            NODE_ENV=production
+            ENVEOF
+            sed -i 's/^            //' /opt/loyalty-platform/deploy/.env.prod
+
+            chown -R deploy:deploy /opt/loyalty-platform
+
+            # GHCR login
+            echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
+            echo "==> Bootstrap complete!"
+
+  deploy-production:
+    needs: [build-image, bootstrap-production]
     if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     runs-on: ubuntu-latest
     environment: production
@@ -91,12 +194,18 @@ jobs:
 
       - name: Deploy to production
         uses: appleboy/ssh-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.HETZNER_PROD_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: GH_TOKEN
           script: |
+            # Re-auth GHCR (token may have changed)
+            echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
             cd /opt/loyalty-platform
+            git fetch origin && git reset --hard origin/main
             export IMAGE_TAG=${{ github.sha }}
             export DOCKER_REGISTRY=${{ env.DOCKER_REGISTRY }}
             export DOCKER_IMAGE=${{ env.DOCKER_IMAGE }}
