@@ -129,41 +129,21 @@ jobs:
             chmod 700 /home/deploy/.ssh
             chmod 600 /home/deploy/.ssh/authorized_keys
 
-            # Configure nginx
+            # Configure nginx with basic auth
             cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf
-            cat > /etc/nginx/sites-available/loyalty-platform <<'NGINXEOF'
-            server {
-                listen 80 default_server;
-                server_name _;
-                add_header X-Frame-Options "SAMEORIGIN" always;
-                add_header X-Content-Type-Options "nosniff" always;
-                gzip on;
-                gzip_types text/plain application/json application/javascript text/css;
-                gzip_min_length 256;
-                location / {
-                    proxy_pass http://127.0.0.1:3000;
-                    proxy_http_version 1.1;
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection "upgrade";
-                }
-                location /api/ {
-                    limit_req zone=api burst=20 nodelay;
-                    proxy_pass http://127.0.0.1:3000;
-                    proxy_http_version 1.1;
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
-                }
-            }
-            NGINXEOF
-            sed -i 's/^            //' /etc/nginx/sites-available/loyalty-platform
+            cp deploy/nginx.conf /etc/nginx/sites-available/loyalty-platform
             ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
             rm -f /etc/nginx/sites-enabled/default
+
+            # Create basic auth credentials (pre-launch protection)
+            if [ ! -f /etc/nginx/.htpasswd ]; then
+              apt-get install -y apache2-utils 2>/dev/null || true
+              HTPASSWD=$(openssl rand -base64 16 | tr -d '/+=' | head -c 16)
+              htpasswd -bc /etc/nginx/.htpasswd loyali "$HTPASSWD"
+              echo "==> Basic auth created — user: loyali, password: $HTPASSWD"
+              echo "==> SAVE THIS PASSWORD — it will not be shown again"
+            fi
+
             nginx -t && systemctl reload nginx
 
             # Generate .env.prod

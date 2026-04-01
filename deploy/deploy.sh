@@ -54,6 +54,14 @@ if [ "$ENV" = "production" ]; then
   ls -t "$DEPLOY_DIR/backups"/db-*.sql.gz 2>/dev/null | tail -n +11 | xargs rm -f 2>/dev/null || true
 fi
 
+# Ensure the target database exists (staging uses a separate DB)
+if [ "$ENV" = "staging" ]; then
+  echo "==> Ensuring staging database exists..."
+  docker compose exec -T db psql -U "${DB_USER:-loyalty}" -tc \
+    "SELECT 1 FROM pg_database WHERE datname = 'loyalty_staging'" | grep -q 1 || \
+    docker compose exec -T db psql -U "${DB_USER:-loyalty}" -c "CREATE DATABASE loyalty_staging;" 2>/dev/null || true
+fi
+
 # Pull latest image
 echo "==> Pulling images..."
 docker compose pull app
