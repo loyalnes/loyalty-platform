@@ -1,0 +1,114 @@
+name: Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [closed]
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_IMAGE: ${{ github.repository }}
+
+jobs:
+  deploy-preview:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=pr-${{ github.event.number }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Deploy preview
+        uses: appleboy/ssh-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.HETZNER_PROD_HOST }}
+          username: ${{ secrets.HETZNER_SSH_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: GH_TOKEN
+          command_timeout: 5m
+          script: |
+            echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
+            cd /opt/loyalty-platform
+            git config --global --add safe.directory /opt/loyalty-platform
+            git fetch origin && git reset --hard origin/main
+            export DOCKER_REGISTRY=ghcr.io
+            export DOCKER_IMAGE=${{ github.repository }}
+            bash deploy/preview-deploy.sh ${{ github.event.number }} pr-${{ github.event.number }}
+
+      - name: Comment preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const port = 4000 + ${{ github.event.number }};
+            const body = `### Preview deployed\n\nAccess: \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}\`\n\n- Dashboard: \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}/dashboard/\`\n- API: \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}/api/health\`\n\n_Auto-deployed by preview workflow. Will be cleaned up when this PR is closed._`;
+
+            // Find existing preview comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ github.event.number }},
+            });
+            const existing = comments.find(c => c.body.includes('### Preview deployed'));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: ${{ github.event.number }},
+                body,
+              });
+            }
+
+  cleanup-preview:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cleanup preview
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HETZNER_PROD_HOST }}
+          username: ${{ secrets.HETZNER_SSH_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            cd /opt/loyalty-platform
+            bash deploy/preview-cleanup.sh ${{ github.event.number }}
