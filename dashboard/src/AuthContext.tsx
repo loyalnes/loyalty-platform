@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMerchant, type Merchant } from './api';
+import { getMerchant, getMerchantByEmail, type Merchant } from './api';
 import { SUPPORTED_LOCALES, type SupportedLocale } from './i18n';
 
 interface AuthState {
@@ -41,9 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function login(apiKey: string) {
-    localStorage.setItem('merchantApiKey', apiKey);
-    const m = await getMerchant(apiKey);
+  async function login(email: string) {
+    const m = await getMerchantByEmail(email);
+    localStorage.setItem('merchantApiKey', m.id);
     setMerchant(m);
     applyMerchantLocale(m);
   }

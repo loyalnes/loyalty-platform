@@ -14,10 +14,10 @@
   },
   "login": {
     "title": "Panel del Comerciante",
-    "subtitle": "Inicia sesión con tu clave API de comerciante para acceder al panel de la plataforma de fidelidad.",
-    "error": "Clave API no válida. Verifica tu ID de comerciante e inténtalo de nuevo.",
-    "apiKeyLabel": "Clave API (ID Comerciante)",
-    "apiKeyPlaceholder": "Introduce tu UUID de comerciante",
+    "subtitle": "Inicia sesión con tu email de negocio para acceder a tu panel.",
+    "error": "No se encontró una cuenta con este email. Verifica e inténtalo de nuevo.",
+    "apiKeyLabel": "Email",
+    "apiKeyPlaceholder": "tu@tunegocio.com",
     "signingIn": "Iniciando sesión...",
     "signIn": "Iniciar sesión"
   },

@@ -42,6 +42,10 @@ export function getMerchant(id: string) {
   return request<Merchant>(`/merchants/${id}`);
 }
 
+export function getMerchantByEmail(email: string) {
+  return request<Merchant>(`/merchants/by-email/${encodeURIComponent(email)}`);
+}
+
 // ---------- Cards ----------
 
 export interface Customer {
