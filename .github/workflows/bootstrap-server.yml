@@ -1,5 +1,5 @@
 name: Bootstrap Server
-
+# One-time workflow to set up Hetzner server infrastructure
 on:
   workflow_dispatch:
     inputs:
