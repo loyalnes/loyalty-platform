@@ -5,7 +5,7 @@ import { useAuth } from '../AuthContext';
 export default function LoginPage() {
   const { login } = useAuth();
   const { t } = useTranslation();
-  const [apiKey, setApiKey] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await login(apiKey.trim());
+      await login(email.trim());
     } catch {
       setError(t('login.error'));
     } finally {
@@ -32,12 +32,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="apiKey">{t('login.apiKeyLabel')}</label>
+            <label htmlFor="email">{t('login.apiKeyLabel')}</label>
             <input
-              id="apiKey"
-              type="text"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder={t('login.apiKeyPlaceholder')}
               required
             />

@@ -14,10 +14,10 @@
   },
   "login": {
     "title": "Dashboard Commerciante",
-    "subtitle": "Accedi con la tua chiave API commerciante per accedere alla dashboard della piattaforma fedeltà.",
-    "error": "Chiave API non valida. Controlla il tuo ID commerciante e riprova.",
-    "apiKeyLabel": "Chiave API (ID Commerciante)",
-    "apiKeyPlaceholder": "Inserisci il tuo UUID commerciante",
+    "subtitle": "Accedi con la tua email aziendale per accedere alla dashboard.",
+    "error": "Nessun account trovato con questa email. Controlla e riprova.",
+    "apiKeyLabel": "Email",
+    "apiKeyPlaceholder": "tu@tuaattivita.com",
     "signingIn": "Accesso in corso...",
     "signIn": "Accedi"
   },
