@@ -28,8 +28,8 @@ export default function LoyaltyHubPage() {
     <div className="hub-page">
       <div className="hub-header">
         <div>
-          <div className="hub-greeting">{greeting}, {merchant?.name?.toUpperCase()}</div>
-          <h1 className="hub-title">{t('hub.title')}</h1>
+          <div className="hub-greeting">{greeting},</div>
+          <h1 className="hub-title">{merchant?.name || 'BARELIO2'}</h1>
         </div>
         <button className="hub-bell">
           <Bell size={22} />

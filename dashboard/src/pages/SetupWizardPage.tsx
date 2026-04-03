@@ -11,7 +11,7 @@ type ProgramType = 'POINTS' | 'STAMPS';
 interface TierDraft {
   id: string;
   name: string;
-  threshold: number;
+  threshold: number | string;
   rewardName: string;
 }
 
@@ -28,9 +28,9 @@ export default function SetupWizardPage() {
 
   const [step, setStep] = useState(1);
   const [type, setType] = useState<ProgramType | null>(null);
-  const [goalStamps, setGoalStamps] = useState(10);
-  const [welcomeStamps, setWelcomeStamps] = useState(0);
-  const [pointsPerCurrency, setPointsPerCurrency] = useState(1);
+  const [goalStamps, setGoalStamps] = useState<number | string>(10);
+  const [welcomeStamps, setWelcomeStamps] = useState<number | string>(0);
+  const [pointsPerCurrency, setPointsPerCurrency] = useState<number | string>(1);
   const [tiers, setTiers] = useState<TierDraft[]>([newTier()]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -51,12 +51,12 @@ export default function SetupWizardPage() {
     try {
       await createLoyaltyProgram({
         type: type!,
-        goalStamps: type === 'STAMPS' ? goalStamps : undefined,
-        welcomeStamps: type === 'STAMPS' ? welcomeStamps : undefined,
-        pointsPerCurrency: type === 'POINTS' ? pointsPerCurrency : undefined,
+        goalStamps: type === 'STAMPS' ? Number(goalStamps) : undefined,
+        welcomeStamps: type === 'STAMPS' ? Number(welcomeStamps) : undefined,
+        pointsPerCurrency: type === 'POINTS' ? Number(pointsPerCurrency) : undefined,
         rewardTiers: tiers.map((tier) => ({
           name: tier.name,
-          threshold: tier.threshold,
+          threshold: Number(tier.threshold),
           rewardName: tier.rewardName,
         })),
       });
@@ -138,9 +138,8 @@ export default function SetupWizardPage() {
                 <div className="config-input-row">
                   <input
                     type="number"
-                    min={1}
                     value={goalStamps}
-                    onChange={(e) => setGoalStamps(parseInt(e.target.value) || 1)}
+                    onChange={(e) => setGoalStamps(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
@@ -151,9 +150,8 @@ export default function SetupWizardPage() {
                 <div className="config-input-row">
                   <input
                     type="number"
-                    min={0}
                     value={welcomeStamps}
-                    onChange={(e) => setWelcomeStamps(parseInt(e.target.value) || 0)}
+                    onChange={(e) => setWelcomeStamps(e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
@@ -166,9 +164,8 @@ export default function SetupWizardPage() {
               <div className="config-input-row">
                 <input
                   type="number"
-                  min={1}
                   value={pointsPerCurrency}
-                  onChange={(e) => setPointsPerCurrency(parseInt(e.target.value) || 1)}
+                  onChange={(e) => setPointsPerCurrency(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
                   className="config-number"
                 />
                 <span className="config-unit">{t('setup.points')}</span>
@@ -180,7 +177,15 @@ export default function SetupWizardPage() {
             <button className="btn" onClick={() => setStep(1)}>
               {t('setup.back')}
             </button>
-            <button className="btn btn-primary" onClick={() => setStep(3)}>
+            <button
+              className="btn btn-primary"
+              onClick={() => setStep(3)}
+              disabled={
+                type === 'STAMPS'
+                  ? !goalStamps || goalStamps === 0
+                  : !pointsPerCurrency || pointsPerCurrency === 0
+              }
+            >
               {t('setup.nextStep')}
             </button>
           </div>
@@ -216,10 +221,9 @@ export default function SetupWizardPage() {
               <div className="tier-reward-row">
                 <input
                   type="number"
-                  min={1}
                   value={tier.threshold}
                   onChange={(e) =>
-                    updateTier(tier.id, 'threshold', parseInt(e.target.value) || 1)
+                    updateTier(tier.id, 'threshold', e.target.value === '' ? '' : parseInt(e.target.value) || '')
                   }
                   className="tier-threshold"
                 />
@@ -247,7 +251,7 @@ export default function SetupWizardPage() {
             </button>
             <button
               className="btn btn-primary"
-              disabled={submitting || tiers.some((tier) => !tier.name || !tier.rewardName)}
+              disabled={submitting || tiers.some((tier) => !tier.name || !tier.rewardName || !tier.threshold || tier.threshold === 0)}
               onClick={handleFinish}
             >
               {submitting ? t('setup.finishing') : t('setup.finishSetup')}
