@@ -41,6 +41,106 @@ Port 5432 → PostgreSQL 16
 
 ---
 
+## 🎨 Design System Overhaul - COMPLETED (2026-04-04)
+
+**Major Update:** Complete design system redesign to match modern Material Design 3 aesthetic.
+
+### Changes Implemented
+
+**Typography:**
+- ✅ Added Google Fonts: Plus Jakarta Sans (headlines) + Manrope (body/labels)
+- ✅ Replaced system fonts with custom font stack
+- ✅ Created typography utility classes (.text-label-large, .text-label-small, .text-stat)
+- ✅ Updated all headings to use new font families
+
+**Icons:**
+- ✅ Replaced Lucide React with Material Symbols Outlined
+- ✅ Configured font-variation-settings for consistent rendering
+- ✅ Added filled variant support for active states
+
+**Color Palette:**
+- ✅ Updated Primary: #2563EB (Blue) - maintained
+- ✅ Updated Secondary: #10B981 (Green)
+- ✅ Updated Tertiary: #F59E0B (Orange/Amber)
+- ✅ Added semantic color system: surface variants, on-surface colors, outline variants
+- ✅ Updated Quick Action button colors with specific backgrounds and text colors
+
+**Spacing & Layout:**
+- ✅ Standardized spacing scale (xs: 4px → 3xl: 48px)
+- ✅ Updated border radius scale (sm: 8px → 3xl: 28px)
+- ✅ Added aviator-shadow utility (primary elevation style)
+
+**Components Redesigned:**
+
+1. **FAB Buttons (Quick Actions)**
+   - Large circular buttons: 112×112px
+   - Specific colors per action (add-points: #66FFB2, redeem: #FF9900, etc.)
+   - Material Symbols icons at 48px
+   - hover:brightness-105, active:scale-95 transitions
+
+2. **Program Card**
+   - Rounded-3xl corners (28px)
+   - Aviator shadow for depth
+   - 2-column stats grid with uppercase labels
+   - Edit button positioned absolute top-right
+   - Typography: 24px bold headlines, 10px uppercase labels
+
+3. **Home Insights Card**
+   - White rounded-3xl container
+   - Section header with analytics icon
+   - Three stat rows with large colored icon circles (36px)
+   - Highlighted primary row (new members) with blue background
+   - Footer link "Vedi in Statistiche"
+   - Icons: groups, person_add, star
+
+4. **Bottom Navigation**
+   - Rounded-t-[24px] (rounded top corners)
+   - Backdrop-blur-xl with 80% opacity white background
+   - Active state: scale(1.1), light blue background, filled icons
+   - Inactive: gray text, outlined icons
+   - Material Symbols icons: calendar_today, leaderboard, group, menu
+
+**Motion & Transitions:**
+- ✅ Added CSS variables for duration (micro: 150ms, normal: 300ms, page: 500ms)
+- ✅ Standardized easing: cubic-bezier(0.4, 0, 0.2, 1)
+- ✅ Applied transitions to all interactive elements
+- ✅ Active/hover states on all buttons
+
+**Documentation:**
+- ✅ Created comprehensive DESIGN_SYSTEM.md guide
+- ✅ Extracted reusable component patterns from HTML reference
+- ✅ Documented color tokens, typography scale, spacing, shadows
+- ✅ Included component examples and usage guidelines
+
+### Files Modified
+
+**Core:**
+- `dashboard/index.html` - Added Google Fonts links
+- `dashboard/src/index.css` - Complete CSS variable overhaul, new utility classes
+- `design/DESIGN_SYSTEM.md` - NEW comprehensive design guide
+
+**Components:**
+- `dashboard/src/pages/LoyaltyHubPage.tsx` - FAB buttons, program card redesign
+- `dashboard/src/components/HomeQuickStats.tsx` - Rebuilt as Material Design 3 stat card
+- `dashboard/src/components/BottomNavBar.tsx` - Material Symbols icons, new styling
+
+### Migration Notes
+
+- Lucide React icons → Material Symbols Outlined (font-based)
+- Old blue (#4F46E5) kept at #2563EB for backwards compatibility
+- All components now use CSS variables from design tokens
+- Typography classes available: .font-headline, .font-body, .font-label, .text-stat, .text-label-large/small
+- Aviator shadow available via `.aviator-shadow` class
+
+### Next Steps
+
+- [ ] Update remaining pages to use new design system
+- [ ] Add fixed header component with profile avatar (Task #9 pending)
+- [ ] Migrate all Lucide icons in other components
+- [ ] Ensure all text meets WCAG AA contrast (4.5:1)
+
+---
+
 ## ✅ Sprint 1 - COMPLETED (14 story points)
 
 ## ✅ Sprint 2 - COMPLETED (16 story points)

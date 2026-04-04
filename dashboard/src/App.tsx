@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './AuthContext';
+import Header from './components/Header';
 import BottomNavBar from './components/BottomNavBar';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -16,6 +17,7 @@ import CustomerDetailPage from './pages/CustomerDetailPage';
 function MobileLayout() {
   return (
     <div className="app-shell">
+      <Header />
       <main className="app-main">
         <Outlet />
       </main>

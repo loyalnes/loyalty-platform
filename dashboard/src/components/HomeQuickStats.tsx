@@ -13,28 +13,62 @@ export default function HomeQuickStats({ todayKpis, weekKpis, locale, onOpenInsi
   const { t } = useTranslation();
 
   return (
-    <section className="home-quick-stats">
-      <button type="button" className="home-quick-stat" onClick={onOpenInsights}>
-        <p className="home-quick-stat-label">{t('hub.quickStats.newMembersToday')}</p>
-        <p className="home-quick-stat-value">{formatNumber(todayKpis.newMembers, locale)}</p>
-        <p className="home-quick-stat-trend">
-          {weekKpis.trends.newMembers === null ? '→' : weekKpis.trends.newMembers > 0 ? '↗' : weekKpis.trends.newMembers < 0 ? '↘' : '→'}
-          {' '}
-          {weekKpis.trends.newMembers === null ? t('insights.trendUnavailable') : `${Math.abs(weekKpis.trends.newMembers).toFixed(1)}% ${t('hub.quickStats.thisWeek')}`}
-        </p>
-      </button>
+    <section className="home-insights-card">
+      <div className="insights-card-container">
+        {/* Header */}
+        <div className="insights-card-header">
+          <h4 className="insights-card-title">
+            <span className="material-symbols-outlined">analytics</span>
+            Insights
+          </h4>
+        </div>
 
-      <button type="button" className="home-quick-stat with-badge" onClick={onOpenInsights}>
-        <p className="home-quick-stat-label">{t('hub.quickStats.nearReward')}</p>
-        <p className="home-quick-stat-value">{formatNumber(weekKpis.nearRewardCustomers, locale)}</p>
-        {weekKpis.nearRewardCustomers > 0 && <span className="home-quick-stat-badge">{t('hub.quickStats.actionNeeded')}</span>}
-      </button>
+        {/* Stats Rows */}
+        <div className="insights-card-body">
+          {/* Members Row */}
+          <div className="insights-stat-row">
+            <span className="insights-stat-icon insights-stat-icon-secondary material-symbols-outlined">
+              groups
+            </span>
+            <div>
+              <p className="insights-stat-label">Membri</p>
+              <p className="insights-stat-value">{formatNumber(weekKpis.activeMembers, locale)}</p>
+            </div>
+          </div>
 
-      <button type="button" className="home-quick-stat" onClick={onOpenInsights}>
-        <p className="home-quick-stat-label">{t('hub.quickStats.avgRating')}</p>
-        <p className="home-quick-stat-value">{weekKpis.avgRating === null ? t('insights.noData') : weekKpis.avgRating.toFixed(1)}</p>
-        <p className="home-quick-stat-trend">{t('hub.quickStats.openInsights')}</p>
-      </button>
+          {/* New Members (Highlighted) */}
+          <div className="insights-stat-row insights-stat-row-primary">
+            <span className="insights-stat-icon insights-stat-icon-white material-symbols-outlined">
+              person_add
+            </span>
+            <div>
+              <p className="insights-stat-label insights-stat-label-light">Nuovi (24h)</p>
+              <p className="insights-stat-value insights-stat-value-white">{formatNumber(todayKpis.newMembers, locale)}</p>
+            </div>
+          </div>
+
+          {/* Rating Row + Link */}
+          <div className="insights-stat-row insights-stat-row-bottom">
+            <div className="insights-stat-row-inner">
+              <span className="insights-stat-icon insights-stat-icon-tertiary material-symbols-outlined">
+                star
+              </span>
+              <div>
+                <p className="insights-stat-label">Rating Medio</p>
+                <p className="insights-stat-value">
+                  {weekKpis.avgRating === null ? t('insights.noData') : weekKpis.avgRating.toFixed(1)}
+                </p>
+              </div>
+            </div>
+            <div className="insights-stat-link-wrapper">
+              <button onClick={onOpenInsights} className="insights-stat-link">
+                Vedi in Statistiche
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
