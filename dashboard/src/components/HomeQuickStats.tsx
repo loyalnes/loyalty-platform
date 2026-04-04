@@ -19,7 +19,7 @@ export default function HomeQuickStats({ todayKpis, weekKpis, locale, onOpenInsi
         <div className="insights-card-header">
           <h4 className="insights-card-title">
             <span className="material-symbols-outlined">analytics</span>
-            Insights
+            {t('insights.title')}
           </h4>
         </div>
 
@@ -31,7 +31,7 @@ export default function HomeQuickStats({ todayKpis, weekKpis, locale, onOpenInsi
               groups
             </span>
             <div>
-              <p className="insights-stat-label">Membri</p>
+              <p className="insights-stat-label">{t('insights.kpis.activeMembers')}</p>
               <p className="insights-stat-value">{formatNumber(weekKpis.activeMembers, locale)}</p>
             </div>
           </div>
@@ -42,7 +42,7 @@ export default function HomeQuickStats({ todayKpis, weekKpis, locale, onOpenInsi
               person_add
             </span>
             <div>
-              <p className="insights-stat-label insights-stat-label-light">Nuovi (24h)</p>
+              <p className="insights-stat-label insights-stat-label-light">{t('hub.quickStats.newMembersToday')}</p>
               <p className="insights-stat-value insights-stat-value-white">{formatNumber(todayKpis.newMembers, locale)}</p>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function HomeQuickStats({ todayKpis, weekKpis, locale, onOpenInsi
                 star
               </span>
               <div>
-                <p className="insights-stat-label">Rating Medio</p>
+                <p className="insights-stat-label">{t('insights.kpis.avgRating')}</p>
                 <p className="insights-stat-value">
                   {weekKpis.avgRating === null ? t('insights.noData') : weekKpis.avgRating.toFixed(1)}
                 </p>
@@ -62,7 +62,7 @@ export default function HomeQuickStats({ todayKpis, weekKpis, locale, onOpenInsi
             </div>
             <div className="insights-stat-link-wrapper">
               <button onClick={onOpenInsights} className="insights-stat-link">
-                Vedi in Statistiche
+                {t('hub.quickStats.openInsights')}
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
             </div>

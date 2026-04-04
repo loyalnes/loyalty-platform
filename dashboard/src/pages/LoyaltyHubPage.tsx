@@ -48,7 +48,7 @@ export default function LoyaltyHubPage() {
   }, []);
 
   return (
-    <div className="hub-page" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="hub-page stack-lg">
       {/* Active Program Card */}
       {program ? (
         <div className="program-card-minimal aviator-shadow">
