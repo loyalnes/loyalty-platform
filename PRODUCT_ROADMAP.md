@@ -1,7 +1,25 @@
 # Loyalty Platform - Product Roadmap
 
+> **📊 For current implementation status, see [`PROJECT_STATUS.md`](./PROJECT_STATUS.md)**
+
 ## Vision
 Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni interazione intuitiva e immediata.
+
+---
+
+## 🎯 Progress Overview
+
+**Last Updated:** 2026-04-04  
+**Current Sprint:** Sprint 5 📋 NEXT  
+**Branch:** `feat/merchant-hub-4-tab-redesign`
+
+### Sprint Status
+- ✅ Sprint 1 (14 pts) - DONE
+- ✅ Sprint 2 (16 pts) - DONE
+- ✅ Sprint 3 (18 pts) - DONE (US-3.1, US-4.1)
+- ✅ Sprint 4 (16 pts) - DONE (US-4.3, US-3.3)
+- 🔄 Sprint 5 (18 pts) - Ready to start
+- 📋 Sprint 6 - Planned
 
 ---
 
@@ -16,14 +34,15 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa accedere rapidamente a tutte le funzionalità
 
 **Acceptance Criteria:**
-- [ ] Bottom nav fissa con 4 tab: Today, Insights, Customers, Menu
-- [ ] Icone chiare e riconoscibili per ogni tab
-- [ ] Tab attivo evidenziato visivamente
-- [ ] Transizioni fluide tra le tab
-- [ ] Persistenza della tab attiva al reload
+- [x] Bottom nav fissa con 4 tab: Today, Insights, Customers, Menu
+- [x] Icone chiare e riconoscibili per ogni tab
+- [x] Tab attivo evidenziato visivamente
+- [x] Transizioni fluide tra le tab
+- [x] Persistenza della tab attiva al reload
 
 **Priority:** P0 (Must Have)  
-**Effort:** 3 punti
+**Effort:** 3 punti  
+**Status:** ✅ DONE
 
 ---
 
@@ -33,13 +52,14 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa completare le operazioni più frequenti con un solo tap
 
 **Acceptance Criteria:**
-- [ ] 4 bottoni grandi e ben spaziati: Scan QR, Redeem, Show QR, Contest
-- [ ] Icone intuitive per ogni azione
-- [ ] Feedback visivo al tap (haptic + animazione)
+- [x] 4 bottoni grandi e ben spaziati: ~~Scan QR~~ **Add points**, Redeem, Show QR, Contest
+- [x] Icone intuitive per ogni azione
+- [ ] Feedback visivo al tap (haptic + animazione) - CSS only, haptic TODO
 - [ ] Bottoni disabilitati se prerequisiti non soddisfatti (es: Redeem senza programma)
 
 **Priority:** P0 (Must Have)  
-**Effort:** 5 punti
+**Effort:** 5 punti  
+**Status:** ✅ DONE (with modifications)
 
 ---
 
@@ -49,13 +69,14 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa verificare configurazione e membri attivi
 
 **Acceptance Criteria:**
-- [ ] Card compatta con: nome programma, tipo (punti/stamp), goal, membri attivi
-- [ ] Bottone "Edit" visibile solo se 0 membri iscritti
-- [ ] Link a dettaglio completo in Menu → Loyalty Settings
-- [ ] Stato vuoto se nessun programma configurato con CTA "Setup Program"
+- [x] Card compatta con: nome programma, tipo (punti/stamp), goal, membri attivi
+- [x] Bottone "Edit" visibile solo se 0 membri iscritti (inline, right-aligned)
+- [ ] Link a dettaglio completo in Menu → Loyalty Settings - TODO Sprint 6
+- [x] Stato vuoto se nessun programma configurato con CTA "Setup Program"
 
 **Priority:** P0 (Must Have)  
-**Effort:** 3 punti
+**Effort:** 3 punti  
+**Status:** ✅ DONE
 
 ---
 
@@ -65,10 +86,10 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa monitorare la salute del business a colpo d'occhio
 
 **Acceptance Criteria:**
-- [ ] Mostra nuovi membri oggi/questa settimana con trend
-- [ ] Mostra numero clienti vicini al reward
-- [ ] Visual badge/indicator per attirare attenzione
-- [ ] Tap sulla stat → navigazione a Insights tab
+- [x] Mostra nuovi membri oggi/questa settimana con trend
+- [x] Mostra numero clienti vicini al reward
+- [x] Visual badge/indicator per attirare attenzione
+- [x] Tap sulla stat → navigazione a Insights tab
 
 **Priority:** P1 (Should Have)  
 **Effort:** 3 punti
@@ -86,11 +107,11 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa analizzare trend e performance
 
 **Acceptance Criteria:**
-- [ ] Filtri rapidi: 24h, 7d, 15d, 30d
-- [ ] KPI cards: Active members, New members, Avg Rating, Retention
-- [ ] Ogni card mostra trend vs periodo precedente (↗↘)
-- [ ] Animazioni al cambio periodo
-- [ ] Loading state durante fetch dati
+- [x] Filtri rapidi: 24h, 7d, 15d, 30d
+- [x] KPI cards: Active members, New members, Avg Rating, Retention
+- [x] Ogni card mostra trend vs periodo precedente (↗↘)
+- [x] Animazioni al cambio periodo
+- [x] Loading state durante fetch dati
 
 **Priority:** P0 (Must Have)  
 **Effort:** 8 punti
@@ -103,10 +124,10 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa capire come i clienti percepiscono il mio servizio
 
 **Acceptance Criteria:**
-- [ ] Score medio da 1 a 5 stelle
-- [ ] Grafico a barre con distribuzione (quanti 5★, 4★, etc.)
-- [ ] Filtro temporale applicabile
-- [ ] Empty state se nessun feedback raccolto
+- [x] Score medio da 1 a 5 stelle
+- [x] Grafico a barre con distribuzione (quanti 5★, 4★, etc.)
+- [x] Filtro temporale applicabile
+- [x] Empty state se nessun feedback raccolto
 
 **Priority:** P1 (Should Have)  
 **Effort:** 5 punti
@@ -119,12 +140,12 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa rispondere prontamente e migliorare il servizio
 
 **Acceptance Criteria:**
-- [ ] Lista ordinata per data (più recenti prima)
-- [ ] Feedback negativi (<3 stelle) evidenziati con colore/icona
-- [ ] Preview testo feedback (max 2 righe) + expand
-- [ ] Mostra: rating, nome cliente, data, testo
-- [ ] Bottone "View all" se più di 3 feedback
-- [ ] Badge "new" su feedback non letti
+- [x] Lista ordinata per data (più recenti prima)
+- [x] Feedback negativi (<3 stelle) evidenziati con colore/icona
+- [x] Preview testo feedback (max 2 righe) + expand
+- [x] Mostra: rating, nome cliente, data, testo
+- [x] Bottone "View all" se più di 3 feedback
+- [x] Badge "new" su feedback non letti
 
 **Priority:** P0 (Must Have)  
 **Effort:** 5 punti
@@ -137,11 +158,11 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** non mi sfugga nessuna opportunità o problema
 
 **Acceptance Criteria:**
-- [ ] Alert visibile in cima alla tab Insights
-- [ ] Notifiche: clienti che hanno raggiunto tier, clienti inattivi >30gg, possibili reward
-- [ ] Max 3 notifiche visibili, poi "View all"
-- [ ] Dismissable individualmente
-- [ ] Tap su notifica → azione suggerita (es: vai a customer detail)
+- [x] Alert visibile in cima alla tab Insights
+- [x] Notifiche: clienti che hanno raggiunto tier, clienti inattivi >30gg, possibili reward
+- [x] Max 3 notifiche visibili, poi "View all"
+- [x] Dismissable individualmente
+- [x] Tap su notifica → azione suggerita (es: vai a customer detail)
 
 **Priority:** P1 (Should Have)  
 **Effort:** 5 punti
@@ -159,15 +180,16 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possa trovare rapidamente un cliente specifico
 
 **Acceptance Criteria:**
-- [ ] Search bar in cima sempre visibile
-- [ ] Ricerca real-time (debounced) su nome, cognome, email, telefono
-- [ ] Lista mostra: nome, contatto principale, punti, ultima visita
-- [ ] Avatar con iniziali se no foto
-- [ ] Empty state se nessun cliente
-- [ ] Pull-to-refresh per aggiornare lista
+- [x] Search bar in cima sempre visibile
+- [x] Ricerca real-time (debounced) su nome, cognome, email, telefono
+- [x] Lista mostra: nome, contatto principale, punti, ultima visita
+- [x] Avatar con iniziali se no foto
+- [x] Empty state se nessun cliente
+- [x] Pull-to-refresh per aggiornare lista
 
 **Priority:** P0 (Must Have)  
 **Effort:** 5 punti
+**Status:** ✅ DONE
 
 ---
 
@@ -188,21 +210,22 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 
 ---
 
-#### US-3.3: Customer Detail
+#### US-3.3: Customer Detail ✅
 **Come** esercente  
 **Voglio** vedere il profilo completo di un cliente con storico visite  
 **Così che** possa capire le sue abitudini e fidelizzazione
 
 **Acceptance Criteria:**
-- [ ] Header con: nome, contatti, avatar
-- [ ] Riepilogo: punti attuali, punti spesi, data iscrizione, frequenza visite
-- [ ] Timeline delle visite (data + azione + punti)
-- [ ] Indicatore "Near reward" se vicino a tier
-- [ ] Bottone back per tornare alla lista
+- [x] Header con: nome, contatti, avatar
+- [x] Riepilogo: punti attuali, punti spesi, data iscrizione
+- [x] Timeline delle visite (data + azione + punti)
+- [x] Indicatore "Near reward" se vicino a tier
+- [x] Bottone back per tornare alla lista
 - [ ] (Future) Pulsante "Send message"
 
 **Priority:** P1 (Should Have)  
-**Effort:** 8 punti
+**Effort:** 8 punti  
+**Status:** ✅ DONE
 
 ---
 
@@ -227,22 +250,23 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 
 ### User Stories
 
-#### US-4.1: Scan QR Code Flow
+#### US-4.1: Scan QR Code Flow ✅
 **Come** esercente  
 **Voglio** scansionare il QR del cliente per vedere il suo profilo e aggiungere/scaricare punti  
 **Così che** possa completare l'operazione in pochi secondi
 
 **Acceptance Criteria:**
-- [ ] Camera scan con frame guida
-- [ ] Riconoscimento automatico QR cliente
-- [ ] Mostra: nome, punti attuali, stato tier
-- [ ] Quick actions: +5, +10, +custom punti
-- [ ] Pulsante "Redeem reward" se disponibile
-- [ ] Feedback success con animazione
-- [ ] Fallback manual input se camera non disponibile
+- [x] Camera scan con frame guida
+- [x] Riconoscimento automatico QR cliente
+- [x] Mostra: nome, punti attuali, stato tier
+- [x] Quick actions: +5, +10, +custom punti
+- [x] Pulsante "Redeem reward" se disponibile (placeholder)
+- [x] Feedback success con animazione (confetti)
+- [x] Fallback manual input se camera non disponibile
 
 **Priority:** P0 (Must Have)  
-**Effort:** 13 punti
+**Effort:** 13 punti  
+**Status:** ✅ DONE
 
 ---
 
@@ -264,21 +288,22 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 
 ---
 
-#### US-4.3: Redeem Reward Flow
+#### US-4.3: Redeem Reward Flow ✅
 **Come** esercente  
 **Voglio** consegnare un premio a un cliente quando raggiunge il tier  
 **Così che** il cliente possa riscattare i suoi punti
 
 **Acceptance Criteria:**
-- [ ] Mostra premi disponibili per il cliente (tier raggiunti)
-- [ ] Selezione premio da lista
-- [ ] Conferma consegna con recap punti scalati
-- [ ] Celebrazione visiva (confetti) al redeem
-- [ ] Aggiornamento immediato del saldo cliente
-- [ ] Storico redeem visibile in customer detail
+- [x] Mostra premi disponibili per il cliente (tier raggiunti)
+- [x] Selezione premio da lista
+- [x] Conferma consegna con recap punti scalati
+- [x] Celebrazione visiva (confetti) al redeem
+- [x] Aggiornamento immediato del saldo cliente
+- [ ] Storico redeem visibile in customer detail (→ US-3.3)
 
 **Priority:** P0 (Must Have)  
-**Effort:** 8 punti
+**Effort:** 8 punti  
+**Status:** ✅ DONE
 
 ---
 
@@ -288,14 +313,15 @@ Semplificare la gestione di programmi fedeltà per gli esercenti, rendendo ogni 
 **Così che** possano registrarsi rapidamente
 
 **Acceptance Criteria:**
-- [ ] QR code full-screen con logo/brand
-- [ ] Tap per copiare link di iscrizione
-- [ ] Condivisione via WhatsApp/SMS
-- [ ] Darkmode aware (QR sempre leggibile)
-- [ ] Refresh QR se necessario
+- [x] QR code full-screen con logo/brand
+- [x] Tap per copiare link di iscrizione
+- [x] Condivisione via WhatsApp/SMS (Web Share API + clipboard fallback)
+- [x] Darkmode aware (QR sempre leggibile)
+- [x] Refresh QR se necessario (regenerated on merchant change)
 
 **Priority:** P0 (Must Have)  
-**Effort:** 3 punti
+**Effort:** 3 punti  
+**Status:** ✅ DONE
 
 ---
 

@@ -8,6 +8,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth";
 import merchantRoutes from "./routes/merchants";
 import cardRoutes from "./routes/cards";
+import customerRoutes from "./routes/customers";
 import pointRoutes from "./routes/points";
 import programRoutes from "./routes/programs";
 import statsRoutes from "./routes/stats";
@@ -32,6 +33,7 @@ app.use("/api/merchants", merchantRoutes);
 
 // Authenticated routes
 app.use("/api/cards", authenticateMerchant, cardRoutes);
+app.use("/api/customers", authenticateMerchant, customerRoutes);
 app.use("/api/points", authenticateMerchant, pointRoutes);
 app.use("/api/programs", authenticateMerchant, programRoutes);
 app.use("/api/stats", authenticateMerchant, statsRoutes);

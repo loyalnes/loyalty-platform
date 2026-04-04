@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Users, QrCode, MessageCircle, Menu } from 'lucide-react';
+import { Home, BarChart3, Users, Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function BottomNavBar() {
@@ -7,9 +7,8 @@ export default function BottomNavBar() {
 
   const tabs = [
     { to: '/', icon: Home, label: t('nav.today'), end: true },
+    { to: '/insights', icon: BarChart3, label: t('nav.insights') },
     { to: '/customers', icon: Users, label: t('nav.customers') },
-    { to: '/qr', icon: QrCode, label: t('nav.qr') },
-    { to: '/chat', icon: MessageCircle, label: t('nav.chat') },
     { to: '/menu', icon: Menu, label: t('nav.menu') },
   ];
 

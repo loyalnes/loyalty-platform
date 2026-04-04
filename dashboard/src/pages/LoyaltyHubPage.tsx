@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { QrCode, PlusCircle, Gift, Share2, Bell } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Gift, QrCode, Gamepad2, Bell, PlusCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
-import { getStats, type Stats } from '../api';
-import { formatNumber } from '../i18n';
+import { getInsightsKpis, type InsightsKpis } from '../api';
+import HomeQuickStats from '../components/HomeQuickStats';
 
 function getGreeting(t: (key: string) => string): string {
   const hour = new Date().getHours();
@@ -13,14 +14,46 @@ function getGreeting(t: (key: string) => string): string {
 }
 
 export default function LoyaltyHubPage() {
+  const navigate = useNavigate();
   const { merchant, program } = useAuth();
   const { t, i18n } = useTranslation();
-  const [period, setPeriod] = useState<'7d' | '15d' | '30d'>('7d');
-  const [stats, setStats] = useState<Stats>({ activeCommunity: 0, newUsers: 0 });
+  const [weekKpis, setWeekKpis] = useState<InsightsKpis>({
+    activeMembers: 0,
+    newMembers: 0,
+    nearRewardCustomers: 0,
+    avgRating: null,
+    retention: null,
+    trends: {
+      activeMembers: null,
+      newMembers: null,
+      nearRewardCustomers: null,
+      avgRating: null,
+      retention: null,
+    },
+  });
+  const [todayKpis, setTodayKpis] = useState<InsightsKpis>({
+    activeMembers: 0,
+    newMembers: 0,
+    nearRewardCustomers: 0,
+    avgRating: null,
+    retention: null,
+    trends: {
+      activeMembers: null,
+      newMembers: null,
+      nearRewardCustomers: null,
+      avgRating: null,
+      retention: null,
+    },
+  });
 
   useEffect(() => {
-    getStats(period).then(setStats).catch(() => {});
-  }, [period]);
+    Promise.all([getInsightsKpis('24h'), getInsightsKpis('7d')])
+      .then(([today, week]) => {
+        setTodayKpis(today);
+        setWeekKpis(week);
+      })
+      .catch(() => {});
+  }, []);
 
   const greeting = getGreeting(t);
 
@@ -38,92 +71,67 @@ export default function LoyaltyHubPage() {
 
       {/* Quick Actions */}
       <div className="quick-actions">
-        <button className="quick-action scan">
-          <QrCode size={24} />
-          <span>{t('hub.scan')}</span>
-        </button>
-        <button className="quick-action points">
-          <PlusCircle size={24} />
-          <span>{t('hub.points')}</span>
+        <button className="quick-action add-points" onClick={() => navigate('/scan-qr')}>
+          <PlusCircle size={28} strokeWidth={2} />
+          <span>{t('hub.addPoints')}</span>
         </button>
         <button className="quick-action redeem">
-          <Gift size={24} />
+          <Gift size={28} strokeWidth={2} />
           <span>{t('hub.redeem')}</span>
         </button>
-        <button className="quick-action invite">
-          <Share2 size={24} />
-          <span>{t('hub.invite')}</span>
+        <button className="quick-action show-qr" onClick={() => navigate('/show-qr')}>
+          <QrCode size={28} strokeWidth={2} />
+          <span>{t('hub.showQR')}</span>
+        </button>
+        <button className="quick-action contest">
+          <Gamepad2 size={28} strokeWidth={2} />
+          <span>{t('hub.contest')}</span>
         </button>
       </div>
 
       {/* Active Program Card */}
-      {program && (
-        <div className="program-card">
-          <div className="program-card-header">
-            <div>
-              <div className="program-card-title">{t('hub.activeProgram')}</div>
-              <div className="program-card-type">
-                {program.type === 'STAMPS' ? t('hub.stampCard') : t('hub.pointsProgram')}
+      {program ? (
+        <div className="program-card-minimal">
+          <div className="program-card-info">
+            <div className="program-card-header">
+              <div className="program-card-name">
+                {merchant?.name} {program.type === 'STAMPS' ? t('hub.stampCard') : t('hub.pointsProgram')}
               </div>
+              {weekKpis.activeMembers === 0 && (
+                <button className="btn-edit" onClick={() => window.location.href = '/dashboard/setup'}>
+                  {t('hub.edit')}
+                </button>
+              )}
             </div>
-            <div className="program-card-icon">
-              {program.type === 'STAMPS' ? <QrCode size={24} /> : <PlusCircle size={24} />}
+            <div className="program-card-detail">
+              {program.type === 'STAMPS'
+                ? `${program.goalStamps} ${t('hub.stampsUnit')} → ${t('hub.reward')}`
+                : `${program.pointsPerCurrency} ${t('hub.pts')}/${t('hub.euro')} · ${program.rewardTiers.length} ${t('hub.tiers')}`
+              }
+            </div>
+            <div className="program-card-members">
+              {t('hub.manageFromInsights')}
             </div>
           </div>
-          {program.type === 'STAMPS' && (
-            <div className="program-card-stats">
-              <div>
-                <div className="program-stat-label">{t('hub.welcomeBonus')}</div>
-                <div className="program-stat-value">{program.welcomeStamps} {t('hub.stampsUnit')}</div>
-              </div>
-              <div>
-                <div className="program-stat-label">{t('hub.goal')}</div>
-                <div className="program-stat-value">{program.goalStamps} {t('hub.stampsUnit')}</div>
-              </div>
-            </div>
-          )}
-          {program.type === 'POINTS' && (
-            <div className="program-card-stats">
-              <div>
-                <div className="program-stat-label">{t('hub.pointsPerEuro')}</div>
-                <div className="program-stat-value">{program.pointsPerCurrency} {t('hub.pts')}</div>
-              </div>
-              <div>
-                <div className="program-stat-label">{t('hub.tiers')}</div>
-                <div className="program-stat-value">{program.rewardTiers.length}</div>
-              </div>
-            </div>
-          )}
+        </div>
+      ) : (
+        <div className="program-card-minimal program-card-empty">
+          <div className="empty-state-icon">🎯</div>
+          <div className="empty-state-title">{t('hub.noProgramTitle')}</div>
+          <div className="empty-state-desc">{t('hub.noProgramDesc')}</div>
+          <button className="btn btn-primary btn-sm" onClick={() => window.location.href = '/dashboard/setup'}>
+            {t('hub.setupProgram')}
+          </button>
         </div>
       )}
 
-      {/* Progress Section */}
-      <div className="progress-section">
-        <div className="progress-header">
-          <h2 className="progress-title">{t('hub.yourProgress')}</h2>
-          <div className="period-toggle">
-            {(['7d', '15d', '30d'] as const).map((p) => (
-              <button
-                key={p}
-                className={`period-btn${period === p ? ' active' : ''}`}
-                onClick={() => setPeriod(p)}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="progress-stats">
-          <div className="progress-stat-card">
-            <div className="progress-stat-label">{t('hub.activeCommunity')}</div>
-            <div className="progress-stat-value">{formatNumber(stats.activeCommunity, i18n.language)}</div>
-          </div>
-          <div className="progress-stat-card">
-            <div className="progress-stat-label">{t('hub.newUsers')}</div>
-            <div className="progress-stat-value">{formatNumber(stats.newUsers, i18n.language)}</div>
-          </div>
-        </div>
-      </div>
+      <HomeQuickStats
+        todayKpis={todayKpis}
+        weekKpis={weekKpis}
+        locale={i18n.language}
+        onOpenInsights={() => navigate('/insights')}
+      />
+
     </div>
   );
 }

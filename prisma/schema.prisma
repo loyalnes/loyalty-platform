@@ -28,6 +28,7 @@ model Merchant {
   loyaltyCards    LoyaltyCard[]
   cardTemplates   CardTemplate[]
   loyaltyProgram  LoyaltyProgram?
+  feedbacks       MerchantFeedback[]
 
   @@map("merchants")
 }
@@ -59,6 +60,7 @@ model Customer {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   loyaltyCards LoyaltyCard[]
+  feedbacks    MerchantFeedback[]
 
   @@map("customers")
 }
@@ -194,4 +196,24 @@ model RewardTier {
 
   @@index([loyaltyProgramId])
   @@map("reward_tiers")
+}
+
+// ─── Merchant Feedback ──────────────────────────────────────
+
+model MerchantFeedback {
+  id         String   @id @default(uuid()) @db.Uuid
+  merchantId String   @map("merchant_id") @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  rating     Int
+  text       String
+  readAt     DateTime? @map("read_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId, createdAt])
+  @@index([customerId])
+  @@map("merchant_feedback")
 }
