@@ -21,7 +21,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json();
 }
 
-// ---------- Merchants ----------
+// ---------- Auth ----------
 
 export interface Merchant {
   id: string;
@@ -38,12 +38,168 @@ export interface Merchant {
   cardTemplates?: CardTemplate[];
 }
 
+interface AuthResponse {
+  merchant: Merchant;
+  apiKey: string;
+}
+
+export function signup(name: string, email: string, password: string) {
+  return request<AuthResponse>('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password }),
+  });
+}
+
+export function login(email: string, password: string) {
+  return request<AuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
 export function getMerchant(id: string) {
   return request<Merchant>(`/merchants/${id}`);
 }
 
 export function getMerchantByEmail(email: string) {
   return request<Merchant>(`/merchants/by-email/${encodeURIComponent(email)}`);
+}
+
+// ---------- Loyalty Programs ----------
+
+export interface RewardTier {
+  id: string;
+  name: string;
+  threshold: number;
+  rewardName: string;
+  sortOrder: number;
+}
+
+export interface LoyaltyProgram {
+  id: string;
+  merchantId: string;
+  type: 'POINTS' | 'STAMPS';
+  goalStamps: number | null;
+  welcomeStamps: number | null;
+  pointsPerCurrency: string | null;
+  active: boolean;
+  rewardTiers: RewardTier[];
+}
+
+export interface CreateProgramPayload {
+  type: 'POINTS' | 'STAMPS';
+  goalStamps?: number;
+  welcomeStamps?: number;
+  pointsPerCurrency?: number;
+  rewardTiers: { name: string; threshold: number; rewardName: string }[];
+}
+
+export function createLoyaltyProgram(data: CreateProgramPayload) {
+  return request<LoyaltyProgram>('/programs', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function getMyProgram() {
+  return request<LoyaltyProgram | null>('/programs/mine');
+}
+
+// ---------- Stats ----------
+
+export interface Stats {
+  activeCommunity: number;
+  newUsers: number;
+}
+
+export type InsightsPeriod = '24h' | '7d' | '15d' | '30d';
+
+export interface InsightsKpis {
+  activeMembers: number;
+  newMembers: number;
+  nearRewardCustomers: number;
+  avgRating: number | null;
+  retention: number | null;
+  trends: {
+    activeMembers: number | null;
+    newMembers: number | null;
+    nearRewardCustomers: number | null;
+    avgRating: number | null;
+    retention: number | null;
+  };
+}
+
+export interface FeedbackItem {
+  id: string;
+  customerName: string;
+  rating: number;
+  createdAt: string;
+  text: string;
+  isNew: boolean;
+}
+
+export interface InsightsSentiment {
+  total: number;
+  average: number | null;
+  distribution: Record<'1' | '2' | '3' | '4' | '5', number>;
+}
+
+export interface InsightsNotification {
+  id: string;
+  type: 'reward_ready' | 'near_reward' | 'inactive';
+  title: string;
+  description: string;
+  actionPath: string;
+  severity: 'high' | 'medium';
+}
+
+function asNumber(value: unknown, fallback = 0): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function asNullableNumber(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+export async function getInsightsKpis(period: InsightsPeriod = '7d'): Promise<InsightsKpis> {
+  const raw = await request<Record<string, unknown>>(`/stats?period=${period}`);
+  const rawTrends = (raw.trends ?? {}) as Record<string, unknown>;
+
+  return {
+    activeMembers: asNumber(raw.activeMembers ?? raw.activeCommunity),
+    newMembers: asNumber(raw.newMembers ?? raw.newUsers),
+    nearRewardCustomers: asNumber(raw.nearRewardCustomers),
+    avgRating: asNullableNumber(raw.avgRating),
+    retention: asNullableNumber(raw.retention),
+    trends: {
+      activeMembers: asNullableNumber(rawTrends.activeMembers),
+      newMembers: asNullableNumber(rawTrends.newMembers),
+      nearRewardCustomers: asNullableNumber(rawTrends.nearRewardCustomers),
+      avgRating: asNullableNumber(rawTrends.avgRating),
+      retention: asNullableNumber(rawTrends.retention),
+    },
+  };
+}
+
+export function getStats(period: InsightsPeriod = '7d'): Promise<Stats> {
+  return getInsightsKpis(period).then((kpis) => ({
+    activeCommunity: kpis.activeMembers,
+    newUsers: kpis.newMembers,
+  }));
+}
+
+export async function getInsightsFeedback(period: InsightsPeriod = '7d', limit = 6): Promise<FeedbackItem[]> {
+  const params = new URLSearchParams({ period, limit: String(limit) });
+  const response = await request<{ feedback: FeedbackItem[] }>(`/stats/feedback?${params.toString()}`);
+  return response.feedback;
+}
+
+export function getInsightsSentiment(period: InsightsPeriod = '7d') {
+  return request<InsightsSentiment>(`/stats/sentiment?period=${period}`);
+}
+
+export function getInsightsNotifications() {
+  return request<{ notifications: InsightsNotification[] }>('/stats/notifications').then((res) => res.notifications);
 }
 
 // ---------- Cards ----------
@@ -54,6 +210,19 @@ export interface Customer {
   firstName: string;
   lastName: string;
   phone: string | null;
+}
+
+export interface MerchantCustomer {
+  id: string;
+  customerId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  pointsBalance: number;
+  status: string;
+  lastVisitAt: string;
 }
 
 export interface CardTemplate {
@@ -91,6 +260,12 @@ export function listCards(page = 1, limit = 20, status?: string) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (status) params.set('status', status);
   return request<PaginatedResponse<LoyaltyCard>>(`/cards?${params}`);
+}
+
+export function listCustomers(page = 1, limit = 20, search?: string) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (search?.trim()) params.set('search', search.trim());
+  return request<PaginatedResponse<MerchantCustomer>>(`/customers?${params}`);
 }
 
 export function getCard(id: string) {
@@ -147,5 +322,92 @@ export function redeemPoints(loyaltyCardId: string, points: number, description?
   return request<{ transaction: PointsTransaction; balance: number }>('/points/redeem', {
     method: 'POST',
     body: JSON.stringify({ loyaltyCardId, points, description }),
+  });
+}
+
+// ---------- Customer Scan Flow ----------
+
+export interface CustomerCardDetail {
+  id: string;
+  cardNumber: string;
+  customerId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  avatarUrl: string | null;
+  pointsBalance: number;
+  totalEarned: number;
+  totalRedeemed: number;
+  status: string;
+  recentTransactions: PointsTransaction[];
+}
+
+export function getCustomerCard(customerId: string) {
+  return request<CustomerCardDetail>(`/customers/${customerId}/card`);
+}
+
+export interface AddPointsResponse {
+  success: boolean;
+  transaction: {
+    id: string;
+    points: number;
+    balanceAfter: number;
+    createdAt: string;
+  };
+  card: {
+    pointsBalance: number;
+    totalEarned: number;
+  };
+}
+
+export function addPointsToCustomer(customerId: string, points: number, description?: string) {
+  return request<AddPointsResponse>(`/customers/${customerId}/points`, {
+    method: 'POST',
+    body: JSON.stringify({ points, description }),
+  });
+}
+
+export interface RewardTier {
+  id: string;
+  name: string;
+  rewardName: string;
+  threshold: number;
+  sortOrder: number;
+}
+
+export interface AvailableRewardsResponse {
+  availableRewards: RewardTier[];
+  allRewards: RewardTier[];
+  currentPoints: number;
+}
+
+export function getAvailableRewards(customerId: string) {
+  return request<AvailableRewardsResponse>(`/customers/${customerId}/available-rewards`);
+}
+
+export interface RedeemRewardResponse {
+  success: boolean;
+  transaction: {
+    id: string;
+    points: number;
+    balanceAfter: number;
+    createdAt: string;
+  };
+  card: {
+    pointsBalance: number;
+    totalRedeemed: number;
+  };
+  reward: {
+    name: string;
+    rewardName: string;
+    threshold: number;
+  };
+}
+
+export function redeemReward(customerId: string, rewardTierId: string) {
+  return request<RedeemRewardResponse>(`/customers/${customerId}/redeem`, {
+    method: 'POST',
+    body: JSON.stringify({ rewardTierId }),
   });
 }

@@ -55,6 +55,7 @@ services:
       PORT: 3000
       NODE_ENV: preview
     ports:
+      !override
       - "${PREVIEW_PORT}:3000"
     depends_on:
       db:
@@ -113,5 +114,63 @@ if [ "$HEALTH_PASSED" = true ]; then
 else
   echo "==> Warning: health check didn't pass, but preview may still be starting"
 fi
+
+# Generate nginx config for subdomain routing
+PREVIEW_DOMAIN="pr-${PR_NUMBER}.preview.loyali.online"
+NGINX_PREVIEW_DIR="/etc/nginx/previews"
+NGINX_PREVIEW_CONF="${NGINX_PREVIEW_DIR}/pr-${PR_NUMBER}.conf"
+
+mkdir -p "$NGINX_PREVIEW_DIR"
+
+echo "==> Configuring nginx for ${PREVIEW_DOMAIN}..."
+
+# Start with HTTP-only server block so certbot can verify the domain
+cat > "$NGINX_PREVIEW_CONF" <<NGINXEOF
+# Auto-generated preview for PR #${PR_NUMBER} — do not edit
+server {
+    listen 80;
+    server_name ${PREVIEW_DOMAIN};
+
+    auth_basic "Loyali Preview PR #${PR_NUMBER}";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
+    location / {
+        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location /api/ {
+        auth_basic off;
+        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    location = /health {
+        auth_basic off;
+        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+    }
+}
+NGINXEOF
+
+sudo nginx -t && sudo systemctl reload nginx && echo "==> Nginx reloaded for ${PREVIEW_DOMAIN}" || \
+  echo "==> Warning: nginx reload failed — preview still accessible on port ${PREVIEW_PORT}"
+
+# Issue SSL cert via standard HTTP challenge (DNS already points here)
+echo "==> Requesting SSL certificate for ${PREVIEW_DOMAIN}..."
+sudo certbot --nginx -d "${PREVIEW_DOMAIN}" --non-interactive --agree-tos --redirect \
+  --register-unsafely-without-email 2>&1 || \
+  echo "==> Warning: SSL cert failed — preview available over HTTP"
 
 echo "==> Preview deployment complete!"

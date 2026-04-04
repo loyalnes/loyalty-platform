@@ -23,8 +23,12 @@ model Merchant {
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
 
-  loyaltyCards  LoyaltyCard[]
-  cardTemplates CardTemplate[]
+  passwordHash    String?          @map("password_hash")
+
+  loyaltyCards    LoyaltyCard[]
+  cardTemplates   CardTemplate[]
+  loyaltyProgram  LoyaltyProgram?
+  feedbacks       MerchantFeedback[]
 
   @@map("merchants")
 }
@@ -56,6 +60,7 @@ model Customer {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   loyaltyCards LoyaltyCard[]
+  feedbacks    MerchantFeedback[]
 
   @@map("customers")
 }
@@ -151,4 +156,64 @@ enum PointsTransactionType {
   ADJUST
   EXPIRE
   BONUS
+}
+
+// ─── Loyalty Programs ────────────────────────────────────────
+
+model LoyaltyProgram {
+  id                String             @id @default(uuid()) @db.Uuid
+  merchantId        String             @unique @map("merchant_id") @db.Uuid
+  type              LoyaltyProgramType
+  goalStamps        Int?               @map("goal_stamps")
+  welcomeStamps     Int?               @map("welcome_stamps")
+  pointsPerCurrency Decimal?           @map("points_per_currency") @db.Decimal(10, 2)
+  active            Boolean            @default(true)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  merchant    Merchant     @relation(fields: [merchantId], references: [id])
+  rewardTiers RewardTier[]
+
+  @@map("loyalty_programs")
+}
+
+enum LoyaltyProgramType {
+  POINTS
+  STAMPS
+}
+
+model RewardTier {
+  id               String         @id @default(uuid()) @db.Uuid
+  loyaltyProgramId String         @map("loyalty_program_id") @db.Uuid
+  name             String
+  threshold        Int
+  rewardName       String         @map("reward_name")
+  sortOrder        Int            @default(0) @map("sort_order")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  loyaltyProgram LoyaltyProgram @relation(fields: [loyaltyProgramId], references: [id], onDelete: Cascade)
+
+  @@index([loyaltyProgramId])
+  @@map("reward_tiers")
+}
+
+// ─── Merchant Feedback ──────────────────────────────────────
+
+model MerchantFeedback {
+  id         String   @id @default(uuid()) @db.Uuid
+  merchantId String   @map("merchant_id") @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  rating     Int
+  text       String
+  readAt     DateTime? @map("read_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId, createdAt])
+  @@index([customerId])
+  @@map("merchant_feedback")
 }

@@ -1,14 +1,18 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Clean existing data
+  await prisma.merchantFeedback.deleteMany();
   await prisma.pointsTransaction.deleteMany();
   await prisma.loyaltyCard.deleteMany();
+  await prisma.rewardTier.deleteMany();
+  await prisma.loyaltyProgram.deleteMany();
   await prisma.cardTemplate.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.merchant.deleteMany();
@@ -37,6 +41,21 @@ async function main() {
       country: "US",
       plan: "PROFESSIONAL",
       settings: { currency: "USD", timezone: "America/Los_Angeles" },
+    },
+  });
+
+  const barelioPasswordHash = await bcrypt.hash("password123", 10);
+  const barelio = await prisma.merchant.create({
+    data: {
+      name: "Barelio",
+      email: "barelio@example.com",
+      phone: "+39-345-000-0000",
+      city: "Milan",
+      country: "IT",
+      preferredLocale: "it",
+      passwordHash: barelioPasswordHash,
+      plan: "PROFESSIONAL",
+      settings: { currency: "EUR", timezone: "Europe/Rome" },
     },
   });
 
@@ -80,6 +99,34 @@ async function main() {
       minRedeemPoints: 100,
       bonusMultiplier: 1,
     },
+  });
+
+  const barelioCardTemplate = await prisma.cardTemplate.create({
+    data: {
+      merchantId: barelio.id,
+      name: "Barelio Rewards",
+      description: "Points for every order",
+      tier: "STANDARD",
+      pointsPerCurrency: 1,
+      redemptionRate: 0.01,
+      minRedeemPoints: 100,
+      bonusMultiplier: 1,
+    },
+  });
+
+  const barelioProgram = await prisma.loyaltyProgram.create({
+    data: {
+      merchantId: barelio.id,
+      type: "POINTS",
+      pointsPerCurrency: 1,
+      rewardTiers: {
+        create: [
+          { name: "Bronze", threshold: 100, rewardName: "Free Coffee", sortOrder: 0 },
+          { name: "Silver", threshold: 200, rewardName: "Free Breakfast", sortOrder: 1 },
+        ],
+      },
+    },
+    include: { rewardTiers: true },
   });
 
   // Create customers
@@ -138,6 +185,18 @@ async function main() {
     },
   });
 
+  const bobBarelioCard = await prisma.loyaltyCard.create({
+    data: {
+      cardNumber: "BR-2026-0001",
+      merchantId: barelio.id,
+      customerId: bob.id,
+      cardTemplateId: barelioCardTemplate.id,
+      pointsBalance: 92,
+      totalEarned: 110,
+      totalRedeemed: 18,
+    },
+  });
+
   // Create points transactions
   await prisma.pointsTransaction.createMany({
     data: [
@@ -183,15 +242,73 @@ async function main() {
         balanceAfter: 450,
         description: "Welcome bonus",
       },
+      {
+        loyaltyCardId: bobBarelioCard.id,
+        type: "EARN",
+        points: 55,
+        balanceAfter: 55,
+        description: "Lunch order",
+      },
+      {
+        loyaltyCardId: bobBarelioCard.id,
+        type: "EARN",
+        points: 55,
+        balanceAfter: 110,
+        description: "Dinner order",
+      },
+      {
+        loyaltyCardId: bobBarelioCard.id,
+        type: "REDEEM",
+        points: -18,
+        balanceAfter: 92,
+        description: "Small reward redeemed",
+      },
+    ],
+  });
+
+  await prisma.merchantFeedback.createMany({
+    data: [
+      {
+        merchantId: cafe.id,
+        customerId: alice.id,
+        rating: 5,
+        text: "Great service and very clear reward rules.",
+      },
+      {
+        merchantId: cafe.id,
+        customerId: bob.id,
+        rating: 2,
+        text: "Checkout was slow, points update took too long.",
+      },
+      {
+        merchantId: restaurant.id,
+        customerId: alice.id,
+        rating: 4,
+        text: "Good loyalty program and easy to redeem.",
+      },
+      {
+        merchantId: barelio.id,
+        customerId: bob.id,
+        rating: 5,
+        text: "Programma chiarissimo, premio riscattato in pochi secondi.",
+      },
+      {
+        merchantId: barelio.id,
+        customerId: alice.id,
+        rating: 3,
+        text: "Esperienza buona, ma vorrei vedere piu promemoria sui premi disponibili.",
+      },
     ],
   });
 
   console.log("Seed complete:");
-  console.log(`  Merchants: ${cafe.name}, ${restaurant.name}`);
-  console.log(`  Templates: ${cafeStandard.name}, ${cafeGold.name}, ${restaurantStandard.name}`);
+  console.log(`  Merchants: ${cafe.name}, ${restaurant.name}, ${barelio.name}`);
+  console.log(`  Templates: ${cafeStandard.name}, ${cafeGold.name}, ${restaurantStandard.name}, ${barelioCardTemplate.name}`);
   console.log(`  Customers: ${alice.firstName} ${alice.lastName}, ${bob.firstName} ${bob.lastName}`);
-  console.log(`  Loyalty cards: 3`);
-  console.log(`  Transactions: 6`);
+  console.log(`  Loyalty cards: 4`);
+  console.log(`  Transactions: 9`);
+  console.log(`  Feedback entries: 5`);
+  console.log(`  Program setup: ${barelioProgram.rewardTiers.length} tiers for ${barelio.email}`);
 }
 
 main()
