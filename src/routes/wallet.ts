@@ -1,8 +1,46 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
+import { authenticateMerchant } from "../middleware/auth";
 import { ApiError } from "../middleware/errorHandler";
+import { buildWalletSummary } from "../services/walletSummary";
+import { resolveWalletScanToken } from "../services/walletTokens";
 
 const router = Router();
+
+/**
+ * POST /wallet/scan/resolve
+ * Resolve a wallet barcode token to merchant-facing loyalty context
+ * Body: { barcodeToken: string }
+ */
+router.post("/scan/resolve", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const merchantId = req.merchantId!;
+    const { barcodeToken } = req.body;
+
+    if (!barcodeToken || typeof barcodeToken !== "string") {
+      throw new ApiError(400, "barcodeToken is required");
+    }
+
+    const scanToken = await resolveWalletScanToken(barcodeToken);
+    if (!scanToken || !scanToken.active || scanToken.revokedAt) {
+      throw new ApiError(404, "Wallet pass not found");
+    }
+
+    const loyaltyCard = scanToken.walletPass.loyaltyCard;
+    if (loyaltyCard.merchantId !== merchantId) {
+      throw new ApiError(403, "Unauthorized");
+    }
+
+    const summary = await buildWalletSummary(loyaltyCard.id, scanToken.walletPass.provider);
+    if (!summary) {
+      throw new ApiError(404, "Wallet summary not found");
+    }
+
+    res.json(summary);
+  } catch (err) {
+    next(err);
+  }
+});
 
 /**
  * GET /wallet/apple/:prizeWinId
