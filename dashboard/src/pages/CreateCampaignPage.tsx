@@ -60,7 +60,7 @@ export default function CreateCampaignPage() {
 
     setLoading(true);
     try {
-      const campaign = await createCampaign({
+      await createCampaign({
         gameType,
         prizes: prizes.map((p) => ({
           name: p.name.trim(),
