@@ -10,6 +10,32 @@ import { generateGoogleWalletPass } from "../services/wallet/providers/googleWal
 const router = Router();
 
 /**
+ * GET /wallet/config
+ * Check wallet provider configuration status (for debugging)
+ */
+router.get("/config", async (req: Request, res: Response) => {
+  const config = {
+    appleWallet: {
+      configured: !!process.env.WALLETWALLET_API_KEY,
+      apiKey: process.env.WALLETWALLET_API_KEY ? "***" + process.env.WALLETWALLET_API_KEY.slice(-4) : null,
+      colorPreset: process.env.WALLETWALLET_COLOR_PRESET || "dark",
+      hasLogo: !!process.env.WALLETWALLET_LOGO_URL,
+      hasThumbnail: !!process.env.WALLETWALLET_THUMBNAIL_URL,
+      hasStrip: !!process.env.WALLETWALLET_STRIP_URL,
+    },
+    googleWallet: {
+      configured: !!(process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY),
+      issuerId: process.env.GOOGLE_WALLET_ISSUER_ID || null,
+      serviceAccountEmail: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL || null,
+      hasServiceAccountKey: !!process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,
+    },
+    publicUrl: process.env.PUBLIC_URL || "http://localhost:3000",
+  };
+
+  res.json(config);
+});
+
+/**
  * POST /wallet/scan/resolve
  * Resolve a wallet barcode token to merchant-facing loyalty context
  * Body: { barcodeToken: string }
@@ -93,7 +119,14 @@ router.get("/access/:token/apple-pass", async (req: Request, res: Response, next
     res.setHeader("Content-Disposition", `attachment; filename="${safeMerchant}.pkpass"`);
     res.send(pkpass);
   } catch (err) {
-    next(err);
+    console.error("Apple Wallet pass generation error:", err);
+    if (err instanceof ApiError) {
+      next(err);
+    } else if (err instanceof Error) {
+      next(new ApiError(500, `Failed to generate Apple Wallet pass: ${err.message}`));
+    } else {
+      next(new ApiError(500, "Failed to generate Apple Wallet pass"));
+    }
   }
 });
 
@@ -119,7 +152,14 @@ router.get("/access/:token/google-pass", async (req: Request, res: Response, nex
 
     res.json({ saveUrl });
   } catch (err) {
-    next(err);
+    console.error("Google Wallet pass generation error:", err);
+    if (err instanceof ApiError) {
+      next(err);
+    } else if (err instanceof Error) {
+      next(new ApiError(500, `Failed to generate Google Wallet pass: ${err.message}`));
+    } else {
+      next(new ApiError(500, "Failed to generate Google Wallet pass"));
+    }
   }
 });
 

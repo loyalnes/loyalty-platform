@@ -43,8 +43,19 @@ export async function generateGoogleWalletPass(summary: WalletSummary): Promise<
   const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID;
 
   if (!serviceAccountEmail || !serviceAccountKey || !issuerId) {
-    throw new Error("Google Wallet configuration incomplete. Required: GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL, GOOGLE_WALLET_SERVICE_ACCOUNT_KEY, GOOGLE_WALLET_ISSUER_ID");
+    const missing = [];
+    if (!serviceAccountEmail) missing.push("GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL");
+    if (!serviceAccountKey) missing.push("GOOGLE_WALLET_SERVICE_ACCOUNT_KEY");
+    if (!issuerId) missing.push("GOOGLE_WALLET_ISSUER_ID");
+    throw new Error(`Google Wallet configuration incomplete. Missing: ${missing.join(", ")}`);
   }
+
+  console.log("Google Wallet pass generation:", {
+    issuerId,
+    serviceAccountEmail,
+    hasKey: !!serviceAccountKey,
+    walletPassId: summary.walletPassId,
+  });
 
   // Build the loyalty class ID and object ID
   const classId = `${issuerId}.loyalty-card-class`;
@@ -103,9 +114,15 @@ export async function generateGoogleWalletPass(summary: WalletSummary): Promise<
   const payload = Buffer.from(JSON.stringify(claims)).toString("base64url");
 
   // Sign with RSA private key
-  const sign = crypto.createSign("RSA-SHA256");
-  sign.update(`${header}.${payload}`);
-  const signature = sign.sign(serviceAccountKey, "base64url");
+  let signature: string;
+  try {
+    const sign = crypto.createSign("RSA-SHA256");
+    sign.update(`${header}.${payload}`);
+    signature = sign.sign(serviceAccountKey, "base64url");
+  } catch (err) {
+    console.error("Google Wallet JWT signing error:", err);
+    throw new Error(`Failed to sign JWT: ${err instanceof Error ? err.message : "Unknown error"}`);
+  }
 
   const jwt = `${header}.${payload}.${signature}`;
 
@@ -119,6 +136,9 @@ export async function generateGoogleWalletPass(summary: WalletSummary): Promise<
     },
   });
 
+  const saveUrl = `https://pay.google.com/gp/v/save/${jwt}`;
+  console.log("Google Wallet save URL generated:", { saveUrl: saveUrl.substring(0, 80) + "..." });
+
   // Return Google Wallet save URL
-  return `https://pay.google.com/gp/v/save/${jwt}`;
+  return saveUrl;
 }

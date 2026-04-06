@@ -36,8 +36,28 @@ function buildSnapshotHash(summary: WalletSummary): string {
 export async function generateWalletWalletApplePass(summary: WalletSummary): Promise<Buffer> {
   const apiKey = process.env.WALLETWALLET_API_KEY;
   if (!apiKey) {
-    throw new Error("WALLETWALLET_API_KEY is not configured");
+    throw new Error("WALLETWALLET_API_KEY is not configured. Please set the environment variable.");
   }
+
+  const payload = {
+    barcodeValue: summary.merchantScanToken,
+    barcodeFormat: "QR",
+    title: summary.merchantName,
+    cardLabel: "LOYALTY",
+    label: summary.customerName,
+    value: compactSummary(summary),
+    expirationDays: 3650,
+    logoURL: process.env.WALLETWALLET_LOGO_URL || undefined,
+    thumbnailURL: process.env.WALLETWALLET_THUMBNAIL_URL || undefined,
+    stripURL: process.env.WALLETWALLET_STRIP_URL || undefined,
+    colorPreset: process.env.WALLETWALLET_COLOR_PRESET || "dark",
+  };
+
+  console.log("WalletWallet API request:", {
+    url: "https://api.walletwallet.dev/api/pkpass",
+    hasApiKey: !!apiKey,
+    payload,
+  });
 
   const response = await fetch("https://api.walletwallet.dev/api/pkpass", {
     method: "POST",
@@ -45,23 +65,17 @@ export async function generateWalletWalletApplePass(summary: WalletSummary): Pro
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      barcodeValue: summary.merchantScanToken,
-      barcodeFormat: "QR",
-      title: summary.merchantName,
-      cardLabel: "LOYALTY",
-      label: summary.customerName,
-      value: compactSummary(summary),
-      expirationDays: 3650,
-      logoURL: process.env.WALLETWALLET_LOGO_URL || undefined,
-      thumbnailURL: process.env.WALLETWALLET_THUMBNAIL_URL || undefined,
-      stripURL: process.env.WALLETWALLET_STRIP_URL || undefined,
-      colorPreset: process.env.WALLETWALLET_COLOR_PRESET || "dark",
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
-    throw new Error(await response.text());
+    const errorText = await response.text();
+    console.error("WalletWallet API error:", {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+    });
+    throw new Error(`WalletWallet API error (${response.status}): ${errorText}`);
   }
 
   const buffer = Buffer.from(await response.arrayBuffer());
