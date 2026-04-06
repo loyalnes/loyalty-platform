@@ -73,15 +73,27 @@ jobs:
 
       - name: Deploy to staging
         uses: appleboy/ssh-action@v1
+        env:
+          WALLETWALLET_API_KEY: ${{ secrets.WALLETWALLET_API_KEY }}
+          WALLETWALLET_COLOR_PRESET: dark
+          WALLETWALLET_LOGO_URL: https://placehold.co/512x512/png?text=Loyali
+          WALLETWALLET_THUMBNAIL_URL: https://placehold.co/240x240/png?text=Rewards
+          WALLETWALLET_STRIP_URL: https://placehold.co/1032x336/png/1f2937/ffffff?text=Loyali+Rewards
         with:
           host: ${{ secrets.HETZNER_STAGING_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,WALLETWALLET_LOGO_URL,WALLETWALLET_THUMBNAIL_URL,WALLETWALLET_STRIP_URL
           script: |
             cd /opt/loyalty-platform
             export IMAGE_TAG=staging
             export DOCKER_REGISTRY=ghcr.io
             export DOCKER_IMAGE=${{ github.repository }}
+            export WALLETWALLET_API_KEY
+            export WALLETWALLET_COLOR_PRESET
+            export WALLETWALLET_LOGO_URL
+            export WALLETWALLET_THUMBNAIL_URL
+            export WALLETWALLET_STRIP_URL
             bash deploy/deploy.sh staging
 
   bootstrap-production:
@@ -180,11 +192,16 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WALLETWALLET_API_KEY: ${{ secrets.WALLETWALLET_API_KEY }}
+          WALLETWALLET_COLOR_PRESET: dark
+          WALLETWALLET_LOGO_URL: https://placehold.co/512x512/png?text=Loyali
+          WALLETWALLET_THUMBNAIL_URL: https://placehold.co/240x240/png?text=Rewards
+          WALLETWALLET_STRIP_URL: https://placehold.co/1032x336/png/1f2937/ffffff?text=Loyali+Rewards
         with:
           host: ${{ secrets.HETZNER_PROD_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: GH_TOKEN
+          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,WALLETWALLET_LOGO_URL,WALLETWALLET_THUMBNAIL_URL,WALLETWALLET_STRIP_URL
           script: |
             # Re-auth GHCR (token may have changed)
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
@@ -194,4 +211,9 @@ jobs:
             export IMAGE_TAG=latest
             export DOCKER_REGISTRY=ghcr.io
             export DOCKER_IMAGE=${{ github.repository }}
+            export WALLETWALLET_API_KEY
+            export WALLETWALLET_COLOR_PRESET
+            export WALLETWALLET_LOGO_URL
+            export WALLETWALLET_THUMBNAIL_URL
+            export WALLETWALLET_STRIP_URL
             bash deploy/deploy.sh production
