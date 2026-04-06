@@ -56,7 +56,7 @@ app.get("/dashboard/*", (_req, res) => {
 });
 
 // Serve the customer gamification app at /app/play/:merchantId and /app/join/:merchantId
-const customerPath = path.join(__dirname, "../customer/public");
+const customerPath = path.join(__dirname, "../../customer/public");
 app.get("/app/play/:merchantId", (_req, res) => {
   res.sendFile(path.join(customerPath, "play.html"));
 });

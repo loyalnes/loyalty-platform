@@ -38,6 +38,7 @@ RUN npx prisma generate
 # Copy built artifacts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dashboard/dist ./dashboard/dist
+COPY --from=builder /app/customer/public ./customer/public
 COPY --from=builder /app/marketing/out ./marketing
 
 # Non-root user for security
