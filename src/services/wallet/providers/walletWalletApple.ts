@@ -39,7 +39,8 @@ export async function generateWalletWalletApplePass(summary: WalletSummary): Pro
     throw new Error("WALLETWALLET_API_KEY is not configured. Please set the environment variable.");
   }
 
-  const payload = {
+  // Build payload - only include image URLs if they are real URLs (not placeholders)
+  const payload: Record<string, unknown> = {
     barcodeValue: summary.merchantScanToken,
     barcodeFormat: "QR",
     title: summary.merchantName,
@@ -47,11 +48,23 @@ export async function generateWalletWalletApplePass(summary: WalletSummary): Pro
     label: summary.customerName,
     value: compactSummary(summary),
     expirationDays: 365, // WalletWallet only accepts: 30, 90, 365
-    logoURL: process.env.WALLETWALLET_LOGO_URL || undefined,
-    thumbnailURL: process.env.WALLETWALLET_THUMBNAIL_URL || undefined,
-    stripURL: process.env.WALLETWALLET_STRIP_URL || undefined,
     colorPreset: process.env.WALLETWALLET_COLOR_PRESET || "dark",
   };
+
+  // Only add image URLs if they are configured and NOT placeholders
+  const logoURL = process.env.WALLETWALLET_LOGO_URL;
+  const thumbnailURL = process.env.WALLETWALLET_THUMBNAIL_URL;
+  const stripURL = process.env.WALLETWALLET_STRIP_URL;
+
+  if (logoURL && !logoURL.includes("placehold.co")) {
+    payload.logoURL = logoURL;
+  }
+  if (thumbnailURL && !thumbnailURL.includes("placehold.co")) {
+    payload.thumbnailURL = thumbnailURL;
+  }
+  if (stripURL && !stripURL.includes("placehold.co")) {
+    payload.stripURL = stripURL;
+  }
 
   console.log("WalletWallet API request:", {
     url: "https://api.walletwallet.dev/api/pkpass",
