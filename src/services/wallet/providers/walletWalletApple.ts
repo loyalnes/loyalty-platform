@@ -46,7 +46,7 @@ export async function generateWalletWalletApplePass(summary: WalletSummary): Pro
     cardLabel: "LOYALTY",
     label: summary.customerName,
     value: compactSummary(summary),
-    expirationDays: 3650,
+    expirationDays: 365, // WalletWallet only accepts: 30, 90, 365
     logoURL: process.env.WALLETWALLET_LOGO_URL || undefined,
     thumbnailURL: process.env.WALLETWALLET_THUMBNAIL_URL || undefined,
     stripURL: process.env.WALLETWALLET_STRIP_URL || undefined,
