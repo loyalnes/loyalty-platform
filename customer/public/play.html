@@ -250,6 +250,7 @@
       display: flex;
       gap: 12px;
       margin-top: 16px;
+      flex-wrap: wrap;
     }
 
     .wallet-btn {
@@ -375,6 +376,7 @@
           <div class="wallet-buttons">
             <button class="wallet-btn" onclick="addToAppleWallet()">🍎 Apple Wallet</button>
             <button class="wallet-btn" onclick="addToGoogleWallet()">📱 Google Pay</button>
+            <button class="wallet-btn" id="loyaltyPageBtn" onclick="openLoyaltyPage()" style="display:none;">⭐ My Loyalty Page</button>
           </div>
         </div>
       </div>
@@ -389,6 +391,7 @@
     let campaign = null;
     let wonPrize = null;
     let prizeWinId = null;
+    let loyaltyPagePath = null;
 
     // State management
     function showState(stateName) {
@@ -640,10 +643,12 @@
 
         const result = await res.json();
         prizeWinId = result.prizeWinId;
+        loyaltyPagePath = result.wallet?.loyaltyPagePath || null;
 
         document.getElementById('successMessage').textContent =
           `Your ${result.prizeName} is ready! Show this code at the counter.`;
         document.getElementById('redemptionCode').textContent = result.redemptionCode;
+        document.getElementById('loyaltyPageBtn').style.display = loyaltyPagePath ? 'inline-flex' : 'none';
 
         showState('successState');
       } catch (err) {
@@ -661,6 +666,11 @@
 
     function addToGoogleWallet() {
       alert('Google Wallet integration coming soon! Your redemption code: ' + document.getElementById('redemptionCode').textContent);
+    }
+
+    function openLoyaltyPage() {
+      if (!loyaltyPagePath) return;
+      window.location.href = loyaltyPagePath;
     }
 
     // Initialize

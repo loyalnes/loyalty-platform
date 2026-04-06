@@ -3,7 +3,7 @@ import prisma from "../prisma";
 import { authenticateMerchant } from "../middleware/auth";
 import { ApiError } from "../middleware/errorHandler";
 import { buildWalletSummary } from "../services/walletSummary";
-import { resolveWalletScanToken } from "../services/walletTokens";
+import { resolveWalletAccessToken, resolveWalletScanToken } from "../services/walletTokens";
 
 const router = Router();
 
@@ -32,6 +32,30 @@ router.post("/scan/resolve", authenticateMerchant, async (req: Request, res: Res
     }
 
     const summary = await buildWalletSummary(loyaltyCard.id, scanToken.walletPass.provider);
+    if (!summary) {
+      throw new ApiError(404, "Wallet summary not found");
+    }
+
+    res.json(summary);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /wallet/access/:token
+ * Resolve a stable customer wallet access token to a private loyalty summary
+ */
+router.get("/access/:token", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const accessTokenValue = req.params.token;
+
+    const accessToken = await resolveWalletAccessToken(accessTokenValue);
+    if (!accessToken || !accessToken.active || accessToken.revokedAt) {
+      throw new ApiError(404, "Wallet access not found");
+    }
+
+    const summary = await buildWalletSummary(accessToken.walletPass.loyaltyCardId, accessToken.walletPass.provider);
     if (!summary) {
       throw new ApiError(404, "Wallet summary not found");
     }

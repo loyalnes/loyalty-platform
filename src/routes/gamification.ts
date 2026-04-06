@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
+import { buildWalletSummary } from "../services/walletSummary";
 
 const router = Router();
 
@@ -270,6 +271,8 @@ router.post("/:merchantId/claim", async (req: Request, res: Response, next: Next
       },
     });
 
+    const walletSummary = await buildWalletSummary(loyaltyCard.id);
+
     res.json({
       prizeWinId: prizeWin.id,
       redemptionCode: prizeWin.redemptionCode,
@@ -284,6 +287,13 @@ router.post("/:merchantId/claim", async (req: Request, res: Response, next: Next
         id: prizeWin.campaign.merchant.id,
         name: prizeWin.campaign.merchant.name,
       },
+      wallet: walletSummary
+        ? {
+            loyaltyPagePath: `/app/loyalty/${walletSummary.customerAccessToken}`,
+            customerAccessToken: walletSummary.customerAccessToken,
+            merchantScanToken: walletSummary.merchantScanToken,
+          }
+        : null,
       isNewCustomer,
     });
   } catch (err) {

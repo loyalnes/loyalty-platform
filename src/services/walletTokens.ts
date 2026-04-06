@@ -89,3 +89,22 @@ export async function resolveWalletScanToken(token: string) {
     },
   });
 }
+
+export async function resolveWalletAccessToken(token: string) {
+  return prisma.walletAccessToken.findUnique({
+    where: { token },
+    include: {
+      walletPass: {
+        include: {
+          loyaltyCard: {
+            include: {
+              customer: true,
+              merchant: true,
+              cardTemplate: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}

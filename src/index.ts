@@ -63,6 +63,9 @@ app.get("/app/play/:merchantId", (_req, res) => {
 app.get("/app/join/:merchantId", (_req, res) => {
   res.sendFile(path.join(customerPath, "play.html"));
 });
+app.get("/app/loyalty/:token", (_req, res) => {
+  res.sendFile(path.join(customerPath, "loyalty.html"));
+});
 
 // Serve the marketing website at root /
 const marketingPath = path.join(__dirname, "../../marketing");
