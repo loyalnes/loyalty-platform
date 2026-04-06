@@ -13,6 +13,10 @@ interface PrizeForm {
   validityDays: number;
 }
 
+function getErrorMessage(error: unknown): string | null {
+  return error instanceof Error ? error.message : null;
+}
+
 export default function CreateCampaignPage() {
   const DEFAULT_VALIDITY_DAYS = 15;
   const navigate = useNavigate();
@@ -37,7 +41,7 @@ export default function CreateCampaignPage() {
     }
   };
 
-  const updatePrize = (index: number, field: keyof PrizeForm, value: any) => {
+  const updatePrize = <K extends keyof PrizeForm>(index: number, field: K, value: PrizeForm[K]) => {
     const updated = [...prizes];
     updated[index] = { ...updated[index], [field]: value };
     setPrizes(updated);
@@ -73,8 +77,8 @@ export default function CreateCampaignPage() {
       });
 
       navigate('/campaigns');
-    } catch (err: any) {
-      setError(err.message || t('campaigns.createError', 'Failed to create campaign'));
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || t('campaigns.createError', 'Failed to create campaign'));
     } finally {
       setLoading(false);
     }

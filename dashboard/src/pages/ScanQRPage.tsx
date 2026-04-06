@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Camera, KeyboardIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,44 @@ export default function ScanQRPage() {
   const [error, setError] = useState('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const hasStartedRef = useRef(false);
+
+  const fetchCustomer = useCallback(async (customerId: string) => {
+    try {
+      setError('');
+      const data = await getCustomerCard(customerId);
+      setCustomer(data);
+    } catch {
+      setError(t('scanQR.customerNotFound'));
+      // Resume scanning after 2 seconds
+      setTimeout(() => {
+        setError('');
+        scannerRef.current?.resume();
+      }, 2000);
+    }
+  }, [t]);
+
+  const onScanSuccess = useCallback(async (decodedText: string) => {
+    // Stop scanning temporarily
+    if (scannerRef.current?.isScanning) {
+      await scannerRef.current.pause(true);
+    }
+
+    // Extract customer ID from QR code
+    // Expected format: {origin}/app/customer/{customerId}
+    const match = decodedText.match(/\/app\/customer\/([a-f0-9-]+)/i);
+    if (!match) {
+      setError(t('scanQR.invalidQR'));
+      // Resume scanning after 2 seconds
+      setTimeout(() => {
+        setError('');
+        scannerRef.current?.resume();
+      }, 2000);
+      return;
+    }
+
+    const customerId = match[1];
+    await fetchCustomer(customerId);
+  }, [fetchCustomer, t]);
 
   useEffect(() => {
     if (hasStartedRef.current) return;
@@ -57,45 +95,7 @@ export default function ScanQRPage() {
           .catch((err) => console.error('Failed to stop scanner:', err));
       }
     };
-  }, []);
-
-  const onScanSuccess = async (decodedText: string) => {
-    // Stop scanning temporarily
-    if (scannerRef.current?.isScanning) {
-      await scannerRef.current.pause(true);
-    }
-
-    // Extract customer ID from QR code
-    // Expected format: {origin}/app/customer/{customerId}
-    const match = decodedText.match(/\/app\/customer\/([a-f0-9-]+)/i);
-    if (!match) {
-      setError(t('scanQR.invalidQR'));
-      // Resume scanning after 2 seconds
-      setTimeout(() => {
-        setError('');
-        scannerRef.current?.resume();
-      }, 2000);
-      return;
-    }
-
-    const customerId = match[1];
-    await fetchCustomer(customerId);
-  };
-
-  const fetchCustomer = async (customerId: string) => {
-    try {
-      setError('');
-      const data = await getCustomerCard(customerId);
-      setCustomer(data);
-    } catch (err) {
-      setError(t('scanQR.customerNotFound'));
-      // Resume scanning after 2 seconds
-      setTimeout(() => {
-        setError('');
-        scannerRef.current?.resume();
-      }, 2000);
-    }
-  };
+  }, [onScanSuccess]);
 
   const handleManualLookup = async () => {
     if (!manualId.trim()) return;

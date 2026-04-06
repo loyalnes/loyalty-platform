@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Mail, Phone, User, TrendingUp, TrendingDown, Calendar, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -15,12 +15,7 @@ export default function CustomerDetailPage() {
   const [nextReward, setNextReward] = useState<RewardTier | null>(null);
   const [pointsToNext, setPointsToNext] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!customerId) return;
-    loadCustomer();
-  }, [customerId]);
-
-  const loadCustomer = async () => {
+  const loadCustomer = useCallback(async () => {
     if (!customerId) return;
 
     setLoading(true);
@@ -49,7 +44,12 @@ export default function CustomerDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [customerId, t]);
+
+  useEffect(() => {
+    if (!customerId) return;
+    void loadCustomer();
+  }, [customerId, loadCustomer]);
 
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(undefined, {

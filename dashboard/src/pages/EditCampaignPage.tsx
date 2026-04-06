@@ -14,6 +14,10 @@ interface PrizeForm {
   validityDays: number;
 }
 
+function getErrorMessage(error: unknown): string | null {
+  return error instanceof Error ? error.message : null;
+}
+
 export default function EditCampaignPage() {
   const DEFAULT_VALIDITY_DAYS = 15;
   const { id } = useParams<{ id: string }>();
@@ -49,8 +53,8 @@ export default function EditCampaignPage() {
               validityDays: prize.validityDays || DEFAULT_VALIDITY_DAYS,
             })),
         );
-      } catch (err: any) {
-        setError(err.message || t('campaigns.loadError', 'Failed to load campaign'));
+      } catch (err: unknown) {
+        setError(getErrorMessage(err) || t('campaigns.loadError', 'Failed to load campaign'));
       } finally {
         setLoading(false);
       }
@@ -112,8 +116,8 @@ export default function EditCampaignPage() {
         })),
       });
       navigate('/campaigns');
-    } catch (err: any) {
-      setError(err.message || t('campaigns.updateError', 'Failed to update campaign'));
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || t('campaigns.updateError', 'Failed to update campaign'));
     } finally {
       setSaving(false);
     }
