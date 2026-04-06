@@ -11,8 +11,8 @@ export default function ShowQRPage() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
-  // TODO: Replace with actual customer signup URL when implemented
-  const signupUrl = `${window.location.origin}/app/join/${merchant?.id}`;
+  // Customer acquisition through gamification
+  const signupUrl = `${window.location.origin}/app/play/${merchant?.id}`;
 
   async function handleCopy() {
     try {
@@ -42,19 +42,25 @@ export default function ShowQRPage() {
   }
 
   return (
-    <div className="show-qr-page">
-      <div className="show-qr-header">
-        <button className="show-qr-close" onClick={() => navigate('/')}>
+    <div className="app-page stack-lg">
+      <header className="app-page-header">
+        <div className="app-page-header-row">
+          <button className="app-page-back" onClick={() => navigate('/')}>
           <X size={24} />
         </button>
-        <h1 className="show-qr-title">{t('showQR.title')}</h1>
-      </div>
+          <div style={{ flex: 1 }}>
+            <span className="app-page-kicker">{t('showQR.title')}</span>
+            <h1 className="app-page-title">{merchant?.name}</h1>
+          </div>
+        </div>
+        <p className="app-page-subtitle">{t('showQR.subtitle', 'Scan to play & win prizes!')}</p>
+      </header>
 
-      <div className="show-qr-content">
-        <div className="show-qr-card">
+      <section className="app-surface-card app-surface-card-muted">
+        <div className="app-surface-body" style={{ textAlign: 'center' }}>
           <div className="show-qr-merchant">
             <div className="show-qr-merchant-name">{merchant?.name}</div>
-            <div className="show-qr-merchant-subtitle">{t('showQR.subtitle')}</div>
+            <div className="show-qr-merchant-subtitle">{t('showQR.subtitle', 'Scan to play & win prizes!')}</div>
           </div>
 
           <div className="show-qr-code">
@@ -68,8 +74,9 @@ export default function ShowQRPage() {
             />
           </div>
 
-          <div className="show-qr-instruction">{t('showQR.instruction')}</div>
+          <div className="show-qr-instruction">{t('showQR.instruction', 'Let customers scan this QR code to play the game and join your loyalty program')}</div>
         </div>
+      </section>
 
         <div className="show-qr-actions">
           <button className="btn btn-secondary" onClick={handleCopy}>
@@ -81,7 +88,6 @@ export default function ShowQRPage() {
             <span>{t('showQR.share')}</span>
           </button>
         </div>
-      </div>
     </div>
   );
 }

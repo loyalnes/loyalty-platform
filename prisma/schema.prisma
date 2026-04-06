@@ -3,32 +3,33 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 // ─── Merchants ───────────────────────────────────────────────
 
 model Merchant {
-  id        String       @id @default(uuid()) @db.Uuid
-  name      String
-  email     String       @unique
-  phone     String?
-  address   String?
-  city      String?
-  country   String?
-  plan      MerchantPlan @default(FREE)
-  settings  Json         @default("{}")
-  preferredLocale Locale   @default(en) @map("preferred_locale")
-  active    Boolean      @default(true)
-  createdAt DateTime     @default(now()) @map("created_at")
-  updatedAt DateTime     @updatedAt @map("updated_at")
+  id              String       @id @default(uuid())
+  name            String
+  email           String       @unique
+  phone           String?
+  address         String?
+  city            String?
+  country         String?
+  plan            MerchantPlan @default(FREE)
+  settings        String       @default("{}")
+  preferredLocale Locale       @default(en) @map("preferred_locale")
+  active          Boolean      @default(true)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
 
-  passwordHash    String?          @map("password_hash")
+  passwordHash String? @map("password_hash")
 
-  loyaltyCards    LoyaltyCard[]
-  cardTemplates   CardTemplate[]
-  loyaltyProgram  LoyaltyProgram?
-  feedbacks       MerchantFeedback[]
+  loyaltyCards          LoyaltyCard[]
+  cardTemplates         CardTemplate[]
+  loyaltyProgram        LoyaltyProgram?
+  feedbacks             MerchantFeedback[]
+  gamificationCampaigns GamificationCampaign[]
 
   @@map("merchants")
 }
@@ -49,18 +50,21 @@ enum Locale {
 // ─── Customers ───────────────────────────────────────────────
 
 model Customer {
-  id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
-  phone     String?
-  avatarUrl String?  @map("avatar_url")
-  preferredLocale Locale   @default(en) @map("preferred_locale")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                String    @id @default(uuid())
+  email             String    @unique
+  firstName         String    @map("first_name")
+  lastName          String?   @map("last_name")
+  phone             String?
+  dateOfBirth       DateTime? @map("date_of_birth")
+  avatarUrl         String?   @map("avatar_url")
+  acquisitionSource String?   @map("acquisition_source")
+  preferredLocale   Locale    @default(en) @map("preferred_locale")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   loyaltyCards LoyaltyCard[]
   feedbacks    MerchantFeedback[]
+  prizeWins    PrizeWin[]
 
   @@map("customers")
 }
@@ -68,11 +72,11 @@ model Customer {
 // ─── Loyalty Cards ───────────────────────────────────────────
 
 model LoyaltyCard {
-  id             String            @id @default(uuid()) @db.Uuid
+  id             String            @id @default(uuid())
   cardNumber     String            @unique @map("card_number")
-  merchantId     String            @map("merchant_id") @db.Uuid
-  customerId     String            @map("customer_id") @db.Uuid
-  cardTemplateId String?           @map("card_template_id") @db.Uuid
+  merchantId     String            @map("merchant_id")
+  customerId     String            @map("customer_id")
+  cardTemplateId String?           @map("card_template_id")
   status         LoyaltyCardStatus @default(ACTIVE)
   pointsBalance  Int               @default(0) @map("points_balance")
   totalEarned    Int               @default(0) @map("total_earned")
@@ -82,10 +86,11 @@ model LoyaltyCard {
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
 
-  merchant     Merchant          @relation(fields: [merchantId], references: [id])
-  customer     Customer          @relation(fields: [customerId], references: [id])
-  cardTemplate CardTemplate?     @relation(fields: [cardTemplateId], references: [id])
+  merchant     Merchant            @relation(fields: [merchantId], references: [id])
+  customer     Customer            @relation(fields: [customerId], references: [id])
+  cardTemplate CardTemplate?       @relation(fields: [cardTemplateId], references: [id])
   transactions PointsTransaction[]
+  prizeWins    PrizeWin[]
 
   @@unique([merchantId, customerId])
   @@index([merchantId])
@@ -103,15 +108,15 @@ enum LoyaltyCardStatus {
 // ─── Card Templates / Tiers ──────────────────────────────────
 
 model CardTemplate {
-  id                String   @id @default(uuid()) @db.Uuid
-  merchantId        String   @map("merchant_id") @db.Uuid
+  id                String   @id @default(uuid())
+  merchantId        String   @map("merchant_id")
   name              String
   description       String?
   tier              CardTier @default(STANDARD)
-  pointsPerCurrency Decimal  @default(1) @map("points_per_currency") @db.Decimal(10, 2)
-  redemptionRate    Decimal  @default(0.01) @map("redemption_rate") @db.Decimal(10, 4)
+  pointsPerCurrency Decimal  @default(1) @map("points_per_currency") 
+  redemptionRate    Decimal  @default(0.01) @map("redemption_rate") 
   minRedeemPoints   Int      @default(100) @map("min_redeem_points")
-  bonusMultiplier   Decimal  @default(1) @map("bonus_multiplier") @db.Decimal(5, 2)
+  bonusMultiplier   Decimal  @default(1) @map("bonus_multiplier") 
   validityDays      Int?     @map("validity_days")
   active            Boolean  @default(true)
   createdAt         DateTime @default(now()) @map("created_at")
@@ -134,8 +139,8 @@ enum CardTier {
 // ─── Points Transactions ─────────────────────────────────────
 
 model PointsTransaction {
-  id            String                @id @default(uuid()) @db.Uuid
-  loyaltyCardId String                @map("loyalty_card_id") @db.Uuid
+  id            String                @id @default(uuid())
+  loyaltyCardId String                @map("loyalty_card_id")
   type          PointsTransactionType
   points        Int
   balanceAfter  Int                   @map("balance_after")
@@ -161,12 +166,12 @@ enum PointsTransactionType {
 // ─── Loyalty Programs ────────────────────────────────────────
 
 model LoyaltyProgram {
-  id                String             @id @default(uuid()) @db.Uuid
-  merchantId        String             @unique @map("merchant_id") @db.Uuid
+  id                String             @id @default(uuid())
+  merchantId        String             @unique @map("merchant_id")
   type              LoyaltyProgramType
   goalStamps        Int?               @map("goal_stamps")
   welcomeStamps     Int?               @map("welcome_stamps")
-  pointsPerCurrency Decimal?           @map("points_per_currency") @db.Decimal(10, 2)
+  pointsPerCurrency Decimal?           @map("points_per_currency") 
   active            Boolean            @default(true)
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
@@ -183,14 +188,14 @@ enum LoyaltyProgramType {
 }
 
 model RewardTier {
-  id               String         @id @default(uuid()) @db.Uuid
-  loyaltyProgramId String         @map("loyalty_program_id") @db.Uuid
+  id               String   @id @default(uuid())
+  loyaltyProgramId String   @map("loyalty_program_id")
   name             String
   threshold        Int
-  rewardName       String         @map("reward_name")
-  sortOrder        Int            @default(0) @map("sort_order")
-  createdAt        DateTime       @default(now()) @map("created_at")
-  updatedAt        DateTime       @updatedAt @map("updated_at")
+  rewardName       String   @map("reward_name")
+  sortOrder        Int      @default(0) @map("sort_order")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   loyaltyProgram LoyaltyProgram @relation(fields: [loyaltyProgramId], references: [id], onDelete: Cascade)
 
@@ -201,14 +206,14 @@ model RewardTier {
 // ─── Merchant Feedback ──────────────────────────────────────
 
 model MerchantFeedback {
-  id         String   @id @default(uuid()) @db.Uuid
-  merchantId String   @map("merchant_id") @db.Uuid
-  customerId String   @map("customer_id") @db.Uuid
+  id         String    @id @default(uuid())
+  merchantId String    @map("merchant_id")
+  customerId String    @map("customer_id")
   rating     Int
   text       String
   readAt     DateTime? @map("read_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -216,4 +221,95 @@ model MerchantFeedback {
   @@index([merchantId, createdAt])
   @@index([customerId])
   @@map("merchant_feedback")
+}
+
+// ─── Gamification Campaigns ──────────────────────────────────
+
+model GamificationCampaign {
+  id          String    @id @default(uuid())
+  merchantId  String    @map("merchant_id")
+  name        String
+  description String?
+  gameType    GameType  @map("game_type")
+  active      Boolean   @default(true)
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  merchant  Merchant   @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  prizes    Prize[]
+  prizeWins PrizeWin[]
+
+  @@index([merchantId])
+  @@index([active])
+  @@map("gamification_campaigns")
+}
+
+enum GameType {
+  SCRATCH_CARD
+  SPIN_WHEEL
+}
+
+// ─── Prizes ──────────────────────────────────────────────────
+
+model Prize {
+  id           String    @id @default(uuid())
+  campaignId   String    @map("campaign_id")
+  name         String
+  description  String?
+  prizeType    PrizeType @map("prize_type")
+  prizeValue   String?   @map("prize_value")
+  probability  Int
+  validityDays Int       @default(7) @map("validity_days")
+  imageUrl     String?   @map("image_url")
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  campaign  GamificationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  prizeWins PrizeWin[]
+
+  @@index([campaignId])
+  @@map("prizes")
+}
+
+enum PrizeType {
+  PHYSICAL
+  DIGITAL
+}
+
+// ─── Prize Wins ──────────────────────────────────────────────
+
+model PrizeWin {
+  id             String      @id @default(uuid())
+  campaignId     String      @map("campaign_id")
+  prizeId        String      @map("prize_id")
+  customerId     String      @map("customer_id")
+  loyaltyCardId  String?     @map("loyalty_card_id")
+  status         PrizeStatus @default(PENDING)
+  redemptionCode String      @unique @map("redemption_code")
+  wonAt          DateTime    @default(now()) @map("won_at")
+  redeemedAt     DateTime?   @map("redeemed_at")
+  expiresAt      DateTime    @map("expires_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  campaign    GamificationCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  prize       Prize                @relation(fields: [prizeId], references: [id])
+  customer    Customer             @relation(fields: [customerId], references: [id])
+  loyaltyCard LoyaltyCard?         @relation(fields: [loyaltyCardId], references: [id])
+
+  @@unique([campaignId, customerId])
+  @@index([campaignId])
+  @@index([customerId])
+  @@index([status])
+  @@index([redemptionCode])
+  @@map("prize_wins")
+}
+
+enum PrizeStatus {
+  PENDING
+  REDEEMED
+  EXPIRED
 }

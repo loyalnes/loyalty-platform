@@ -72,47 +72,64 @@ export default function SetupWizardPage() {
   }
 
   return (
-    <div className="setup-page">
-      <div className="setup-header">
-        <button
-          className="setup-back"
-          onClick={() => (step > 1 ? setStep(step - 1) : navigate('/'))}
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <h1 className="setup-title">{t('setup.title')}</h1>
-      </div>
+    <div className="app-page stack-lg">
+      <header className="app-page-header">
+        <div className="app-page-header-row">
+          <button
+            className="app-page-back"
+            onClick={() => (step > 1 ? setStep(step - 1) : navigate('/'))}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div style={{ flex: 1 }}>
+            <span className="app-page-kicker">{t('setup.title')}</span>
+            <h1 className="app-page-title">{t('setup.title')}</h1>
+          </div>
+        </div>
+        <p className="app-page-subtitle">
+          {step === 1
+            ? t('setup.chooseSystem')
+            : step === 2
+              ? (type === 'STAMPS' ? t('setup.configureStamps') : t('setup.configurePoints'))
+              : t('setup.defineRewards')}
+        </p>
+      </header>
 
       {/* Step 1: Choose system */}
       {step === 1 && (
-        <div className="setup-step">
-          <h2 className="setup-step-title">{t('setup.chooseSystem')}</h2>
+        <div className="app-form-card app-form-stack">
+          <div>
+            <span className="section-kicker">{t('setup.chooseSystem')}</span>
+            <h2 className="app-section-title">{t('setup.chooseSystem')}</h2>
+          </div>
 
-          <button
-            className={`selectable-card${type === 'POINTS' ? ' selected' : ''}`}
-            onClick={() => setType('POINTS')}
-          >
-            <div className="selectable-card-icon points-icon">
-              <PlusCircle size={24} />
-            </div>
-            <div>
-              <div className="selectable-card-title">{t('setup.pointsSystem')}</div>
-              <div className="selectable-card-desc">{t('setup.pointsDesc')}</div>
-            </div>
-          </button>
+          <div className="app-choice-grid">
+            <button
+              className={`app-choice-card${type === 'POINTS' ? ' active' : ''}`}
+              onClick={() => setType('POINTS')}
+            >
+              <div className="app-choice-card-body">
+                <div className="app-icon-chip app-icon-chip-primary">
+                  <PlusCircle size={24} />
+                </div>
+                <div className="app-choice-title">{t('setup.pointsSystem')}</div>
+                <div className="app-choice-description">{t('setup.pointsDesc')}</div>
+              </div>
+            </button>
 
-          <button
-            className={`selectable-card${type === 'STAMPS' ? ' selected' : ''}`}
-            onClick={() => setType('STAMPS')}
-          >
-            <div className="selectable-card-icon stamps-icon">
-              <Grid3X3 size={24} />
-            </div>
-            <div>
-              <div className="selectable-card-title">{t('setup.stampCard')}</div>
-              <div className="selectable-card-desc">{t('setup.stampDesc')}</div>
-            </div>
-          </button>
+            <button
+              className={`app-choice-card${type === 'STAMPS' ? ' active' : ''}`}
+              onClick={() => setType('STAMPS')}
+            >
+              <div className="app-choice-card-body">
+                <div className="app-icon-chip app-icon-chip-secondary">
+                  <Grid3X3 size={24} />
+                </div>
+                <div className="app-choice-title">{t('setup.stampCard')}</div>
+                <div className="app-choice-description">{t('setup.stampDesc')}</div>
+              </div>
+            </button>
+          </div>
 
           <button
             className="btn btn-primary btn-block"
@@ -126,10 +143,13 @@ export default function SetupWizardPage() {
 
       {/* Step 2: Configure */}
       {step === 2 && (
-        <div className="setup-step">
-          <h2 className="setup-step-title">
+        <div className="app-form-card app-form-stack">
+          <div>
+            <span className="section-kicker">{t('setup.title')}</span>
+            <h2 className="app-section-title">
             {type === 'STAMPS' ? t('setup.configureStamps') : t('setup.configurePoints')}
-          </h2>
+            </h2>
+          </div>
 
           {type === 'STAMPS' ? (
             <>
@@ -194,8 +214,11 @@ export default function SetupWizardPage() {
 
       {/* Step 3: Define Rewards */}
       {step === 3 && (
-        <div className="setup-step">
-          <h2 className="setup-step-title">{t('setup.defineRewards')}</h2>
+        <div className="app-form-card app-form-stack">
+          <div>
+            <span className="section-kicker">{t('setup.defineRewards')}</span>
+            <h2 className="app-section-title">{t('setup.defineRewards')}</h2>
+          </div>
 
           {error && <div className="error-msg">{error}</div>}
 

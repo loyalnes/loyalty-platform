@@ -29,7 +29,8 @@ export default function InsightsAlerts({ items, onNavigate }: InsightsAlertsProp
   if (visibleItems.length === 0) return null;
 
   return (
-    <section className="insights-alerts">
+    <section className="insights-alerts app-surface-card">
+      <div className="app-surface-body">
       <div className="insights-alerts-header">
         <h2>{t('insights.alertsTitle')}</h2>
         {hasMore && !showAll && (
@@ -62,6 +63,7 @@ export default function InsightsAlerts({ items, onNavigate }: InsightsAlertsProp
             </article>
           );
         })}
+      </div>
       </div>
     </section>
   );

@@ -116,14 +116,18 @@ export default function ScanQRPage() {
 
   return (
     <div className="scan-qr-page">
-      <div className="scan-qr-header">
-        <h1>{t('scanQR.title')}</h1>
-        <button className="scan-qr-close" onClick={handleClose}>
-          <X size={24} />
-        </button>
-      </div>
+      <div className="scan-qr-shell">
+        <header className="scan-qr-header">
+          <div>
+            <span className="app-page-kicker" style={{ color: 'rgba(241, 242, 255, 0.72)' }}>{t('scanQR.title')}</span>
+            <h1>{t('scanQR.title')}</h1>
+          </div>
+          <button className="scan-qr-close" onClick={handleClose}>
+            <X size={24} />
+          </button>
+        </header>
 
-      <div className="scan-qr-content">
+        <div className="scan-qr-content">
         {cameraError ? (
           <div className="scan-qr-error">
             <Camera size={48} strokeWidth={1.5} />
@@ -156,6 +160,7 @@ export default function ScanQRPage() {
             </button>
           </>
         )}
+        </div>
       </div>
 
       {/* Manual Input Modal */}

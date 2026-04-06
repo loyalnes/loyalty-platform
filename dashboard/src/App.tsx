@@ -13,6 +13,11 @@ import ShowQRPage from './pages/ShowQRPage';
 import ScanQRPage from './pages/ScanQRPage';
 import CustomersPage from './pages/CustomersPage';
 import CustomerDetailPage from './pages/CustomerDetailPage';
+import CampaignsPage from './pages/CampaignsPage';
+import CreateCampaignPage from './pages/CreateCampaignPage';
+import CampaignDetailPage from './pages/CampaignDetailPage';
+import EditCampaignPage from './pages/EditCampaignPage';
+import MenuPage from './pages/MenuPage';
 
 function MobileLayout() {
   return (
@@ -41,14 +46,6 @@ function HomePage() {
   return program ? <LoyaltyHubPage /> : <WelcomePage />;
 }
 
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="placeholder-page">
-      <h2>{title}</h2>
-      <p>Coming soon</p>
-    </div>
-  );
-}
 
 function RequireAuth() {
   const { merchant, loading } = useAuth();
@@ -76,12 +73,16 @@ function AppRoutes() {
           <Route path="/setup" element={<SetupWizardPage />} />
           <Route path="/insights" element={<InsightsPage />} />
           <Route path="/customers" element={<CustomersPage />} />
-          <Route path="/menu" element={<PlaceholderPage title="Menu" />} />
+          <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/menu" element={<MenuPage />} />
         </Route>
         <Route element={<FullPageLayout />}>
           <Route path="/show-qr" element={<ShowQRPage />} />
           <Route path="/scan-qr" element={<ScanQRPage />} />
           <Route path="/customers/:customerId" element={<CustomerDetailPage />} />
+          <Route path="/campaigns/new" element={<CreateCampaignPage />} />
+          <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
+          <Route path="/campaigns/:id/edit" element={<EditCampaignPage />} />
         </Route>
       </Route>
     </Routes>

@@ -75,7 +75,7 @@ export default function CustomerDetailPage() {
 
   if (loading) {
     return (
-      <div className="customer-detail-page">
+      <div className="app-page">
         <div className="customer-detail-loading">{t('customerDetail.loading')}</div>
       </div>
     );
@@ -83,7 +83,7 @@ export default function CustomerDetailPage() {
 
   if (error || !customer) {
     return (
-      <div className="customer-detail-page">
+      <div className="app-page">
         <div className="customer-detail-error">
           <p>{error || t('customerDetail.notFound')}</p>
           <button className="btn-primary" onClick={() => navigate('/customers')}>
@@ -95,83 +95,99 @@ export default function CustomerDetailPage() {
   }
 
   return (
-    <div className="customer-detail-page">
-      {/* Header */}
-      <div className="customer-detail-header">
-        <button className="customer-detail-back" onClick={() => navigate('/customers')}>
-          <ChevronLeft size={24} />
-        </button>
-        <h1>{t('customerDetail.title')}</h1>
-      </div>
-
-      {/* Profile Section */}
-      <div className="customer-detail-profile">
-        <div className="customer-detail-avatar">
-          {customer.avatarUrl ? (
-            <img src={customer.avatarUrl} alt={`${customer.firstName} ${customer.lastName}`} />
-          ) : (
-            <div className="customer-detail-avatar-placeholder">
-              <User size={40} />
-            </div>
-          )}
+    <div className="app-page stack-lg">
+      <header className="app-page-header">
+        <div className="app-page-header-row">
+          <button className="app-page-back" onClick={() => navigate('/customers')}>
+            <ChevronLeft size={24} />
+          </button>
+          <div style={{ flex: 1 }}>
+            <span className="app-page-kicker">{t('customerDetail.title')}</span>
+            <h1 className="app-page-title">
+              {customer.firstName} {customer.lastName}
+            </h1>
+          </div>
         </div>
-        <h2 className="customer-detail-name">
-          {customer.firstName} {customer.lastName}
-        </h2>
-        <div className="customer-detail-contacts">
-          {customer.email && (
-            <div className="customer-detail-contact">
-              <Mail size={14} />
-              <span>{customer.email}</span>
-            </div>
-          )}
-          {customer.phone && (
-            <div className="customer-detail-contact">
-              <Phone size={14} />
-              <span>{customer.phone}</span>
-            </div>
-          )}
-        </div>
-      </div>
+      </header>
 
-      {/* Near Reward Alert */}
+      <section className="app-surface-card app-surface-card-muted">
+        <div className="app-surface-body customer-detail-profile">
+          <div className="customer-detail-avatar">
+            {customer.avatarUrl ? (
+              <img src={customer.avatarUrl} alt={`${customer.firstName} ${customer.lastName}`} />
+            ) : (
+              <div className="customer-detail-avatar-placeholder">
+                <User size={40} />
+              </div>
+            )}
+          </div>
+          <div className="customer-detail-contacts">
+            {customer.email && (
+              <div className="customer-detail-contact">
+                <Mail size={14} />
+                <span>{customer.email}</span>
+              </div>
+            )}
+            {customer.phone && (
+              <div className="customer-detail-contact">
+                <Phone size={14} />
+                <span>{customer.phone}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {nextReward && pointsToNext !== null && pointsToNext <= 20 && (
-        <div className="customer-detail-alert">
-          <Award size={20} />
-          <div>
-            <div className="customer-detail-alert-title">{t('customerDetail.nearReward')}</div>
-            <div className="customer-detail-alert-desc">
-              {t('customerDetail.pointsToNext', { points: pointsToNext })}
+        <div className="app-soft-card">
+          <div className="app-soft-card-body customer-detail-alert">
+            <Award size={20} />
+            <div>
+              <div className="customer-detail-alert-title">{t('customerDetail.nearReward')}</div>
+              <div className="customer-detail-alert-desc">
+                {t('customerDetail.pointsToNext', { points: pointsToNext })}
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Stats Grid */}
-      <div className="customer-detail-stats">
-        <div className="customer-detail-stat">
-          <div className="customer-detail-stat-label">{t('customerDetail.currentPoints')}</div>
-          <div className="customer-detail-stat-value primary">{customer.pointsBalance}</div>
-        </div>
-        <div className="customer-detail-stat">
-          <div className="customer-detail-stat-label">{t('customerDetail.totalEarned')}</div>
-          <div className="customer-detail-stat-value success">
-            <TrendingUp size={18} />
-            {customer.totalEarned}
+      <section className="app-surface-card">
+        <div className="app-surface-body">
+          <div className="app-section-header">
+            <div>
+              <span className="section-kicker">{t('customerDetail.title')}</span>
+              <h2 className="app-section-title">{t('customerDetail.recentActivity')}</h2>
+            </div>
+          </div>
+          <div className="app-stat-grid">
+            <div className="app-stat-card">
+              <div className="app-stat-label">{t('customerDetail.currentPoints')}</div>
+              <div className="app-stat-value">{customer.pointsBalance}</div>
+            </div>
+            <div className="app-stat-card">
+              <div className="app-stat-label">{t('customerDetail.totalEarned')}</div>
+              <div className="app-stat-value">{customer.totalEarned}</div>
+            </div>
+            <div className="app-stat-card">
+              <div className="app-stat-label">{t('customerDetail.totalRedeemed')}</div>
+              <div className="app-stat-value">{customer.totalRedeemed}</div>
+            </div>
+            {nextReward && pointsToNext !== null ? (
+              <div className="app-stat-card">
+                <div className="app-stat-label">{t('customerDetail.nearReward')}</div>
+                <div className="app-stat-value">{pointsToNext}</div>
+              </div>
+            ) : null}
           </div>
         </div>
-        <div className="customer-detail-stat">
-          <div className="customer-detail-stat-label">{t('customerDetail.totalRedeemed')}</div>
-          <div className="customer-detail-stat-value secondary">
-            <TrendingDown size={18} />
-            {customer.totalRedeemed}
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* Recent Activity */}
-      <div className="customer-detail-section">
-        <h3 className="customer-detail-section-title">{t('customerDetail.recentActivity')}</h3>
+      <section className="app-section">
+        <div>
+          <span className="section-kicker">{t('customerDetail.recentActivity')}</span>
+          <h3 className="app-section-title">{t('customerDetail.recentActivity')}</h3>
+        </div>
 
         {customer.recentTransactions.length === 0 ? (
           <div className="customer-detail-no-activity">{t('customerDetail.noActivity')}</div>
@@ -202,7 +218,7 @@ export default function CustomerDetailPage() {
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

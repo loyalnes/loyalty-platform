@@ -12,7 +12,7 @@ export default function TimeFilter({ value, onChange }: TimeFilterProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="insights-time-filter" role="tablist" aria-label={t('insights.periodLabel')}>
+    <div className="insights-time-filter app-surface-card" role="tablist" aria-label={t('insights.periodLabel')}>
       {PERIODS.map((period) => (
         <button
           key={period}
