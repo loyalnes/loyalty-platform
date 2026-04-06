@@ -374,8 +374,8 @@
             <div style="font-size: 24px; font-weight: 700; letter-spacing: 2px;" id="redemptionCode"></div>
           </div>
           <div class="wallet-buttons">
-            <button class="wallet-btn" onclick="addToAppleWallet()">🍎 Apple Wallet</button>
-            <button class="wallet-btn" onclick="addToGoogleWallet()">📱 Google Pay</button>
+            <button class="wallet-btn" id="appleWalletBtn" onclick="addToAppleWallet()" style="display:none;">🍎 Apple Wallet</button>
+            <button class="wallet-btn" id="googleWalletBtn" onclick="addToGoogleWallet()" style="display:none;">📱 Google Pay</button>
             <button class="wallet-btn" id="loyaltyPageBtn" onclick="openLoyaltyPage()" style="display:none;">⭐ My Loyalty Page</button>
           </div>
         </div>
@@ -392,6 +392,7 @@
     let wonPrize = null;
     let prizeWinId = null;
     let loyaltyPagePath = null;
+    let customerAccessToken = null;
 
     // State management
     function showState(stateName) {
@@ -644,11 +645,14 @@
         const result = await res.json();
         prizeWinId = result.prizeWinId;
         loyaltyPagePath = result.wallet?.loyaltyPagePath || null;
+        customerAccessToken = result.wallet?.customerAccessToken || null;
 
         document.getElementById('successMessage').textContent =
           `Your ${result.prizeName} is ready! Show this code at the counter.`;
         document.getElementById('redemptionCode').textContent = result.redemptionCode;
         document.getElementById('loyaltyPageBtn').style.display = loyaltyPagePath ? 'inline-flex' : 'none';
+        document.getElementById('appleWalletBtn').style.display = isAppleWalletSupported() && customerAccessToken ? 'inline-flex' : 'none';
+        document.getElementById('googleWalletBtn').style.display = 'none';
 
         showState('successState');
       } catch (err) {
@@ -661,7 +665,8 @@
 
     // Wallet functions (placeholders for now)
     function addToAppleWallet() {
-      alert('Apple Wallet integration coming soon! Your redemption code: ' + document.getElementById('redemptionCode').textContent);
+      if (!customerAccessToken) return;
+      window.location.href = `/api/wallet/access/${customerAccessToken}/apple-pass`;
     }
 
     function addToGoogleWallet() {
@@ -671,6 +676,13 @@
     function openLoyaltyPage() {
       if (!loyaltyPagePath) return;
       window.location.href = loyaltyPagePath;
+    }
+
+    function isAppleWalletSupported() {
+      const ua = navigator.userAgent || '';
+      const isIPhone = /iPhone/i.test(ua);
+      const isSafari = /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS/i.test(ua);
+      return isIPhone && isSafari;
     }
 
     // Initialize

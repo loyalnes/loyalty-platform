@@ -4,6 +4,7 @@ import { authenticateMerchant } from "../middleware/auth";
 import { ApiError } from "../middleware/errorHandler";
 import { buildWalletSummary } from "../services/walletSummary";
 import { resolveWalletAccessToken, resolveWalletScanToken } from "../services/walletTokens";
+import { generateWalletWalletApplePass } from "../services/wallet/providers/walletWalletApple";
 
 const router = Router();
 
@@ -61,6 +62,35 @@ router.get("/access/:token", async (req: Request, res: Response, next: NextFunct
     }
 
     res.json(summary);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /wallet/access/:token/apple-pass
+ * Generate an Apple Wallet pass for the loyalty card behind a stable customer access token
+ */
+router.get("/access/:token/apple-pass", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const accessTokenValue = req.params.token;
+
+    const accessToken = await resolveWalletAccessToken(accessTokenValue);
+    if (!accessToken || !accessToken.active || accessToken.revokedAt) {
+      throw new ApiError(404, "Wallet access not found");
+    }
+
+    const summary = await buildWalletSummary(accessToken.walletPass.loyaltyCardId, "APPLE_WALLET");
+    if (!summary) {
+      throw new ApiError(404, "Wallet summary not found");
+    }
+
+    const pkpass = await generateWalletWalletApplePass(summary);
+    const safeMerchant = summary.merchantName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "loyalty-card";
+
+    res.setHeader("Content-Type", "application/vnd.apple.pkpass");
+    res.setHeader("Content-Disposition", `attachment; filename="${safeMerchant}.pkpass"`);
+    res.send(pkpass);
   } catch (err) {
     next(err);
   }
