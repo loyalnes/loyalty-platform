@@ -3,6 +3,9 @@
 Date: 2026-04-06
 Target validation environment: PR preview deployment, e.g. `https://pr-30.preview.loyali.online/dashboard/login`
 
+Note:
+- Preview validation for Apple Wallet depends on GitHub Actions secret `WALLETWALLET_API_KEY` being configured.
+
 ## Goal
 
 Implement the MVP defined in [WALLET_PASS_MVP_PLAN.md](/Users/eliobencini/loyalty-platform/loyalty-platform/WALLET_PASS_MVP_PLAN.md) so it can be tested end-to-end on a preview environment.
