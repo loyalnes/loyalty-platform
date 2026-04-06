@@ -220,7 +220,7 @@ export default function CreateCampaignPage() {
                     <select
                       className="form-input"
                       value={prize.prizeType}
-                      onChange={(e) => updatePrize(index, 'prizeType', e.target.value)}
+                      onChange={(e) => updatePrize(index, 'prizeType', e.target.value as PrizeType)}
                     >
                       <option value="PHYSICAL">{t('campaigns.physical', 'Physical')}</option>
                       <option value="DIGITAL">{t('campaigns.digital', 'Digital')}</option>
