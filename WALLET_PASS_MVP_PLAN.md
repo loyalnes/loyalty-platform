@@ -3,6 +3,25 @@
 Date: 2026-04-06
 Scope: loyalty card wallet pass with active prizes, merchant scan flow, private customer web-view
 
+## Session Status
+
+Implemented in this session:
+- Prisma wallet domain models and migration
+- wallet token services
+- wallet summary builder service
+- merchant scan resolve API
+- customer private loyalty page token flow
+- customer private loyalty page UI at `/app/loyalty/:token`
+- post-claim `My Loyalty Page` CTA
+- Apple Wallet backend integration via WalletWallet
+- Apple Wallet CTA visibility on iPhone/Safari
+- deploy wiring for WalletWallet env vars in preview/staging/production workflows
+
+Still pending:
+- richer pass branding assets replacing placeholders
+- final preview validation with live WalletWallet and Google Wallet secrets on real devices (iPhone Safari, Android)
+- pass refresh triggers wired into points/prize mutations beyond on-demand generation
+
 ## Product Direction
 
 We will build a single persistent wallet pass per `loyaltyCard`.
@@ -74,6 +93,11 @@ After gamification `claim prize`:
   - `Add to Google Wallet` on supported Android flow
   - `Open My Loyalty Page`
 
+Current status:
+- `Open My Loyalty Page` is implemented
+- `Add to Apple Wallet` is implemented through `/api/wallet/access/:token/apple-pass`
+- `Add to Google Wallet` is implemented through `/api/wallet/access/:token/google-pass`
+
 Customer private loyalty page shows:
 - points balance
 - current tier
@@ -91,13 +115,13 @@ After scanning the wallet pass barcode:
   - points available
   - active prizes
   - recent history
-- allow redeem through SaaS
+- allow points-first redeem through SaaS
 
 Reward-tier redemption remains points-based:
 - if threshold is met, merchant redeems that reward
 - points are deducted automatically
 
-Gamification prizes are displayed as active prizes and redeemed through SaaS merchant actions.
+Gamification prizes are displayed as active prizes in the same loyalty context.
 
 ## Architecture Decisions
 
@@ -245,7 +269,7 @@ Because WalletWallet appears limited, compress the snapshot into a compact pass.
 Suggested mapping:
 - `title`: merchant name
 - `cardLabel`: `LOYALTY`
-- `label`: `POINTS`
+- `label`: customer name
 - `value`: `240 pts · Gold · 2 rewards`
 - `barcodeValue`: merchant scan token
 - `barcodeFormat`: `QR`
@@ -254,6 +278,11 @@ Suggested mapping:
   - `logoURL`
   - `thumbnailURL`
   - `stripURL`
+
+Current status:
+- this compact mapping is implemented in [walletWalletApple.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/wallet/providers/walletWalletApple.ts)
+- `lastSnapshotHash` and `lastIssuedAt` are updated on generation
+- branding comes from env vars, with placeholder image URLs currently used in deploy workflows
 
 What will not be assumed for MVP:
 - clickable private link inside pass
@@ -264,16 +293,15 @@ What will not be assumed for MVP:
 
 ### Customer-Facing
 
-`POST /api/wallet/card/:loyaltyCardId/apple`
-- generates Apple Wallet pass for the loyalty card
-- returns `.pkpass` or provider output
-
-`POST /api/wallet/card/:loyaltyCardId/google`
-- generates Google Wallet artifact or redirect URL
-
 `GET /api/wallet/access/:token`
 - serves private customer loyalty web-view
 - no merchant auth required
+
+`GET /api/wallet/access/:token/apple-pass`
+- generates Apple Wallet pass for the wallet identified by the stable customer access token
+
+`GET /api/wallet/access/:token/google-pass`
+- planned Google Wallet equivalent route
 
 ### Merchant-Facing
 
@@ -286,10 +314,18 @@ What will not be assumed for MVP:
   - active prizes
   - recent history
 
+Current status:
+- implemented as merchant-authenticated [src/routes/wallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/wallet.ts)
+- backed by [walletSummary.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/walletSummary.ts) and [walletTokens.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/walletTokens.ts)
+
 ### Internal Summary
 
 `GET /api/cards/:id/wallet-summary`
 - canonical aggregated source for wallet generation
+
+Current status:
+- not exposed yet as a dedicated route
+- already available through the internal summary service used by wallet routes
 
 Contents:
 - merchant
@@ -313,15 +349,12 @@ After scan, merchant sees:
 
 Merchant actions:
 - redeem points-based reward
-- redeem active prize
 - add points
 
 For points-based rewards:
 - selecting a reward automatically deducts threshold points
 
-For gamification prizes:
-- redeem by active prize item
-- mark prize as redeemed
+Active prizes remain visible to inform the merchant loyalty context, but MVP wallet scan flow is centered on points-based redemption.
 
 ## Customer Private Web-View Requirements
 
@@ -373,7 +406,6 @@ Stories:
 - As a merchant, I want scanning a pass to open the customer loyalty context.
 - As a merchant, I want to see points, active prizes, and recent history after scan.
 - As a merchant, I want to redeem points-based rewards directly from that screen.
-- As a merchant, I want to redeem active prizes directly from that screen.
 
 ### Epic 4: Private Customer Loyalty Page
 
@@ -411,11 +443,13 @@ Stories:
 - wallet identity model
 - merchant scan token
 - customer private page token
-- wallet summary endpoint
+- wallet summary service and APIs
 - Apple Wallet via WalletWallet
-- Google Wallet initial adapter if practical
 - CTA after claim prize
-- merchant scan resolve screen
+- customer private loyalty page
+- merchant scan resolve API
+- deploy wiring for WalletWallet configuration across preview/staging/production
+- Google Wallet initial adapter if practical
 - pass snapshot regeneration endpoint
 
 ### Phase 2
@@ -427,6 +461,8 @@ Stories:
 - mission engine
 - referral rewards workflow
 - customer notification strategy
+- merchant dashboard scan UI integration
+- automated refresh triggers after earn/redeem/mutation events
 
 ## Technical Tasks In Current Repo
 
@@ -439,6 +475,7 @@ Stories:
 - add customer private web-view endpoint
 - replace placeholder wallet routes with real provider adapters
 - add prize + reward aggregation by loyalty card
+- switch runtime database client to PostgreSQL-compatible Prisma path
 
 ### Dashboard / Customer Flow
 
@@ -452,6 +489,48 @@ Stories:
 - create `WalletProvider` interface
 - implement `WalletWalletAppleProvider`
 - implement `GoogleWalletProvider` placeholder or MVP adapter
+
+## Implemented Repo Changes
+
+### Wallet Domain
+
+- [prisma/schema.prisma](/Users/eliobencini/loyalty-platform/loyalty-platform/prisma/schema.prisma) now includes `WalletPass`, `WalletScanToken`, `WalletAccessToken`, `WalletProvider`, and `WalletPassStatus`
+- migration created at [prisma/migrations/20260406100000_add_wallet_passes/migration.sql](/Users/eliobencini/loyalty-platform/loyalty-platform/prisma/migrations/20260406100000_add_wallet_passes/migration.sql)
+
+### Backend Services and Routes
+
+- [src/services/walletTokens.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/walletTokens.ts) handles pass creation, scan token creation, access token creation, and token resolution
+- [src/services/walletSummary.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/walletSummary.ts) builds the canonical card snapshot with merchant, customer, points, tier, active prizes, redeemable rewards, and recent history
+- [src/routes/wallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/wallet.ts) now exposes:
+  - `POST /api/wallet/scan/resolve`
+  - `GET /api/wallet/access/:token`
+  - `GET /api/wallet/access/:token/apple-pass`
+- [src/routes/gamification.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/gamification.ts) returns wallet context after successful claim
+
+### Customer Surfaces
+
+- [customer/public/loyalty.html](/Users/eliobencini/loyalty-platform/loyalty-platform/customer/public/loyalty.html) provides the private loyalty page with summary, active prizes, redeemable rewards, recent history, and missions placeholder
+- [customer/public/play.html](/Users/eliobencini/loyalty-platform/loyalty-platform/customer/public/play.html) now shows:
+  - `My Loyalty Page`
+  - `Add to Apple Wallet` on iPhone Safari
+  - hidden Google Wallet placeholder until adapter exists
+- [src/index.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/index.ts) serves `/app/loyalty/:token`
+
+### Wallet Provider and Deploy Wiring
+
+- [src/services/wallet/providers/walletWalletApple.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/wallet/providers/walletWalletApple.ts) implements the WalletWallet Apple adapter
+- [src/services/wallet/providers/googleWallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/wallet/providers/googleWallet.ts) implements the Google Wallet adapter
+- [docker-compose.yml](/Users/eliobencini/loyalty-platform/loyalty-platform/docker-compose.yml) passes wallet provider env vars into the app container
+- [.github/workflows/preview.yml](/Users/eliobencini/loyalty-platform/loyalty-platform/.github/workflows/preview.yml) exports wallet provider config for previews
+- [.github/workflows/deploy.yml](/Users/eliobencini/loyalty-platform/loyalty-platform/.github/workflows/deploy.yml) exports wallet provider config for staging and production
+- [deploy/.env.prod.example](/Users/eliobencini/loyalty-platform/loyalty-platform/deploy/.env.prod.example) and [deploy/.env.staging.example](/Users/eliobencini/loyalty-platform/loyalty-platform/deploy/.env.staging.example) document the required variables
+
+### Related Platform Fixes Completed In The Same Session
+
+- preview deploy database wiring fixed in [deploy/preview-deploy.sh](/Users/eliobencini/loyalty-platform/loyalty-platform/deploy/preview-deploy.sh) and [deploy/preview-cleanup.sh](/Users/eliobencini/loyalty-platform/loyalty-platform/deploy/preview-cleanup.sh)
+- runtime DB client fixed in [src/prisma.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/prisma.ts)
+- customer static assets are copied in runtime image via [Dockerfile](/Users/eliobencini/loyalty-platform/loyalty-platform/Dockerfile)
+- QR landing static path fixed in [src/index.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/index.ts)
 
 ## Open Questions To Validate During Implementation
 

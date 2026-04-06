@@ -652,7 +652,7 @@
         document.getElementById('redemptionCode').textContent = result.redemptionCode;
         document.getElementById('loyaltyPageBtn').style.display = loyaltyPagePath ? 'inline-flex' : 'none';
         document.getElementById('appleWalletBtn').style.display = isAppleWalletSupported() && customerAccessToken ? 'inline-flex' : 'none';
-        document.getElementById('googleWalletBtn').style.display = 'none';
+        document.getElementById('googleWalletBtn').style.display = isGoogleWalletSupported() && customerAccessToken ? 'inline-flex' : 'none';
 
         showState('successState');
       } catch (err) {
@@ -669,8 +669,19 @@
       window.location.href = `/api/wallet/access/${customerAccessToken}/apple-pass`;
     }
 
-    function addToGoogleWallet() {
-      alert('Google Wallet integration coming soon! Your redemption code: ' + document.getElementById('redemptionCode').textContent);
+    async function addToGoogleWallet() {
+      if (!customerAccessToken) return;
+      try {
+        const res = await fetch(`/api/wallet/access/${customerAccessToken}/google-pass`);
+        const data = await res.json();
+        if (data.saveUrl) {
+          window.location.href = data.saveUrl;
+        } else {
+          throw new Error('Failed to generate Google Wallet pass');
+        }
+      } catch (err) {
+        alert('Failed to add to Google Wallet: ' + err.message);
+      }
     }
 
     function openLoyaltyPage() {
@@ -683,6 +694,12 @@
       const isIPhone = /iPhone/i.test(ua);
       const isSafari = /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS/i.test(ua);
       return isIPhone && isSafari;
+    }
+
+    function isGoogleWalletSupported() {
+      const ua = navigator.userAgent || '';
+      const isAndroid = /Android/i.test(ua);
+      return isAndroid;
     }
 
     // Initialize

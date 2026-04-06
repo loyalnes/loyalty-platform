@@ -6,6 +6,25 @@ Target validation environment: PR preview deployment, e.g. `https://pr-30.previe
 Note:
 - Preview validation for Apple Wallet depends on GitHub Actions secret `WALLETWALLET_API_KEY` being configured.
 
+## Current Delivery Status
+
+Completed:
+- Phase 1: Prisma and domain model
+- Phase 2: wallet summary service
+- Phase 3: token services
+- Phase 4: wallet API, in the implemented MVP shape
+- Phase 5: Apple Wallet WalletWallet adapter
+- Phase 5: Google Wallet adapter
+- Phase 6: customer private loyalty page
+- Phase 7: gamification CTA integration for Apple Wallet, Google Wallet, and loyalty page
+- Phase 8: merchant dashboard scan UI integration
+- deploy wiring for WalletWallet and Google Wallet config in preview/staging/production
+
+Still pending:
+- end-to-end preview validation on a live preview with real iPhone Safari and Android device
+- richer branding assets replacing placeholders
+- automatic refresh triggers after all points/prize mutations
+
 ## Goal
 
 Implement the MVP defined in [WALLET_PASS_MVP_PLAN.md](/Users/eliobencini/loyalty-platform/loyalty-platform/WALLET_PASS_MVP_PLAN.md) so it can be tested end-to-end on a preview environment.
@@ -40,6 +59,10 @@ Success criteria:
 - `https://pr-30.preview.loyali.online/api/health` returns `200`
 - dashboard login works
 - gamification page works
+
+Status:
+- preview deploy path and runtime issues were fixed earlier in the same session
+- final Apple Wallet preview validation remains pending on a live preview run
 
 ## Phase 1: Prisma and Domain Model
 
@@ -97,6 +120,14 @@ Add relations:
 - migration applies
 - `npx tsc` passes
 
+### Status
+
+Completed.
+
+Implemented in:
+- [prisma/schema.prisma](/Users/eliobencini/loyalty-platform/loyalty-platform/prisma/schema.prisma)
+- [prisma/migrations/20260406100000_add_wallet_passes/migration.sql](/Users/eliobencini/loyalty-platform/loyalty-platform/prisma/migrations/20260406100000_add_wallet_passes/migration.sql)
+
 ## Phase 2: Wallet Summary Service
 
 ### Scope
@@ -134,6 +165,20 @@ That is acceptable for MVP.
 - service returns a single typed object
 - service is reusable by merchant scan, customer view, and wallet providers
 
+### Status
+
+Completed in [src/services/walletSummary.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/walletSummary.ts).
+
+Current summary includes:
+- merchant and customer identity
+- card number
+- points balance display
+- current tier
+- redeemable reward tiers
+- active prizes and nearest expiration
+- recent history
+- wallet pass and token context
+
 ## Phase 3: Token Services
 
 ### Scope
@@ -164,6 +209,17 @@ Create token generation and resolution for:
 - tokens are persisted
 - services are covered by integration-level route checks
 
+### Status
+
+Completed in [src/services/walletTokens.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/walletTokens.ts).
+
+Implemented capabilities:
+- create or reuse wallet pass
+- create or reuse merchant scan token
+- create or reuse customer access token
+- resolve scan token
+- resolve access token
+
 ## Phase 4: Wallet API
 
 ### Scope
@@ -176,12 +232,6 @@ Replace placeholder wallet behavior with real card-centric routes.
 - [src/index.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/index.ts)
 
 ### New/Updated Endpoints
-
-`POST /api/wallet/card/:loyaltyCardId/apple`
-- generate Apple Wallet pass from current snapshot
-
-`POST /api/wallet/card/:loyaltyCardId/google`
-- generate Google Wallet output or placeholder contract
 
 `POST /api/wallet/scan/resolve`
 - input: `{ barcodeToken }`
@@ -196,6 +246,9 @@ Replace placeholder wallet behavior with real card-centric routes.
 `GET /api/wallet/access/:token`
 - return customer private loyalty page payload
 
+`GET /api/wallet/access/:token/apple-pass`
+- generate Apple Wallet pass from current snapshot resolved through the customer access token
+
 `GET /api/cards/:id/wallet-summary`
 - internal or protected merchant API
 
@@ -208,6 +261,14 @@ MVP must become loyalty-card centric.
 
 - existing placeholder pass endpoints are no longer the main path
 - loyalty card routes work from real data
+
+### Status
+
+Completed for the implemented MVP shape in [src/routes/wallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/wallet.ts).
+
+Notes:
+- the customer-facing Apple pass endpoint is token-based, not `:loyaltyCardId`-based
+- `GET /api/cards/:id/wallet-summary` remains planned, but the summary service already exists internally
 
 ## Phase 5: Wallet Provider Adapters
 
@@ -226,7 +287,7 @@ Create provider abstraction.
 
 - `title`: merchant name
 - `cardLabel`: `LOYALTY`
-- `label`: `POINTS`
+- `label`: customer name
 - `value`: compact summary like `240 pts · Gold · 2 rewards`
 - `barcodeValue`: merchant scan token
 - `barcodeFormat`: `QR`
@@ -248,6 +309,19 @@ Add env vars:
 
 - API can return a valid Apple Wallet artifact
 - provider failures surface cleanly
+
+### Status
+
+Completed.
+
+Implemented:
+- Apple Wallet adapter in [src/services/wallet/providers/walletWalletApple.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/wallet/providers/walletWalletApple.ts)
+- Google Wallet adapter in [src/services/wallet/providers/googleWallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/services/wallet/providers/googleWallet.ts)
+- both adapters update `lastSnapshotHash`, `lastIssuedAt`, and pass status
+- deploy config wired through [docker-compose.yml](/Users/eliobencini/loyalty-platform/loyalty-platform/docker-compose.yml), [.github/workflows/preview.yml](/Users/eliobencini/loyalty-platform/loyalty-platform/.github/workflows/preview.yml), and [.github/workflows/deploy.yml](/Users/eliobencini/loyalty-platform/loyalty-platform/.github/workflows/deploy.yml)
+
+Pending:
+- real branded asset URLs replacing placeholders
 
 ## Phase 6: Customer Private Loyalty Page
 
@@ -278,6 +352,15 @@ Add customer-facing page opened through stable tokenized URL.
 ### Done When
 
 - opening the token URL shows personalized loyalty state
+
+### Status
+
+Completed.
+
+Implemented in:
+- [customer/public/loyalty.html](/Users/eliobencini/loyalty-platform/loyalty-platform/customer/public/loyalty.html)
+- [src/routes/wallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/wallet.ts)
+- [src/index.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/index.ts)
 
 ## Phase 7: Gamification CTA Integration
 
@@ -310,6 +393,17 @@ MVP heuristic:
 
 - customer can reach wallet or private page immediately after claim
 
+### Status
+
+Completed.
+
+Implemented:
+- claim response now returns wallet context in [src/routes/gamification.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/gamification.ts)
+- [customer/public/play.html](/Users/eliobencini/loyalty-platform/loyalty-platform/customer/public/play.html) shows:
+  - `My Loyalty Page`
+  - `Add to Apple Wallet` on iPhone Safari
+  - `Add to Google Wallet` on Android devices
+
 ## Phase 8: Merchant Scan UI
 
 ### Scope
@@ -335,11 +429,19 @@ After scan:
 Merchant actions:
 - add points
 - redeem tier reward
-- redeem active prize
 
 ### Done When
 
 - merchant can use one scan flow for loyalty context
+
+### Status
+
+Completed.
+
+Implemented in:
+- [dashboard/src/api.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/dashboard/src/api.ts) - `resolveWalletScan()` API method
+- [dashboard/src/pages/ScanQRPage.tsx](/Users/eliobencini/loyalty-platform/loyalty-platform/dashboard/src/pages/ScanQRPage.tsx) - wallet token detection and resolution flow
+- Dashboard now supports scanning both customer QR codes and wallet barcode tokens
 
 ## Phase 9: Update Strategy
 
@@ -370,6 +472,17 @@ If provider or native Apple implementation supports proper updates:
 - reuse same snapshot builder
 - reuse same wallet pass identity
 
+### Status
+
+Partially completed.
+
+Implemented:
+- on-demand pass generation updates snapshot hash and issue timestamp
+- customer private page always reflects live data
+
+Pending:
+- automatic regeneration hooks after points/prize changes
+
 ## File-Level Task List
 
 ### Prisma
@@ -377,16 +490,29 @@ If provider or native Apple implementation supports proper updates:
 - update [prisma/schema.prisma](/Users/eliobencini/loyalty-platform/loyalty-platform/prisma/schema.prisma)
 - create migration
 
+Status:
+- completed
+
 ### Backend Services
 
 - add `walletSummary.ts`
 - add `walletTokens.ts`
 - add provider adapters
 
+Status:
+- `walletSummary.ts` completed
+- `walletTokens.ts` completed
+- Apple provider completed
+- Google provider pending
+
 ### Backend Routes
 
 - refactor [src/routes/wallet.ts](/Users/eliobencini/loyalty-platform/loyalty-platform/src/routes/wallet.ts)
 - possibly add route helpers for card-centric queries
+
+Status:
+- wallet routes refactored for scan resolve, access payload, and Apple pass generation
+- extra protected card-summary route still optional
 
 ### Dashboard
 
@@ -394,16 +520,27 @@ If provider or native Apple implementation supports proper updates:
 - update [dashboard/src/pages/ScanQRPage.tsx](/Users/eliobencini/loyalty-platform/loyalty-platform/dashboard/src/pages/ScanQRPage.tsx)
 - update [dashboard/src/components/CustomerProfileModal.tsx](/Users/eliobencini/loyalty-platform/loyalty-platform/dashboard/src/components/CustomerProfileModal.tsx)
 
+Status:
+- still pending for wallet scan UI integration
+
 ### Customer Flow
 
 - update [customer/public/play.html](/Users/eliobencini/loyalty-platform/loyalty-platform/customer/public/play.html)
 - add post-claim wallet CTAs
 - add private loyalty page UI or token route integration
 
+Status:
+- completed for Apple Wallet and loyalty page
+- Google Wallet pending
+
 ### Deployment
 
 - inject `WALLETWALLET_API_KEY` into preview and production deployment environments
 - ensure preview can hit provider API
+
+Status:
+- repo wiring completed in compose and GitHub Actions workflows
+- runtime validation still pending in a live preview deployment
 
 ## Test Plan
 
@@ -432,7 +569,7 @@ Checklist:
 7. Merchant scan resolves wallet token.
 8. Merchant sees points, active prizes, recent history.
 9. Tier reward redeem deducts points correctly.
-10. Prize redeem updates active prize state correctly.
+10. Apple Wallet pass generation works from iPhone Safari after claim.
 
 ### Device Validation
 
@@ -457,21 +594,37 @@ Google:
 
 Wallet domain and Prisma migration
 
+Status:
+- completed
+
 ### PR B
 
 Wallet summary service + token services + scan resolve API
+
+Status:
+- completed
 
 ### PR C
 
 Customer private loyalty page + gamification CTA integration
 
+Status:
+- completed for loyalty page and claim wallet context
+
 ### PR D
 
 WalletWallet Apple adapter + Google adapter stub
 
+Status:
+- Apple Wallet completed
+- Google adapter still pending
+
 ### PR E
 
 Merchant scan UI integration
+
+Status:
+- pending
 
 ## Risks
 
@@ -482,8 +635,8 @@ Merchant scan UI integration
 ## Recommendation
 
 For the first implementation pass:
-- complete PR A + PR B + PR C
-- validate preview on `pr-30`
-- then add Apple Wallet provider integration
+- validate live preview on the current PR preview with iPhone Safari
+- implement merchant scan UI integration
+- decide whether Google Wallet belongs in the same delivery stream or a follow-up PR
 
-This reduces the amount of provider uncertainty before the core wallet domain is stable.
+The core wallet domain is already in place, so the remaining work is mostly UI integration, provider parity, and live validation.

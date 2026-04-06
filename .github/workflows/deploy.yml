@@ -79,11 +79,15 @@ jobs:
           WALLETWALLET_LOGO_URL: https://placehold.co/512x512/png?text=Loyali
           WALLETWALLET_THUMBNAIL_URL: https://placehold.co/240x240/png?text=Rewards
           WALLETWALLET_STRIP_URL: https://placehold.co/1032x336/png/1f2937/ffffff?text=Loyali+Rewards
+          GOOGLE_WALLET_ISSUER_ID: ${{ secrets.GOOGLE_WALLET_ISSUER_ID }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
+          PUBLIC_URL: https://staging.loyali.online
         with:
           host: ${{ secrets.HETZNER_STAGING_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,WALLETWALLET_LOGO_URL,WALLETWALLET_THUMBNAIL_URL,WALLETWALLET_STRIP_URL
+          envs: WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,WALLETWALLET_LOGO_URL,WALLETWALLET_THUMBNAIL_URL,WALLETWALLET_STRIP_URL,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,PUBLIC_URL
           script: |
             cd /opt/loyalty-platform
             export IMAGE_TAG=staging
@@ -94,6 +98,10 @@ jobs:
             export WALLETWALLET_LOGO_URL
             export WALLETWALLET_THUMBNAIL_URL
             export WALLETWALLET_STRIP_URL
+            export GOOGLE_WALLET_ISSUER_ID
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY
+            export PUBLIC_URL
             bash deploy/deploy.sh staging
 
   bootstrap-production:
@@ -197,11 +205,15 @@ jobs:
           WALLETWALLET_LOGO_URL: https://placehold.co/512x512/png?text=Loyali
           WALLETWALLET_THUMBNAIL_URL: https://placehold.co/240x240/png?text=Rewards
           WALLETWALLET_STRIP_URL: https://placehold.co/1032x336/png/1f2937/ffffff?text=Loyali+Rewards
+          GOOGLE_WALLET_ISSUER_ID: ${{ secrets.GOOGLE_WALLET_ISSUER_ID }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
+          PUBLIC_URL: https://loyali.online
         with:
           host: ${{ secrets.HETZNER_PROD_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,WALLETWALLET_LOGO_URL,WALLETWALLET_THUMBNAIL_URL,WALLETWALLET_STRIP_URL
+          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,WALLETWALLET_LOGO_URL,WALLETWALLET_THUMBNAIL_URL,WALLETWALLET_STRIP_URL,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,PUBLIC_URL
           script: |
             # Re-auth GHCR (token may have changed)
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
@@ -216,4 +228,8 @@ jobs:
             export WALLETWALLET_LOGO_URL
             export WALLETWALLET_THUMBNAIL_URL
             export WALLETWALLET_STRIP_URL
+            export GOOGLE_WALLET_ISSUER_ID
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY
+            export PUBLIC_URL
             bash deploy/deploy.sh production

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Camera, KeyboardIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Html5Qrcode } from 'html5-qrcode';
-import { getCustomerCard, type CustomerCardDetail } from '../api';
+import { getCustomerCard, resolveWalletScan, type CustomerCardDetail, type WalletScanResult } from '../api';
 import CustomerProfileModal from '../components/CustomerProfileModal';
 
 export default function ScanQRPage() {
@@ -37,6 +37,36 @@ export default function ScanQRPage() {
     // Stop scanning temporarily
     if (scannerRef.current?.isScanning) {
       await scannerRef.current.pause(true);
+    }
+
+    // Try to parse as wallet token (opaque token)
+    // If it's not a URL, treat it as a wallet barcode token
+    if (!decodedText.includes('/')) {
+      try {
+        setError('');
+        const walletResult = await resolveWalletScan(decodedText);
+        // Convert wallet result to CustomerCardDetail format
+        const customerDetail: CustomerCardDetail = {
+          id: walletResult.loyaltyCardId,
+          cardNumber: walletResult.cardNumber,
+          customerId: walletResult.customerId,
+          firstName: walletResult.customerName.split(' ')[0] || '',
+          lastName: walletResult.customerName.split(' ').slice(1).join(' ') || '',
+          email: '',
+          phone: null,
+          avatarUrl: null,
+          pointsBalance: walletResult.pointsBalance,
+          totalEarned: 0,
+          totalRedeemed: 0,
+          status: 'ACTIVE',
+          recentTransactions: [],
+        };
+        setCustomer(customerDetail);
+        return;
+      } catch (err) {
+        // Fall through to try customer ID format
+        console.log('Not a wallet token, trying customer ID format');
+      }
     }
 
     // Extract customer ID from QR code

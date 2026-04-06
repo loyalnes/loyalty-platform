@@ -5,6 +5,7 @@ import { ApiError } from "../middleware/errorHandler";
 import { buildWalletSummary } from "../services/walletSummary";
 import { resolveWalletAccessToken, resolveWalletScanToken } from "../services/walletTokens";
 import { generateWalletWalletApplePass } from "../services/wallet/providers/walletWalletApple";
+import { generateGoogleWalletPass } from "../services/wallet/providers/googleWallet";
 
 const router = Router();
 
@@ -91,6 +92,32 @@ router.get("/access/:token/apple-pass", async (req: Request, res: Response, next
     res.setHeader("Content-Type", "application/vnd.apple.pkpass");
     res.setHeader("Content-Disposition", `attachment; filename="${safeMerchant}.pkpass"`);
     res.send(pkpass);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /wallet/access/:token/google-pass
+ * Generate a Google Wallet pass save URL for the loyalty card behind a stable customer access token
+ */
+router.get("/access/:token/google-pass", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const accessTokenValue = req.params.token;
+
+    const accessToken = await resolveWalletAccessToken(accessTokenValue);
+    if (!accessToken || !accessToken.active || accessToken.revokedAt) {
+      throw new ApiError(404, "Wallet access not found");
+    }
+
+    const summary = await buildWalletSummary(accessToken.walletPass.loyaltyCardId, "GOOGLE_WALLET");
+    if (!summary) {
+      throw new ApiError(404, "Wallet summary not found");
+    }
+
+    const saveUrl = await generateGoogleWalletPass(summary);
+
+    res.json({ saveUrl });
   } catch (err) {
     next(err);
   }

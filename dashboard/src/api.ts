@@ -412,6 +412,58 @@ export function redeemReward(customerId: string, rewardTierId: string) {
   });
 }
 
+// ---------- Wallet Scan ----------
+
+export interface WalletScanResult {
+  walletPassId: string;
+  loyaltyCardId: string;
+  merchantId: string;
+  merchantName: string;
+  customerId: string;
+  customerName: string;
+  cardNumber: string;
+  pointsBalance: number;
+  pointsBalanceDisplay: string;
+  tierName: string | null;
+  activePrizeCount: number;
+  activePrizes: Array<{
+    id: string;
+    prizeWinId: string;
+    name: string;
+    prizeType: string;
+    expiresAt: string;
+    redemptionCode: string;
+    campaignId: string;
+    campaignName: string;
+    wonAt: string;
+  }>;
+  availableRewards: Array<{
+    id: string;
+    name: string;
+    rewardName: string;
+    threshold: number;
+    sortOrder: number;
+  }>;
+  recentHistory: Array<{
+    id: string;
+    type: "POINTS" | "PRIZE";
+    event: string;
+    description: string;
+    pointsDelta: number | null;
+    createdAt: string;
+  }>;
+  nearestPrizeExpiration: string | null;
+  merchantScanToken: string;
+  customerAccessToken: string;
+}
+
+export function resolveWalletScan(barcodeToken: string) {
+  return request<WalletScanResult>('/wallet/scan/resolve', {
+    method: 'POST',
+    body: JSON.stringify({ barcodeToken }),
+  });
+}
+
 // ---------- Gamification Campaigns ----------
 
 export type GameType = 'SCRATCH_CARD' | 'SPIN_WHEEL';
