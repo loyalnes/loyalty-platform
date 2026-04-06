@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
+const jsonSettings = (settings: { currency: string; timezone: string }) => JSON.stringify(settings);
 
 async function main() {
   // Clean existing data
@@ -27,7 +28,7 @@ async function main() {
       city: "Portland",
       country: "US",
       plan: "STARTER",
-      settings: { currency: "USD", timezone: "America/Los_Angeles" },
+      settings: jsonSettings({ currency: "USD", timezone: "America/Los_Angeles" }),
     },
   });
 
@@ -40,7 +41,7 @@ async function main() {
       city: "San Francisco",
       country: "US",
       plan: "PROFESSIONAL",
-      settings: { currency: "USD", timezone: "America/Los_Angeles" },
+      settings: jsonSettings({ currency: "USD", timezone: "America/Los_Angeles" }),
     },
   });
 
@@ -55,7 +56,7 @@ async function main() {
       preferredLocale: "it",
       passwordHash: barelioPasswordHash,
       plan: "PROFESSIONAL",
-      settings: { currency: "EUR", timezone: "Europe/Rome" },
+      settings: jsonSettings({ currency: "EUR", timezone: "Europe/Rome" }),
     },
   });
 
