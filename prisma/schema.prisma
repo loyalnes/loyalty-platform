@@ -91,6 +91,7 @@ model LoyaltyCard {
   cardTemplate CardTemplate?       @relation(fields: [cardTemplateId], references: [id])
   transactions PointsTransaction[]
   prizeWins    PrizeWin[]
+  walletPasses WalletPass[]
 
   @@unique([merchantId, customerId])
   @@index([merchantId])
@@ -312,4 +313,66 @@ enum PrizeStatus {
   PENDING
   REDEEMED
   EXPIRED
+}
+
+model WalletPass {
+  id               String           @id @default(uuid())
+  loyaltyCardId    String           @map("loyalty_card_id")
+  provider         WalletProvider
+  providerPassId   String?          @map("provider_pass_id")
+  status           WalletPassStatus @default(ACTIVE)
+  lastSnapshotHash String?          @map("last_snapshot_hash")
+  lastIssuedAt     DateTime?        @map("last_issued_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  loyaltyCard       LoyaltyCard        @relation(fields: [loyaltyCardId], references: [id], onDelete: Cascade)
+  scanTokens        WalletScanToken[]
+  accessTokens      WalletAccessToken[]
+
+  @@unique([loyaltyCardId, provider])
+  @@index([loyaltyCardId])
+  @@index([status])
+  @@map("wallet_passes")
+}
+
+enum WalletProvider {
+  APPLE_WALLET
+  GOOGLE_WALLET
+}
+
+enum WalletPassStatus {
+  ACTIVE
+  INACTIVE
+  REVOKED
+}
+
+model WalletScanToken {
+  id           String    @id @default(uuid())
+  walletPassId String    @map("wallet_pass_id")
+  token        String    @unique
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  revokedAt    DateTime? @map("revoked_at")
+
+  walletPass WalletPass @relation(fields: [walletPassId], references: [id], onDelete: Cascade)
+
+  @@index([walletPassId])
+  @@index([active])
+  @@map("wallet_scan_tokens")
+}
+
+model WalletAccessToken {
+  id           String    @id @default(uuid())
+  walletPassId String    @map("wallet_pass_id")
+  token        String    @unique
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  revokedAt    DateTime? @map("revoked_at")
+
+  walletPass WalletPass @relation(fields: [walletPassId], references: [id], onDelete: Cascade)
+
+  @@index([walletPassId])
+  @@index([active])
+  @@map("wallet_access_tokens")
 }
