@@ -63,7 +63,7 @@ export default function ScanQRPage() {
         };
         setCustomer(customerDetail);
         return;
-      } catch (err) {
+      } catch {
         // Fall through to try customer ID format
         console.log('Not a wallet token, trying customer ID format');
       }
