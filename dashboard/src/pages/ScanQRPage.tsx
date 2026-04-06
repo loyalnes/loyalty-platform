@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Camera, KeyboardIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Html5Qrcode } from 'html5-qrcode';
-import { getCustomerCard, resolveWalletScan, type CustomerCardDetail, type WalletScanResult } from '../api';
+import { getCustomerCard, resolveWalletScan, type CustomerCardDetail } from '../api';
 import CustomerProfileModal from '../components/CustomerProfileModal';
 
 export default function ScanQRPage() {
