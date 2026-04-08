@@ -32,6 +32,7 @@ export interface Merchant {
   city: string | null;
   country: string | null;
   plan: string;
+  settings: string;
   preferredLocale: 'en' | 'it' | 'es';
   active: boolean;
   createdAt: string;
@@ -59,6 +60,10 @@ export function login(email: string, password: string) {
 
 export function getMerchant(id: string) {
   return request<Merchant>(`/merchants/${id}`);
+}
+
+export function getMerchantMe() {
+  return request<Merchant>('/merchants/me');
 }
 
 export function getMerchantByEmail(email: string) {
@@ -136,6 +141,11 @@ export interface FeedbackItem {
   createdAt: string;
   text: string;
   isNew: boolean;
+  // Detailed ratings (optional, from review flow)
+  foodRating?: number | null;
+  serviceRating?: number | null;
+  atmosphereRating?: number | null;
+  source?: 'DIRECT' | 'GOOGLE_MAPS' | 'OTHER';
 }
 
 export interface InsightsSentiment {

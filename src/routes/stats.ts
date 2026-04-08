@@ -207,11 +207,18 @@ router.get("/feedback", async (req: Request, res: Response, next: NextFunction) 
       res.json({
         feedback: feedbackRows.map((row) => ({
           id: row.id,
-          customerName: `${row.customer.firstName} ${row.customer.lastName}`.trim(),
+          customerName: row.customer
+            ? `${row.customer.firstName} ${row.customer.lastName}`.trim()
+            : "Anonymous",
           rating: row.rating,
           createdAt: row.createdAt,
           text: row.text,
           isNew: !row.readAt,
+          // Detailed ratings (from review flow)
+          foodRating: row.foodRating,
+          serviceRating: row.serviceRating,
+          atmosphereRating: row.atmosphereRating,
+          source: row.source,
         })),
       });
     } catch (err) {

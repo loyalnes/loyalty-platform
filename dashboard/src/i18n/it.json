@@ -77,7 +77,7 @@
     "addPoints": "Aggiungi punti",
     "redeem": "Riscatta",
     "showQR": "Mostra QR",
-    "contest": "Contest",
+    "reviews": "Recensioni",
     "activeProgram": "Programma Attivo",
     "stampCard": "Carta Timbri",
     "pointsProgram": "Programma Punti",
@@ -186,6 +186,16 @@
     "shareTitle": "Unisciti al Programma Fedeltà di {{name}}",
     "shareText": "Scansiona questo codice per iscriverti al nostro programma fedeltà e iniziare ad accumulare premi!"
   },
+  "showReviewQR": {
+    "title": "Recensioni Clienti",
+    "subtitle": "Scansiona per lasciare una recensione",
+    "instruction": "Fai scansionare questo QR ai clienti per condividere il loro feedback e lasciare recensioni",
+    "copyLink": "Copia Link",
+    "copied": "Copiato!",
+    "share": "Condividi",
+    "shareTitle": "Condividi feedback per {{name}}",
+    "shareText": "Come è andata? Scansiona per condividere il tuo feedback!"
+  },
   "scanQR": {
     "title": "Scansiona QR Cliente",
     "instruction": "Inquadra il QR code del cliente",
@@ -230,6 +240,26 @@
       "cancel": "Annulla",
       "processing": "Elaborazione..."
     }
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "subtitle": "Configura le impostazioni della tua attività",
+    "googleMapsTitle": "Recensioni Google Maps",
+    "googleMapsSubtitle": "Reindirizza le recensioni a 5 stelle alla tua pagina Google Maps",
+    "googleMapsUrlLabel": "URL Google Maps",
+    "googleMapsHint": "Trova la tua attività su Google Maps, clicca 'Condividi' e incolla qui l'URL",
+    "invalidUrl": "Inserisci un URL valido",
+    "howItWorks": "Come funziona",
+    "step1": "I clienti scansionano il tuo QR code per recensioni",
+    "step2": "Se valutano con 5 stelle, vengono reindirizzati a Google Maps",
+    "step3": "Se valutano con 1-4 stelle, lasciano un feedback interno",
+    "save": "Salva Impostazioni",
+    "saving": "Salvataggio...",
+    "saved": "Impostazioni salvate con successo!",
+    "exampleTitle": "Esempi di URL Google Maps",
+    "shortUrl": "URL breve (consigliato)",
+    "cidUrl": "URL CID",
+    "gPageUrl": "URL G.page"
   },
   "locale": {
     "label": "Lingua",

@@ -77,7 +77,7 @@
     "addPoints": "Add points",
     "redeem": "Redeem",
     "showQR": "Show QR",
-    "contest": "Contest",
+    "reviews": "Reviews",
     "activeProgram": "Active Program",
     "stampCard": "Stamp Card",
     "pointsProgram": "Points Program",
@@ -186,6 +186,16 @@
     "shareTitle": "Join {{name}} Loyalty Program",
     "shareText": "Scan this code to join our loyalty program and start earning rewards!"
   },
+  "showReviewQR": {
+    "title": "Customer Reviews",
+    "subtitle": "Scan to leave a review",
+    "instruction": "Let customers scan this QR code to share their feedback and leave reviews",
+    "copyLink": "Copy Link",
+    "copied": "Copied!",
+    "share": "Share",
+    "shareTitle": "Share feedback for {{name}}",
+    "shareText": "How was your experience? Scan to share your feedback!"
+  },
   "scanQR": {
     "title": "Scan Customer QR",
     "instruction": "Point camera at customer's QR code",
@@ -230,6 +240,26 @@
       "cancel": "Cancel",
       "processing": "Processing..."
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure your business settings",
+    "googleMapsTitle": "Google Maps Reviews",
+    "googleMapsSubtitle": "Redirect 5-star reviews to your Google Maps listing",
+    "googleMapsUrlLabel": "Google Maps URL",
+    "googleMapsHint": "Find your business on Google Maps, click 'Share', and paste the URL here",
+    "invalidUrl": "Please enter a valid URL",
+    "howItWorks": "How it works",
+    "step1": "Customers scan your review QR code",
+    "step2": "If they rate 5 stars, they are redirected to Google Maps",
+    "step3": "If they rate 1-4 stars, they leave internal feedback",
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "saved": "Settings saved successfully!",
+    "exampleTitle": "Example Google Maps URLs",
+    "shortUrl": "Short URL (recommended)",
+    "cidUrl": "CID URL",
+    "gPageUrl": "G.page URL"
   },
   "locale": {
     "label": "Language",

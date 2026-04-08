@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Review</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 32px 24px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Rating State */
+    .rating-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 24px;
+    }
+
+    .star-rating {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      padding: 24px 0;
+    }
+
+    .star {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      position: relative;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .star svg {
+      width: 100%;
+      height: 100%;
+      stroke: #ddd;
+      fill: none;
+      stroke-width: 2;
+      transition: all 0.3s ease;
+    }
+
+    .star:hover svg,
+    .star.active svg {
+      stroke: #ffd700;
+      fill: rgba(255, 215, 0, 0.15);
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+    }
+
+    .star.active svg {
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.4));
+      }
+      50% {
+        filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+      }
+    }
+
+    .rating-hint {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-top: 16px;
+    }
+
+    /* Form State */
+    .form-section {
+      margin-bottom: 24px;
+    }
+
+    .form-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .star-rating-small {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .star-small {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      position: relative;
+    }
+
+    .star-small svg {
+      width: 100%;
+      height: 100%;
+      stroke: #ddd;
+      fill: none;
+      stroke-width: 2;
+      transition: all 0.3s ease;
+    }
+
+    .star-small:hover svg,
+    .star-small.active svg {
+      stroke: #ffd700;
+      fill: rgba(255, 215, 0, 0.15);
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5));
+    }
+
+    .star-small.active svg {
+      animation: shimmer-small 1.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmer-small {
+      0%, 100% {
+        filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4));
+      }
+      50% {
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+      }
+    }
+
+    .category-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .category-label .emoji {
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Success State */
+    .success-icon {
+      text-align: center;
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .success-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .success-message {
+      text-align: center;
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 16px;
+    }
+
+    /* Redirecting State */
+    .redirect-message {
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .redirect-message .icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .redirect-message h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .redirect-message p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="header" id="header">
+      <h1 id="merchantName">Loading...</h1>
+      <p id="headerSubtitle">We value your feedback</p>
+    </div>
+
+    <div class="content">
+      <!-- Loading State -->
+      <div id="loadingState" class="loading">
+        <p>Loading...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" class="hidden">
+        <div class="error" id="errorMessage"></div>
+        <button class="btn" onclick="window.location.reload()">Try Again</button>
+      </div>
+
+      <!-- Rating State -->
+      <div id="ratingState" class="hidden">
+        <h2 class="rating-title" id="ratingTitle">Come è andata?</h2>
+        <div class="star-rating" id="overallRating">
+          <span class="star" data-rating="1"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          <span class="star" data-rating="2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          <span class="star" data-rating="3"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          <span class="star" data-rating="4"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          <span class="star" data-rating="5"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+        </div>
+        <p class="rating-hint" id="ratingHint">Tap the stars to rate your experience</p>
+      </div>
+
+      <!-- Redirecting State (5 stars) -->
+      <div id="redirectingState" class="hidden">
+        <div class="redirect-message">
+          <div class="icon">🌟</div>
+          <h2>Thank you!</h2>
+          <p>Redirecting you to Google Maps...</p>
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Form State (1-4 stars) -->
+      <div id="formState" class="hidden">
+        <h2 class="rating-title">Tell us more</h2>
+
+        <div class="form-section">
+          <div class="category-label">
+            <span class="emoji">🍽️</span>
+            <span id="labelFood">Food Quality</span>
+          </div>
+          <div class="star-rating-small" data-category="food">
+            <span class="star-small" data-rating="1"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="3"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="4"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="5"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="category-label">
+            <span class="emoji">🤝</span>
+            <span id="labelService">Service</span>
+          </div>
+          <div class="star-rating-small" data-category="service">
+            <span class="star-small" data-rating="1"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="3"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="4"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="5"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="category-label">
+            <span class="emoji">🎨</span>
+            <span id="labelAtmosphere">Atmosphere</span>
+          </div>
+          <div class="star-rating-small" data-category="atmosphere">
+            <span class="star-small" data-rating="1"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="3"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="4"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+            <span class="star-small" data-rating="5"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="feedbackText" id="labelFeedback">Tell us more (optional)</label>
+          <textarea id="feedbackText" placeholder="What could we improve?" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="email" id="labelEmail">Email (optional)</label>
+          <input type="email" id="email" placeholder="your@email.com">
+          <div class="input-hint" id="hintEmail">We'll use this only to respond to your feedback</div>
+        </div>
+
+        <div class="form-group">
+          <label for="firstName" id="labelFirstName">First Name (optional)</label>
+          <input type="text" id="firstName" placeholder="John">
+        </div>
+
+        <button class="btn" id="submitBtn" onclick="submitFeedback()">Submit Feedback</button>
+      </div>
+
+      <!-- Success State -->
+      <div id="successState" class="hidden">
+        <div class="success-icon">🙏</div>
+        <div class="success-title" id="successTitle">Thank You!</div>
+        <div class="success-message" id="successMessage">Your feedback helps us improve.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get merchantId from URL
+    const urlParts = window.location.pathname.split('/');
+    const merchantId = urlParts[urlParts.length - 1];
+
+    let merchantConfig = null;
+    let selectedRating = 0;
+    let foodRating = 0;
+    let serviceRating = 0;
+    let atmosphereRating = 0;
+
+    // Translations
+    const translations = {
+      en: {
+        ratingTitle: 'How was your experience?',
+        ratingHint: 'Tap the stars to rate your experience',
+        tellUsMore: 'Tell us more',
+        labelFood: 'Food Quality',
+        labelService: 'Service',
+        labelAtmosphere: 'Atmosphere',
+        labelFeedback: 'Tell us more (optional)',
+        labelEmail: 'Email (optional)',
+        labelFirstName: 'First Name (optional)',
+        hintEmail: "We'll use this only to respond to your feedback",
+        submitBtn: 'Submit Feedback',
+        successTitle: 'Thank You!',
+        successMessage: 'Your feedback helps us improve.',
+        redirectTitle: 'Thank you!',
+        redirectMessage: 'Redirecting you to Google Maps...',
+      },
+      it: {
+        ratingTitle: 'Come è andata?',
+        ratingHint: 'Tocca le stelle per valutare',
+        tellUsMore: 'Raccontaci di più',
+        labelFood: 'Qualità del cibo',
+        labelService: 'Servizio',
+        labelAtmosphere: 'Atmosfera',
+        labelFeedback: 'Raccontaci di più (opzionale)',
+        labelEmail: 'Email (opzionale)',
+        labelFirstName: 'Nome (opzionale)',
+        hintEmail: "Useremo questa email solo per rispondere al tuo feedback",
+        submitBtn: 'Invia Feedback',
+        successTitle: 'Grazie!',
+        successMessage: 'Il tuo feedback ci aiuta a migliorare.',
+        redirectTitle: 'Grazie!',
+        redirectMessage: 'Ti stiamo reindirizzando a Google Maps...',
+      },
+    };
+
+    let currentLocale = 'en';
+
+    // State management
+    function showState(stateName) {
+      ['loadingState', 'errorState', 'ratingState', 'redirectingState', 'formState', 'successState'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(stateName).classList.remove('hidden');
+    }
+
+    function showError(message) {
+      document.getElementById('errorMessage').textContent = message;
+      showState('errorState');
+    }
+
+    function applyTranslations() {
+      const t = translations[currentLocale] || translations.en;
+
+      document.getElementById('ratingTitle').textContent = t.ratingTitle;
+      document.getElementById('ratingHint').textContent = t.ratingHint;
+      document.getElementById('labelFood').textContent = t.labelFood;
+      document.getElementById('labelService').textContent = t.labelService;
+      document.getElementById('labelAtmosphere').textContent = t.labelAtmosphere;
+      document.getElementById('labelFeedback').textContent = t.labelFeedback;
+      document.getElementById('labelEmail').textContent = t.labelEmail;
+      document.getElementById('labelFirstName').textContent = t.labelFirstName;
+      document.getElementById('hintEmail').textContent = t.hintEmail;
+      document.getElementById('submitBtn').textContent = t.submitBtn;
+      document.getElementById('successTitle').textContent = t.successTitle;
+      document.getElementById('successMessage').textContent = t.successMessage;
+    }
+
+    // Load merchant config
+    async function loadMerchantConfig() {
+      try {
+        const res = await fetch(`/api/feedback/${merchantId}/config`);
+        if (!res.ok) throw new Error('Merchant not found');
+
+        merchantConfig = await res.json();
+
+        currentLocale = merchantConfig.locale || 'en';
+        applyTranslations();
+
+        document.getElementById('merchantName').textContent = merchantConfig.merchantName;
+
+        if (!merchantConfig.reviewFlowEnabled) {
+          showError('Review flow is not enabled for this merchant');
+          return;
+        }
+
+        initRatingStars();
+        showState('ratingState');
+      } catch (err) {
+        showError(err.message || 'Failed to load merchant configuration');
+      }
+    }
+
+    // Initialize overall rating stars
+    function initRatingStars() {
+      const stars = document.querySelectorAll('#overallRating .star');
+
+      stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+          selectedRating = parseInt(star.dataset.rating);
+          updateStars(stars, selectedRating);
+
+          setTimeout(() => {
+            handleRatingSelected(selectedRating);
+          }, 300);
+        });
+
+        star.addEventListener('mouseover', () => {
+          const hoverRating = parseInt(star.dataset.rating);
+          updateStars(stars, hoverRating);
+        });
+      });
+
+      const container = document.getElementById('overallRating');
+      container.addEventListener('mouseleave', () => {
+        updateStars(stars, selectedRating);
+      });
+    }
+
+    function updateStars(stars, rating) {
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
+        }
+      });
+    }
+
+    // Handle rating selection
+    async function handleRatingSelected(rating) {
+      if (rating === 5) {
+        // Redirect to Google Maps
+        await handleGoogleRedirect();
+      } else {
+        // Show detailed form
+        initDetailedRatings();
+        showState('formState');
+      }
+    }
+
+    // Initialize detailed rating stars
+    function initDetailedRatings() {
+      const categories = ['food', 'service', 'atmosphere'];
+
+      categories.forEach(category => {
+        const container = document.querySelector(`.star-rating-small[data-category="${category}"]`);
+        const stars = container.querySelectorAll('.star-small');
+        let categoryRating = 0;
+
+        stars.forEach((star) => {
+          star.addEventListener('click', () => {
+            categoryRating = parseInt(star.dataset.rating);
+            updateStars(stars, categoryRating);
+
+            if (category === 'food') foodRating = categoryRating;
+            if (category === 'service') serviceRating = categoryRating;
+            if (category === 'atmosphere') atmosphereRating = categoryRating;
+          });
+
+          star.addEventListener('mouseover', () => {
+            const hoverRating = parseInt(star.dataset.rating);
+            updateStars(stars, hoverRating);
+          });
+        });
+
+        container.addEventListener('mouseleave', () => {
+          updateStars(stars, categoryRating);
+        });
+      });
+    }
+
+    // Handle Google Maps redirect
+    async function handleGoogleRedirect() {
+      showState('redirectingState');
+
+      try {
+        const res = await fetch(`/api/feedback/${merchantId}/google-redirect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: 5 }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          if (err.fallback) {
+            // Google Maps URL not configured, show form instead
+            alert('Google Maps review not available. Please leave feedback below.');
+            initDetailedRatings();
+            showState('formState');
+            return;
+          }
+          throw new Error(err.error || 'Failed to redirect');
+        }
+
+        const data = await res.json();
+
+        // Wait 2 seconds then redirect
+        setTimeout(() => {
+          window.location.href = data.redirectUrl;
+        }, 2000);
+
+      } catch (err) {
+        showError(err.message);
+      }
+    }
+
+    // Submit detailed feedback
+    async function submitFeedback() {
+      const submitBtn = document.getElementById('submitBtn');
+      const text = document.getElementById('feedbackText').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const firstName = document.getElementById('firstName').value.trim();
+
+      // Validate: at least one detailed rating required
+      if (foodRating === 0 && serviceRating === 0 && atmosphereRating === 0) {
+        alert('Please rate at least one category (Food, Service, or Atmosphere)');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const payload = {
+          rating: selectedRating,
+          foodRating: foodRating || null,
+          serviceRating: serviceRating || null,
+          atmosphereRating: atmosphereRating || null,
+          text: text || null,
+          email: email || null,
+          firstName: firstName || null,
+        };
+
+        const res = await fetch(`/api/feedback/${merchantId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Failed to submit feedback');
+        }
+
+        showState('successState');
+      } catch (err) {
+        alert(err.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = translations[currentLocale].submitBtn;
+      }
+    }
+
+    // Initialize
+    loadMerchantConfig();
+  </script>
+</body>
+</html>
