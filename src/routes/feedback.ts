@@ -33,7 +33,9 @@ router.get("/:merchantId/config", async (req: Request, res: Response, next: Next
     // Parse settings JSON to extract Google Maps URL
     let settings: any = {};
     try {
-      settings = JSON.parse(merchant.settings);
+      if (merchant.settings) {
+        settings = JSON.parse(merchant.settings);
+      }
     } catch {
       settings = {};
     }
@@ -170,7 +172,9 @@ router.post("/:merchantId/google-redirect", async (req: Request, res: Response, 
     // Parse settings to get Google Maps URL
     let settings: any = {};
     try {
-      settings = JSON.parse(merchant.settings);
+      if (merchant.settings) {
+        settings = JSON.parse(merchant.settings);
+      }
     } catch {
       settings = {};
     }
