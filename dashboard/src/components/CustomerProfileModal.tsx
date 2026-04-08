@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, User, TrendingUp, TrendingDown, Gift } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
@@ -32,12 +32,7 @@ export default function CustomerProfileModal({ customer, onClose }: CustomerProf
   const [selectedReward, setSelectedReward] = useState<RewardTier | null>(null);
   const [redeemLoading, setRedeemLoading] = useState(false);
 
-  // Load available rewards when modal opens or balance changes
-  useEffect(() => {
-    loadRewards();
-  }, [currentBalance]);
-
-  const loadRewards = async () => {
+  const loadRewards = useCallback(async () => {
     setLoadingRewards(true);
     try {
       const data = await getAvailableRewards(customer.customerId);
@@ -47,7 +42,12 @@ export default function CustomerProfileModal({ customer, onClose }: CustomerProf
     } finally {
       setLoadingRewards(false);
     }
-  };
+  }, [customer.customerId]);
+
+  // Load available rewards when modal opens or balance changes
+  useEffect(() => {
+    void loadRewards();
+  }, [currentBalance, loadRewards]);
 
   const handleQuickAdd = async (points: number) => {
     await addPoints(points);
@@ -84,7 +84,7 @@ export default function CustomerProfileModal({ customer, onClose }: CustomerProf
       setTimeout(() => {
         setSuccessMessage('');
       }, 3000);
-    } catch (err) {
+    } catch {
       setErrorMessage(t('scanQR.customerProfile.error'));
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ export default function CustomerProfileModal({ customer, onClose }: CustomerProf
       setTimeout(() => {
         setSuccessMessage('');
       }, 3000);
-    } catch (err) {
+    } catch {
       setErrorMessage(t('scanQR.customerProfile.redeemError'));
       setSelectedReward(null);
     } finally {

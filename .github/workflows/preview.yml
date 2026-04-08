@@ -53,11 +53,17 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WALLETWALLET_API_KEY: ${{ secrets.WALLETWALLET_API_KEY }}
+          WALLETWALLET_COLOR_PRESET: dark
+          GOOGLE_WALLET_ISSUER_ID: ${{ secrets.GOOGLE_WALLET_ISSUER_ID }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
+          PUBLIC_URL: https://pr-${{ github.event.number }}.preview.loyali.online
         with:
           host: ${{ secrets.HETZNER_PROD_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: GH_TOKEN
+          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,PUBLIC_URL
           command_timeout: 5m
           script: |
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
@@ -67,6 +73,12 @@ jobs:
             git fetch origin ${{ github.head_ref }} && git reset --hard origin/${{ github.head_ref }}
             export DOCKER_REGISTRY=ghcr.io
             export DOCKER_IMAGE=${{ github.repository }}
+            export WALLETWALLET_API_KEY
+            export WALLETWALLET_COLOR_PRESET
+            export GOOGLE_WALLET_ISSUER_ID
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY
+            export PUBLIC_URL
             bash deploy/preview-deploy.sh ${{ github.event.number }} pr-${{ github.event.number }}
 
       - name: Comment preview URL

@@ -96,69 +96,87 @@ export default function CustomersPage() {
 
   return (
     <div
-      className="customers-page"
+      className="app-page stack-lg"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="customers-header">
-        <h1 className="customers-title">{t('customers.title')}</h1>
-        <button type="button" className="customers-refresh" onClick={handleRefresh} disabled={refreshing}>
-          <RefreshCw size={16} className={refreshing ? 'spin' : ''} />
-        </button>
-      </div>
+      <header className="app-page-header">
+        <div className="app-page-header-row">
+          <div>
+            <span className="app-page-kicker">{t('customers.title')}</span>
+            <h1 className="app-page-title">{t('customers.title')}</h1>
+          </div>
+          <button type="button" className="app-action-icon" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw size={16} className={refreshing ? 'spin' : ''} />
+          </button>
+        </div>
+        <p className="app-page-subtitle">{t('customers.searchPlaceholder')}</p>
+      </header>
 
       <div className="customers-pull-indicator" style={{ height: pullDistance }}>
         {pullDistance > 40 && <span>{t('customers.pullToRefresh')}</span>}
       </div>
 
-      <div className="customers-search-wrap">
-        <Search size={16} />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('customers.searchPlaceholder')}
-          aria-label={t('customers.searchPlaceholder')}
-        />
-      </div>
+      <section className="app-surface-card app-surface-card-muted">
+        <div className="app-surface-body app-form-stack">
+          <div className="customers-search-wrap">
+            <Search size={16} />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('customers.searchPlaceholder')}
+              aria-label={t('customers.searchPlaceholder')}
+            />
+          </div>
 
-      <div className="customers-summary">
-        <span>{t('customers.total')}: {formatNumber(total, i18n.language)}</span>
-        <span>{t('customers.active')}: {formatNumber(summary.active, i18n.language)}</span>
-      </div>
+          <div className="app-stat-grid">
+            <div className="app-stat-card">
+              <div className="app-stat-label">{t('customers.total')}</div>
+              <div className="app-stat-value">{formatNumber(total, i18n.language)}</div>
+            </div>
+            <div className="app-stat-card">
+              <div className="app-stat-label">{t('customers.active')}</div>
+              <div className="app-stat-value">{formatNumber(summary.active, i18n.language)}</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {loading ? (
         <div className="customers-empty">{t('common.loading')}</div>
       ) : customers.length === 0 ? (
         <div className="customers-empty">{t('customers.empty')}</div>
       ) : (
-        <div className="customers-list">
+        <div className="app-card-grid">
           {customers.map((customer) => (
             <article
               key={customer.id}
-              className="customer-row"
+              className="app-surface-card"
               onClick={() => navigate(`/customers/${customer.customerId}`)}
             >
-              <div className="customer-avatar">
-                {customer.avatarUrl ? (
-                  <img src={customer.avatarUrl} alt={`${customer.firstName} ${customer.lastName}`} />
-                ) : (
-                  <span>{getInitials(customer.firstName, customer.lastName)}</span>
-                )}
-              </div>
+              <div className="app-surface-body customer-row">
+                <div className="customer-avatar">
+                  {customer.avatarUrl ? (
+                    <img src={customer.avatarUrl} alt={`${customer.firstName} ${customer.lastName}`} />
+                  ) : (
+                    <span>{getInitials(customer.firstName, customer.lastName)}</span>
+                  )}
+                </div>
 
-              <div className="customer-main">
-                <p className="customer-name">{customer.firstName} {customer.lastName}</p>
-                <p className="customer-contact">{customer.phone || customer.email}</p>
-                <p className="customer-last-visit">
-                  {t('customers.lastVisit')}: {formatDate(customer.lastVisitAt, i18n.language)}
-                </p>
-              </div>
+                <div className="customer-main">
+                  <p className="customer-name">{customer.firstName} {customer.lastName}</p>
+                  <p className="customer-contact">{customer.phone || customer.email}</p>
+                  <p className="customer-last-visit">
+                    {t('customers.lastVisit')}: {formatDate(customer.lastVisitAt, i18n.language)}
+                  </p>
+                </div>
 
-              <div className="customer-points">
-                <p className="customer-points-value">{formatNumber(customer.pointsBalance, i18n.language)}</p>
-                <p className="customer-points-label">{t('customers.points')}</p>
+                <div className="customer-points">
+                  <p className="customer-points-value">{formatNumber(customer.pointsBalance, i18n.language)}</p>
+                  <p className="customer-points-label">{t('customers.points')}</p>
+                </div>
               </div>
             </article>
           ))}

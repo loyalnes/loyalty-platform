@@ -411,3 +411,187 @@ export function redeemReward(customerId: string, rewardTierId: string) {
     body: JSON.stringify({ rewardTierId }),
   });
 }
+
+// ---------- Wallet Scan ----------
+
+export interface WalletScanResult {
+  walletPassId: string;
+  loyaltyCardId: string;
+  merchantId: string;
+  merchantName: string;
+  customerId: string;
+  customerName: string;
+  cardNumber: string;
+  pointsBalance: number;
+  pointsBalanceDisplay: string;
+  tierName: string | null;
+  activePrizeCount: number;
+  activePrizes: Array<{
+    id: string;
+    prizeWinId: string;
+    name: string;
+    prizeType: string;
+    expiresAt: string;
+    redemptionCode: string;
+    campaignId: string;
+    campaignName: string;
+    wonAt: string;
+  }>;
+  availableRewards: Array<{
+    id: string;
+    name: string;
+    rewardName: string;
+    threshold: number;
+    sortOrder: number;
+  }>;
+  recentHistory: Array<{
+    id: string;
+    type: "POINTS" | "PRIZE";
+    event: string;
+    description: string;
+    pointsDelta: number | null;
+    createdAt: string;
+  }>;
+  nearestPrizeExpiration: string | null;
+  merchantScanToken: string;
+  customerAccessToken: string;
+}
+
+export function resolveWalletScan(barcodeToken: string) {
+  return request<WalletScanResult>('/wallet/scan/resolve', {
+    method: 'POST',
+    body: JSON.stringify({ barcodeToken }),
+  });
+}
+
+// ---------- Gamification Campaigns ----------
+
+export type GameType = 'SCRATCH_CARD' | 'SPIN_WHEEL';
+export type PrizeType = 'PHYSICAL' | 'DIGITAL';
+export type PrizeStatus = 'PENDING' | 'REDEEMED' | 'EXPIRED';
+
+export interface Prize {
+  id: string;
+  name: string;
+  description?: string;
+  prizeType: PrizeType;
+  prizeValue?: string;
+  probability: number;
+  validityDays: number;
+  imageUrl?: string;
+  active: boolean;
+}
+
+export interface Campaign {
+  id: string;
+  merchantId: string;
+  name: string;
+  description?: string;
+  gameType: GameType;
+  active: boolean;
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  prizes: Prize[];
+  _count?: {
+    prizeWins: number;
+  };
+}
+
+export interface CampaignStats {
+  campaignId: string;
+  campaignName: string;
+  totalPlays: number;
+  totalRedeemed: number;
+  totalExpired: number;
+  totalPending: number;
+  redemptionRate: number;
+  prizeDistribution: Array<{
+    prizeName: string;
+    prizeType: PrizeType;
+    timesWon: number;
+    probability: number;
+  }>;
+}
+
+export interface CreateCampaignPayload {
+  name?: string;
+  description?: string;
+  gameType: GameType;
+  startDate?: string;
+  endDate?: string;
+  prizes: Array<{
+    name: string;
+    description?: string;
+    prizeType: PrizeType;
+    prizeValue?: string;
+    probability: number;
+    validityDays?: number;
+    imageUrl?: string;
+  }>;
+}
+
+export interface UpdateCampaignPayload {
+  name?: string;
+  description?: string;
+  gameType?: GameType;
+  active?: boolean;
+  startDate?: string;
+  endDate?: string;
+  prizes?: Array<{
+    id?: string;
+    name: string;
+    description?: string;
+    prizeType: PrizeType;
+    prizeValue?: string;
+    probability: number;
+    validityDays?: number;
+    imageUrl?: string;
+    active?: boolean;
+  }>;
+}
+
+export function listCampaigns() {
+  return request<Campaign[]>('/campaigns');
+}
+
+export function getCampaign(id: string) {
+  return request<Campaign>(`/campaigns/${id}`);
+}
+
+export function createCampaign(data: CreateCampaignPayload) {
+  return request<Campaign>('/campaigns', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function updateCampaign(id: string, data: UpdateCampaignPayload) {
+  return request<Campaign>(`/campaigns/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteCampaign(id: string) {
+  return request<{ success: boolean }>(`/campaigns/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export function getCampaignStats(id: string) {
+  return request<CampaignStats>(`/campaigns/${id}/stats`);
+}
+
+export function redeemPrize(campaignId: string, redemptionCode: string) {
+  return request<{
+    success: boolean;
+    customerName: string;
+    prizeName: string;
+    redeemedAt: string;
+  }>(`/campaigns/${campaignId}/redeem`, {
+    method: 'POST',
+    body: JSON.stringify({ redemptionCode }),
+  });
+}

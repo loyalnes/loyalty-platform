@@ -91,10 +91,11 @@ export default function InsightsPage() {
   const retentionValue = kpis.retention === null ? t('insights.noData') : `${kpis.retention.toFixed(1)}%`;
 
   return (
-    <div className="insights-page">
-      <header className="insights-header">
-        <h1 className="insights-title">{t('insights.title')}</h1>
-        <p className="insights-subtitle">{t('insights.subtitle')}</p>
+    <div className="app-page stack-lg">
+      <header className="app-page-header">
+        <span className="app-page-kicker">{t('insights.title')}</span>
+        <h1 className="app-page-title">{t('insights.title')}</h1>
+        <p className="app-page-subtitle">{t('insights.subtitle')}</p>
       </header>
 
       <TimeFilter value={period} onChange={setPeriod} />

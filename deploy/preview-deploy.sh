@@ -35,18 +35,14 @@ if [ "$ACTIVE_PREVIEWS" -ge "$MAX_PREVIEWS" ]; then
   fi
 fi
 
-# Create the preview database if it doesn't exist
-echo "==> Ensuring preview database ${DB_NAME} exists..."
-docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T db \
-  psql -U "${DB_USER:-loyalty}" -tc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1 || \
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T db \
-  psql -U "${DB_USER:-loyalty}" -c "CREATE DATABASE ${DB_NAME};" 2>/dev/null || true
-
 # Generate docker-compose override for this preview
 COMPOSE_OVERRIDE="$DEPLOY_DIR/docker-compose.preview-pr-${PR_NUMBER}.yml"
 cat > "$COMPOSE_OVERRIDE" <<COMPOSEEOF
 # Auto-generated preview for PR #${PR_NUMBER} — do not edit
 services:
+  db:
+    environment:
+      POSTGRES_DB: ${DB_NAME}
   app:
     image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_IMAGE}:${IMAGE_TAG}
     restart: unless-stopped
@@ -70,6 +66,20 @@ COMPOSEEOF
 # Pull the image
 echo "==> Pulling preview image..."
 docker pull "${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_IMAGE}:${IMAGE_TAG}"
+
+# Start the preview database first
+echo "==> Starting preview database..."
+COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:${COMPOSE_OVERRIDE}" \
+  docker compose -p "$PROJECT_NAME" up -d db
+
+# Create the preview database inside the preview project's Postgres service if it doesn't exist
+echo "==> Ensuring preview database ${DB_NAME} exists..."
+COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:${COMPOSE_OVERRIDE}" \
+  docker compose -p "$PROJECT_NAME" exec -T db \
+  psql -U "${DB_USER:-loyalty}" -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1 || \
+  COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:${COMPOSE_OVERRIDE}" \
+  docker compose -p "$PROJECT_NAME" exec -T db \
+  psql -U "${DB_USER:-loyalty}" -d postgres -c "CREATE DATABASE ${DB_NAME};" 2>/dev/null || true
 
 # Run migrations against the preview database
 echo "==> Running migrations for preview..."
@@ -112,7 +122,10 @@ done
 if [ "$HEALTH_PASSED" = true ]; then
   echo "==> Preview for PR #${PR_NUMBER} is live at port ${PREVIEW_PORT}"
 else
-  echo "==> Warning: health check didn't pass, but preview may still be starting"
+  echo "==> Preview app did not pass health check"
+  COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:${COMPOSE_OVERRIDE}" \
+    docker compose -p "$PROJECT_NAME" logs --tail=100 app db || true
+  exit 1
 fi
 
 # Generate nginx config for subdomain routing

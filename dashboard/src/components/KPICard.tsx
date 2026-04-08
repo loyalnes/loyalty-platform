@@ -22,9 +22,9 @@ export default function KPICard({ title, value, trend }: KPICardProps) {
   const { t } = useTranslation();
 
   return (
-    <article className="kpi-card">
-      <p className="kpi-title">{title}</p>
-      <p className="kpi-value">{value}</p>
+    <article className="app-stat-card">
+      <p className="app-stat-label">{title}</p>
+      <p className="app-stat-value">{value}</p>
       <p className={`kpi-trend ${getTrendClass(trend)}`}>
         <span className="kpi-trend-arrow">{getTrendArrow(trend)}</span>
         {trend === null ? t('insights.trendUnavailable') : `${Math.abs(trend).toFixed(1)}% ${t('insights.vsPrevious')}`}

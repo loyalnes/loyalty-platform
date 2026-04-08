@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Loyalty</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #f5f7ff 0%, #eef2ff 100%);
+      color: #1f2937;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .shell { max-width: 720px; margin: 0 auto; display: grid; gap: 16px; }
+    .hero, .card, .timeline-item {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .hero { padding: 24px; }
+    .kicker { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #6366f1; margin-bottom: 8px; }
+    .title { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+    .subtitle { color: #6b7280; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .card { padding: 18px; }
+    .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 6px; }
+    .value { font-size: 28px; font-weight: 700; }
+    .value-sm { font-size: 18px; font-weight: 600; }
+    .list { display: grid; gap: 10px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .section-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .prize-row, .timeline-item {
+      padding: 16px 18px;
+      display: grid;
+      gap: 4px;
+    }
+    .prize-row { border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
+    .muted { color: #6b7280; font-size: 14px; }
+    .empty { color: #6b7280; font-size: 15px; }
+    .timeline-item { gap: 8px; }
+    .loading, .error {
+      max-width: 720px;
+      margin: 60px auto 0;
+      text-align: center;
+      color: #6b7280;
+      font-size: 16px;
+    }
+    .error { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading loyalty page...</div>
+  <div id="error" class="error" style="display:none;"></div>
+  <div id="app" class="shell" style="display:none;">
+    <section class="hero">
+      <div class="kicker" id="merchantName"></div>
+      <div class="title" id="customerName"></div>
+      <div class="subtitle" id="cardNumber"></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="label">Points</div>
+        <div class="value" id="pointsBalance"></div>
+      </div>
+      <div class="card">
+        <div class="label">Tier</div>
+        <div class="value-sm" id="tierName"></div>
+      </div>
+      <div class="card">
+        <div class="label">Active Prizes</div>
+        <div class="value-sm" id="activePrizeCount"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Active Prizes</div>
+      <div id="activePrizes" class="list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Redeemable Rewards</div>
+      <div id="availableRewards" class="list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Recent Activity</div>
+      <div id="recentHistory" class="list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">Missions</div>
+      <div class="empty">Coming soon: reviews, referrals, and sharing rewards.</div>
+    </section>
+  </div>
+
+  <script>
+    async function loadLoyaltyPage() {
+      const token = window.location.pathname.split('/').pop();
+
+      try {
+        const res = await fetch(`/api/wallet/access/${token}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({ error: 'Failed to load loyalty page' }));
+          throw new Error(body.error || 'Failed to load loyalty page');
+        }
+
+        const data = await res.json();
+        document.getElementById('merchantName').textContent = data.merchantName;
+        document.getElementById('customerName').textContent = data.customerName;
+        document.getElementById('cardNumber').textContent = `Card ${data.cardNumber}`;
+        document.getElementById('pointsBalance').textContent = data.pointsBalanceDisplay;
+        document.getElementById('tierName').textContent = data.tierName || 'No tier yet';
+        document.getElementById('activePrizeCount').textContent = String(data.activePrizeCount);
+
+        const activePrizes = document.getElementById('activePrizes');
+        activePrizes.innerHTML = data.activePrizes.length
+          ? data.activePrizes.map((prize) => `
+              <div class="prize-row">
+                <div><strong>${prize.name}</strong></div>
+                <div class="muted">Expires ${new Date(prize.expiresAt).toLocaleString()}</div>
+                <div><span class="pill">${prize.prizeType}</span></div>
+              </div>
+            `).join('')
+          : '<div class="empty">No active prizes right now.</div>';
+
+        const availableRewards = document.getElementById('availableRewards');
+        availableRewards.innerHTML = data.availableRewards.length
+          ? data.availableRewards.map((reward) => `
+              <div class="prize-row">
+                <div><strong>${reward.rewardName}</strong></div>
+                <div class="muted">${reward.threshold} pts</div>
+              </div>
+            `).join('')
+          : '<div class="empty">No rewards currently redeemable.</div>';
+
+        const recentHistory = document.getElementById('recentHistory');
+        recentHistory.innerHTML = data.recentHistory.length
+          ? data.recentHistory.map((item) => `
+              <div class="timeline-item">
+                <div><strong>${item.description}</strong></div>
+                <div class="muted">${item.event} · ${new Date(item.createdAt).toLocaleString()}</div>
+                ${item.pointsDelta !== null ? `<div class="muted">${item.pointsDelta > 0 ? '+' : ''}${item.pointsDelta} pts</div>` : ''}
+              </div>
+            `).join('')
+          : '<div class="empty">No activity yet.</div>';
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app').style.display = 'grid';
+      } catch (err) {
+        document.getElementById('loading').style.display = 'none';
+        const error = document.getElementById('error');
+        error.textContent = err.message || 'Failed to load loyalty page';
+        error.style.display = 'block';
+      }
+    }
+
+    loadLoyaltyPage();
+  </script>
+</body>
+</html>
