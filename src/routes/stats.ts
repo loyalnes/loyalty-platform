@@ -214,10 +214,11 @@ router.get("/feedback", async (req: Request, res: Response, next: NextFunction) 
           createdAt: row.createdAt,
           text: row.text,
           isNew: !row.readAt,
-          foodRating: (row as any).foodRating ?? null,
-          serviceRating: (row as any).serviceRating ?? null,
-          atmosphereRating: (row as any).atmosphereRating ?? null,
-          source: (row as any).source ?? "DIRECT",
+          // Detailed ratings (from review flow)
+          foodRating: row.foodRating,
+          serviceRating: row.serviceRating,
+          atmosphereRating: row.atmosphereRating,
+          source: row.source,
         })),
       });
     } catch (err) {

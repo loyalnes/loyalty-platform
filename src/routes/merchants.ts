@@ -121,7 +121,7 @@ router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next:
 });
 
 // PATCH /merchants/:id — Update merchant (authenticated, own merchant only)
-router.patch("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
+router.patch("/:id", validateUuid("id"), authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (req.merchantId !== req.params.id) {
       throw new ApiError(403, "You can only update your own merchant profile");

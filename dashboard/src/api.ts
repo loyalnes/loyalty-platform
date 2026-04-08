@@ -148,6 +148,7 @@ export interface FeedbackItem {
   createdAt: string;
   text: string;
   isNew: boolean;
+  // Detailed ratings (optional, from review flow)
   foodRating?: number | null;
   serviceRating?: number | null;
   atmosphereRating?: number | null;

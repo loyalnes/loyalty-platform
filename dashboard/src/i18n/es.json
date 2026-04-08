@@ -77,7 +77,7 @@
     "addPoints": "Añadir puntos",
     "redeem": "Canjear",
     "showQR": "Mostrar QR",
-    "contest": "Concurso",
+    "reviews": "Reseñas",
     "activeProgram": "Programa Activo",
     "stampCard": "Tarjeta de Sellos",
     "pointsProgram": "Programa de Puntos",
@@ -186,6 +186,16 @@
     "shareTitle": "Únete al Programa de Fidelidad de {{name}}",
     "shareText": "¡Escanea este código para unirte a nuestro programa de fidelidad y comenzar a ganar recompensas!"
   },
+  "showReviewQR": {
+    "title": "Reseñas de Clientes",
+    "subtitle": "Escanea para dejar una reseña",
+    "instruction": "Deja que los clientes escaneen este código QR para compartir sus comentarios y dejar reseñas",
+    "copyLink": "Copiar Enlace",
+    "copied": "¡Copiado!",
+    "share": "Compartir",
+    "shareTitle": "Comparte tu opinión sobre {{name}}",
+    "shareText": "¿Cómo fue tu experiencia? ¡Escanea para compartir tu opinión!"
+  },
   "scanQR": {
     "title": "Escanear QR Cliente",
     "instruction": "Apunta la cámara al código QR del cliente",
@@ -252,16 +262,23 @@
   },
   "settings": {
     "title": "Configuración",
-    "subtitle": "Configura tu cuenta",
-    "reviewFlow": "Flujo de Reseñas",
-    "reviewFlowDesc": "Cuando los clientes dan 5 estrellas, serán redirigidos a dejar una reseña en Google Maps.",
-    "googleMapsUrl": "URL de Reseña de Google Maps",
-    "googleMapsHint": "Busca tu negocio en Google Maps, haz clic en \"Escribir una reseña\" y copia la URL.",
-    "invalidUrl": "Introduce una URL válida",
+    "subtitle": "Configura los ajustes de tu negocio",
+    "googleMapsTitle": "Reseñas de Google Maps",
+    "googleMapsSubtitle": "Redirige las reseñas de 5 estrellas a tu listado de Google Maps",
+    "googleMapsUrlLabel": "URL de Google Maps",
+    "googleMapsHint": "Encuentra tu negocio en Google Maps, haz clic en 'Compartir' y pega la URL aquí",
+    "invalidUrl": "Por favor ingresa una URL válida",
+    "howItWorks": "Cómo funciona",
+    "step1": "Los clientes escanean tu código QR de reseñas",
+    "step2": "Si califican con 5 estrellas, son redirigidos a Google Maps",
+    "step3": "Si califican con 1-4 estrellas, dejan comentarios internos",
     "save": "Guardar Configuración",
     "saving": "Guardando...",
-    "saved": "¡Guardado!",
-    "saveFailed": "Error al guardar"
+    "saved": "¡Configuración guardada exitosamente!",
+    "exampleTitle": "Ejemplos de URL de Google Maps",
+    "shortUrl": "URL corta (recomendada)",
+    "cidUrl": "URL CID",
+    "gPageUrl": "URL G.page"
   },
   "showReviewQR": {
     "title": "Reseñas de Clientes",

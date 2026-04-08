@@ -213,6 +213,7 @@ model MerchantFeedback {
   rating     Int
   text       String
 
+  // Detailed ratings (optional, for review flow)
   foodRating       Int?           @map("food_rating")
   serviceRating    Int?           @map("service_rating")
   atmosphereRating Int?           @map("atmosphere_rating")
@@ -232,9 +233,9 @@ model MerchantFeedback {
 }
 
 enum FeedbackSource {
-  DIRECT
-  GOOGLE_MAPS
-  OTHER
+  DIRECT        // Review flow interno (rating 1-4)
+  GOOGLE_MAPS   // Tracked redirect (rating 5)
+  OTHER         // Future use
 }
 
 // ─── Gamification Campaigns ──────────────────────────────────

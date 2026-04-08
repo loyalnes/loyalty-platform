@@ -120,10 +120,10 @@ export default function LoyaltyHubPage() {
           <span className="quick-action-label">{t('hub.showQR')}</span>
         </div>
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab contest" onClick={() => navigate('/campaigns')}>
+          <button className="quick-action-fab contest" onClick={() => navigate('/show-review-qr')}>
             <span className="material-symbols-outlined">sports_esports</span>
           </button>
-          <span className="quick-action-label">{t('hub.contest')}</span>
+          <span className="quick-action-label">{t('hub.reviews')}</span>
         </div>
       </div>
 

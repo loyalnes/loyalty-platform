@@ -10,6 +10,7 @@ import LoyaltyHubPage from './pages/LoyaltyHubPage';
 import SetupWizardPage from './pages/SetupWizardPage';
 import InsightsPage from './pages/InsightsPage';
 import ShowQRPage from './pages/ShowQRPage';
+import ShowReviewQRPage from './pages/ShowReviewQRPage';
 import ScanQRPage from './pages/ScanQRPage';
 import CustomersPage from './pages/CustomersPage';
 import CustomerDetailPage from './pages/CustomerDetailPage';
@@ -18,7 +19,6 @@ import CreateCampaignPage from './pages/CreateCampaignPage';
 import CampaignDetailPage from './pages/CampaignDetailPage';
 import EditCampaignPage from './pages/EditCampaignPage';
 import MenuPage from './pages/MenuPage';
-import ShowReviewQRPage from './pages/ShowReviewQRPage';
 import SettingsPage from './pages/SettingsPage';
 
 function MobileLayout() {
@@ -80,13 +80,13 @@ function AppRoutes() {
         </Route>
         <Route element={<FullPageLayout />}>
           <Route path="/show-qr" element={<ShowQRPage />} />
+          <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
           <Route path="/scan-qr" element={<ScanQRPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/customers/:customerId" element={<CustomerDetailPage />} />
           <Route path="/campaigns/new" element={<CreateCampaignPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
           <Route path="/campaigns/:id/edit" element={<EditCampaignPage />} />
-          <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
     </Routes>

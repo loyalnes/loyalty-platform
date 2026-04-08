@@ -12,7 +12,11 @@ export default function ShowQRPage() {
   const [copied, setCopied] = useState(false);
 
   // Customer acquisition through gamification
-  const signupUrl = `${window.location.origin}/app/play/${merchant?.id}`;
+  // In development, Vite runs on different port than backend
+  const apiOrigin = window.location.port === '5174' || window.location.port === '5173' || window.location.port === '5175'
+    ? 'http://localhost:3000'
+    : window.location.origin;
+  const signupUrl = `${apiOrigin}/app/play/${merchant?.id}`;
 
   async function handleCopy() {
     try {
