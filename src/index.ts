@@ -47,7 +47,7 @@ app.use("/api/stats", authenticateMerchant, statsRoutes);
 app.use("/api/campaigns", authenticateMerchant, campaignRoutes);
 
 // Serve the merchant dashboard at /dashboard (production build)
-const dashboardPath = path.join(__dirname, "../dashboard/dist");
+const dashboardPath = path.join(process.cwd(), "dashboard/dist");
 app.use("/dashboard", express.static(dashboardPath, {
   etag: false,
   maxAge: 0,
@@ -58,7 +58,7 @@ app.get("/dashboard/*", (_req, res) => {
 });
 
 // Serve the customer gamification app at /app/play/:merchantId and /app/join/:merchantId
-const customerPath = path.join(__dirname, "../customer/public");
+const customerPath = path.join(process.cwd(), "customer/public");
 app.get("/app/play/:merchantId", (_req, res) => {
   res.sendFile(path.join(customerPath, "play.html"));
 });
@@ -73,7 +73,7 @@ app.get("/app/review/:merchantId", (_req, res) => {
 });
 
 // Serve the marketing website at root /
-const marketingPath = path.join(__dirname, "../marketing");
+const marketingPath = path.join(process.cwd(), "marketing");
 app.use(express.static(marketingPath));
 app.get("*", (_req, res) => {
   res.sendFile(path.join(marketingPath, "index.html"));
