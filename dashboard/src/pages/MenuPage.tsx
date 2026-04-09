@@ -6,11 +6,11 @@ import { useAuth } from '../AuthContext';
 export default function MenuPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { merchant } = useAuth();
+  const { merchant, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('merchantApiKey');
-    window.location.href = '/dashboard/login';
+    logout();
+    navigate('/login');
   };
 
   const menuSections = [
