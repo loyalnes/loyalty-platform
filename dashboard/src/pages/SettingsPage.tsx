@@ -60,7 +60,7 @@ export default function SettingsPage() {
   return (
     <div className="app-page stack-lg">
       <header className="app-page-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+        <button className="app-page-back" onClick={() => navigate(-1)}>
           <ArrowLeft size={20} />
         </button>
         <div>
@@ -69,7 +69,8 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      <section className="app-surface-card stack-md">
+      <section className="app-surface-card">
+        <div className="app-surface-body stack-md">
         <h2 className="text-label-large">{t('settings.reviewFlow', 'Review Flow')}</h2>
         <p style={{ fontSize: '14px', color: '#666' }}>
           {t('settings.reviewFlowDesc', 'When customers give 5 stars, they\'ll be redirected to leave a Google Maps review.')}
@@ -97,6 +98,7 @@ export default function SettingsPage() {
         >
           {saved ? <><Check size={16} /> {t('settings.saved', 'Saved!')}</> : saving ? t('settings.saving', 'Saving...') : <><Save size={16} /> {t('settings.save', 'Save Settings')}</>}
         </button>
+        </div>
       </section>
     </div>
   );

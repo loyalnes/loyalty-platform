@@ -63,6 +63,12 @@ export default function CampaignsPage() {
             <span className="app-page-kicker">{t('menu.acquisition', 'Acquisition')}</span>
             <h1 className="app-page-title">{t('campaigns.title', 'Campaigns')}</h1>
           </div>
+          {campaigns.length > 0 && (
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/campaigns/new')}>
+              <Plus size={16} />
+              {t('campaigns.new', 'New')}
+            </button>
+          )}
         </div>
         <p className="app-page-subtitle">{t('campaigns.subtitle', 'Manage gamification campaigns')}</p>
       </header>
