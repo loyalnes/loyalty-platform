@@ -44,7 +44,7 @@ export default function LoyaltyHubPage() {
         setTodayKpis(today);
         setWeekKpis(week);
       })
-      .catch(() => {});
+      .catch((err) => console.error('Failed to load KPIs:', err));
   }, []);
 
   return (
@@ -52,7 +52,7 @@ export default function LoyaltyHubPage() {
       {/* Active Program Card */}
       {program ? (
         <div className="program-card-minimal aviator-shadow">
-          <button className="btn-edit" onClick={() => window.location.href = '/dashboard/setup'}>
+          <button className="btn-edit" onClick={() => navigate('/setup')}>
             {t('hub.edit')}
           </button>
           <div className="program-card-info">
@@ -93,7 +93,7 @@ export default function LoyaltyHubPage() {
           <div className="empty-state-icon">🎯</div>
           <div className="empty-state-title">{t('hub.noProgramTitle')}</div>
           <div className="empty-state-desc">{t('hub.noProgramDesc')}</div>
-          <button className="btn btn-primary btn-sm" onClick={() => window.location.href = '/dashboard/setup'}>
+          <button className="btn btn-primary btn-sm" onClick={() => navigate('/setup')}>
             {t('hub.setupProgram')}
           </button>
         </div>
