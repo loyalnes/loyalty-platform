@@ -12,3 +12,14 @@ dashboard/node_modules
 # Deploy env files (contain secrets)
 deploy/.env.staging
 deploy/.env.prod
+
+# Wallet certificates (do not commit)
+certs/
+*.p12
+*.pem
+*.key
+service-account.json
+
+# Local development artifacts
+.playwright-mcp/
+dev.db

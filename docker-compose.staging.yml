@@ -1,7 +1,8 @@
-# Staging overrides
+# Staging overrides — separate database from production
 services:
   db:
     environment:
+      POSTGRES_DB: loyalty_staging
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
 
   app:
@@ -9,5 +10,6 @@ services:
     build: !reset null
     environment:
       NODE_ENV: staging
+      DATABASE_URL: postgresql://${DB_USER:-loyalty}:${DB_PASSWORD}@db:5432/loyalty_staging?schema=public
     ports:
       - "3001:3000"

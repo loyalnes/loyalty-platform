@@ -40,6 +40,9 @@ systemctl start fail2ban
 echo "==> Installing Nginx as reverse proxy..."
 apt-get install -y nginx certbot python3-certbot-nginx
 
+echo "==> Creating nginx previews directory..."
+mkdir -p /etc/nginx/previews
+
 echo "==> Configuring log rotation for app logs..."
 cat > /etc/logrotate.d/loyalty-platform <<'LOGROTATE'
 /opt/loyalty-platform/backups/*.log {

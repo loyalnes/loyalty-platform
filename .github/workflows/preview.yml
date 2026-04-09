@@ -1,0 +1,133 @@
+name: Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [closed]
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_IMAGE: ${{ github.repository }}
+
+jobs:
+  deploy-preview:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=pr-${{ github.event.number }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy preview
+        uses: appleboy/ssh-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WALLETWALLET_API_KEY: ${{ secrets.WALLETWALLET_API_KEY }}
+          WALLETWALLET_COLOR_PRESET: dark
+          GOOGLE_WALLET_ISSUER_ID: ${{ secrets.GOOGLE_WALLET_ISSUER_ID }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
+          PUBLIC_URL: https://pr-${{ github.event.number }}.preview.loyali.online
+        with:
+          host: ${{ secrets.HETZNER_PROD_HOST }}
+          username: ${{ secrets.HETZNER_SSH_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,PUBLIC_URL
+          command_timeout: 5m
+          script: |
+            echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
+            cd /opt/loyalty-platform
+            git config --global --add safe.directory /opt/loyalty-platform
+            git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git 2>/dev/null || true
+            git fetch origin ${{ github.head_ref }} && git reset --hard origin/${{ github.head_ref }}
+            export DOCKER_REGISTRY=ghcr.io
+            export DOCKER_IMAGE=${{ github.repository }}
+            export WALLETWALLET_API_KEY
+            export WALLETWALLET_COLOR_PRESET
+            export GOOGLE_WALLET_ISSUER_ID
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
+            export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY
+            export PUBLIC_URL
+            bash deploy/preview-deploy.sh ${{ github.event.number }} pr-${{ github.event.number }}
+
+      - name: Comment preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNum = ${{ github.event.number }};
+            const domain = `pr-${prNum}.preview.loyali.online`;
+            const port = 4000 + prNum;
+            const body = `### 🔗 Preview deployed\n\n**${domain}**\n\n- Dashboard: https://${domain}/dashboard/\n- API: https://${domain}/api/health\n- Fallback (IP): \`http://${{ secrets.HETZNER_PROD_HOST }}:${port}\`\n\n_Auto-deployed by preview workflow. Will be cleaned up when this PR is closed._`;
+
+            // Find existing preview comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNum,
+            });
+            const existing = comments.find(c => c.body.includes('### 🔗 Preview deployed'));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNum,
+                body,
+              });
+            }
+
+  cleanup-preview:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cleanup preview
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HETZNER_PROD_HOST }}
+          username: ${{ secrets.HETZNER_SSH_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            cd /opt/loyalty-platform
+            bash deploy/preview-cleanup.sh ${{ github.event.number }}

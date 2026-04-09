@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -30,12 +30,12 @@ export default function CardDetailPage() {
   const txLimit = 20;
   const lng = i18n.language;
 
-  function loadCard() {
+  const loadCard = useCallback(() => {
     if (!id) return;
     getCard(id).then(setCard).catch(() => setError(t('cardDetail.notFound')));
-  }
+  }, [id, t]);
 
-  function loadTransactions() {
+  const loadTransactions = useCallback(() => {
     if (!id) return;
     getTransactionHistory(id, txPage, txLimit)
       .then((res) => {
@@ -43,7 +43,7 @@ export default function CardDetailPage() {
         setTxTotal(res.total);
       })
       .catch(() => {});
-  }
+  }, [id, txPage, txLimit]);
 
   useEffect(() => {
     setLoading(true);
@@ -58,11 +58,13 @@ export default function CardDetailPage() {
       })
       .catch(() => setError(t('cardDetail.notFound')))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
-    if (!loading) loadTransactions();
-  }, [txPage]);
+    if (!loading) {
+      loadTransactions();
+    }
+  }, [loadTransactions, loading]);
 
   async function handlePointsSubmit(e: FormEvent) {
     e.preventDefault();

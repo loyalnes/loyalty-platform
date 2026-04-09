@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
+import { validateUuid } from "../middleware/validateUuid";
 
 const router = Router();
 
@@ -51,8 +52,26 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+// GET /merchants/by-email/:email — Lookup merchant by email (for dashboard login)
+router.get("/by-email/:email", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const merchant = await prisma.merchant.findUnique({
+      where: { email: req.params.email },
+      include: { cardTemplates: true },
+    });
+
+    if (!merchant) {
+      throw new ApiError(404, "No merchant found with this email");
+    }
+
+    res.json(merchant);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /merchants/:id — Get merchant by ID
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.params.id },
@@ -70,7 +89,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // PATCH /merchants/:id — Update merchant (authenticated, own merchant only)
-router.patch("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.patch("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (req.merchantId !== req.params.id) {
       throw new ApiError(403, "You can only update your own merchant profile");
