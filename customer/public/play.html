@@ -426,7 +426,18 @@
       }
     }
 
-    // Load campaign and get prize immediately
+    // Select a prize client-side using probability weights
+    function selectWeightedPrize(prizes) {
+      const totalWeight = prizes.reduce((sum, p) => sum + p.probability, 0);
+      let random = Math.random() * totalWeight;
+      for (const prize of prizes) {
+        random -= prize.probability;
+        if (random <= 0) return prize;
+      }
+      return prizes[0];
+    }
+
+    // Load campaign and select prize client-side
     async function loadCampaign() {
       try {
         const res = await fetch(`/api/gamification/${merchantId}`);
@@ -437,39 +448,26 @@
         document.getElementById('gameTypeLabel').textContent =
           campaign.gameType === 'SCRATCH_CARD' ? 'Scratch to reveal your prize!' : 'Spin to win!';
 
-        // Get prize immediately (without email)
-        await getPrize();
-        initGame();
-      } catch (err) {
-        showError(err.message || 'Failed to load campaign');
-      }
-    }
-
-    // Get prize (call /play with temporary email)
-    async function getPrize() {
-      try {
-        const tempEmail = `temp-${Date.now()}@scratch.temp`;
-        const res = await fetch(`/api/gamification/${merchantId}/play`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: tempEmail }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Failed to get prize');
-        }
-
-        wonPrize = await res.json();
+        // Select prize client-side using probability weights
+        const selectedPrize = selectWeightedPrize(campaign.prizes);
+        wonPrize = {
+          prizeId: selectedPrize.id,
+          prizeName: selectedPrize.name,
+          prizeDescription: selectedPrize.description || '',
+          prizeType: selectedPrize.prizeType,
+          imageUrl: selectedPrize.imageUrl,
+          validityDays: 15, // default, actual validity set server-side on claim
+        };
 
         // Display prize under canvas
         const icon = wonPrize.prizeType === 'PHYSICAL' ? '🎁' : '🎟️';
         document.getElementById('prizeUnderIcon').textContent = icon;
         document.getElementById('prizeUnderName').textContent = wonPrize.prizeName;
-        document.getElementById('prizeUnderDesc').textContent = wonPrize.prizeDescription || '';
+        document.getElementById('prizeUnderDesc').textContent = wonPrize.prizeDescription;
 
+        initGame();
       } catch (err) {
-        showError(err.message);
+        showError(err.message || 'Failed to load campaign');
       }
     }
 
