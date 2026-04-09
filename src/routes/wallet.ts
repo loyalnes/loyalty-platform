@@ -11,28 +11,17 @@ const router = Router();
 
 /**
  * GET /wallet/config
- * Check wallet provider configuration status (for debugging)
+ * Check wallet provider configuration status (authenticated, no sensitive details)
  */
-router.get("/config", async (req: Request, res: Response) => {
-  const config = {
+router.get("/config", authenticateMerchant, async (req: Request, res: Response) => {
+  res.json({
     appleWallet: {
       configured: !!process.env.WALLETWALLET_API_KEY,
-      apiKey: process.env.WALLETWALLET_API_KEY ? "***" + process.env.WALLETWALLET_API_KEY.slice(-4) : null,
-      colorPreset: process.env.WALLETWALLET_COLOR_PRESET || "dark",
-      hasLogo: !!process.env.WALLETWALLET_LOGO_URL,
-      hasThumbnail: !!process.env.WALLETWALLET_THUMBNAIL_URL,
-      hasStrip: !!process.env.WALLETWALLET_STRIP_URL,
     },
     googleWallet: {
       configured: !!(process.env.GOOGLE_WALLET_ISSUER_ID && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY),
-      issuerId: process.env.GOOGLE_WALLET_ISSUER_ID || null,
-      serviceAccountEmail: process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL || null,
-      hasServiceAccountKey: !!process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,
     },
-    publicUrl: process.env.PUBLIC_URL || "http://localhost:3000",
-  };
-
-  res.json(config);
+  });
 });
 
 /**
