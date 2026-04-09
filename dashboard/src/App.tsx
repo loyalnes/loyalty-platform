@@ -18,6 +18,8 @@ import CreateCampaignPage from './pages/CreateCampaignPage';
 import CampaignDetailPage from './pages/CampaignDetailPage';
 import EditCampaignPage from './pages/EditCampaignPage';
 import MenuPage from './pages/MenuPage';
+import ShowReviewQRPage from './pages/ShowReviewQRPage';
+import SettingsPage from './pages/SettingsPage';
 
 function MobileLayout() {
   return (
@@ -83,6 +85,8 @@ function AppRoutes() {
           <Route path="/campaigns/new" element={<CreateCampaignPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
           <Route path="/campaigns/:id/edit" element={<EditCampaignPage />} />
+          <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
     </Routes>

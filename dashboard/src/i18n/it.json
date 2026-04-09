@@ -231,6 +231,41 @@
       "processing": "Elaborazione..."
     }
   },
+  "settings": {
+    "title": "Impostazioni",
+    "subtitle": "Configura il tuo account",
+    "reviewFlow": "Flusso Recensioni",
+    "reviewFlowDesc": "Quando i clienti danno 5 stelle, verranno reindirizzati a lasciare una recensione su Google Maps.",
+    "googleMapsUrl": "URL Recensione Google Maps",
+    "googleMapsHint": "Cerca la tua attività su Google Maps, clicca \"Scrivi una recensione\" e copia l'URL.",
+    "invalidUrl": "Inserisci un URL valido",
+    "save": "Salva Impostazioni",
+    "saving": "Salvataggio...",
+    "saved": "Salvato!",
+    "saveFailed": "Salvataggio fallito"
+  },
+  "showReviewQR": {
+    "title": "Recensioni Clienti",
+    "subtitle": "Scansiona per recensire",
+    "instruction": "Fai scansionare questo QR code ai clienti per lasciare una recensione",
+    "shareTitle": "Recensisci {{name}}",
+    "shareText": "Raccontaci la tua esperienza!"
+  },
+  "menu": {
+    "title": "Menu",
+    "acquisition": "Acquisizione",
+    "campaigns": "Campagne Gamification",
+    "campaignsDesc": "Gratta e vinci, ruota della fortuna e premi",
+    "reviews": "Recensioni Clienti",
+    "reviewsDesc": "QR code e impostazioni recensioni",
+    "settings": "Impostazioni",
+    "account": "Impostazioni Account",
+    "accountDesc": "Profilo, piano e preferenze",
+    "support": "Supporto",
+    "help": "Aiuto e Documentazione",
+    "helpDesc": "Guide, FAQ e supporto",
+    "logout": "Esci"
+  },
   "locale": {
     "label": "Lingua",
     "en": "English",

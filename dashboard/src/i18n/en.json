@@ -231,6 +231,41 @@
       "processing": "Processing..."
     }
   },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure your account",
+    "reviewFlow": "Review Flow",
+    "reviewFlowDesc": "When customers give 5 stars, they'll be redirected to leave a Google Maps review.",
+    "googleMapsUrl": "Google Maps Review URL",
+    "googleMapsHint": "Find your business on Google Maps, click \"Write a review\", and copy the URL.",
+    "invalidUrl": "Please enter a valid URL",
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "saveFailed": "Failed to save settings"
+  },
+  "showReviewQR": {
+    "title": "Customer Reviews",
+    "subtitle": "Scan to leave a review",
+    "instruction": "Let customers scan this QR code to leave a review",
+    "shareTitle": "Review {{name}}",
+    "shareText": "Tell us about your experience!"
+  },
+  "menu": {
+    "title": "Menu",
+    "acquisition": "Acquisition",
+    "campaigns": "Gamification Campaigns",
+    "campaignsDesc": "Scratch cards, spin wheels & prizes",
+    "reviews": "Customer Reviews",
+    "reviewsDesc": "QR code & review settings",
+    "settings": "Settings",
+    "account": "Account Settings",
+    "accountDesc": "Profile, plan & preferences",
+    "support": "Support",
+    "help": "Help & Documentation",
+    "helpDesc": "Guides, FAQs & support",
+    "logout": "Logout"
+  },
   "locale": {
     "label": "Language",
     "en": "English",

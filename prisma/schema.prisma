@@ -207,21 +207,34 @@ model RewardTier {
 // ─── Merchant Feedback ──────────────────────────────────────
 
 model MerchantFeedback {
-  id         String    @id @default(uuid())
-  merchantId String    @map("merchant_id")
-  customerId String    @map("customer_id")
+  id         String          @id @default(uuid())
+  merchantId String          @map("merchant_id")
+  customerId String?         @map("customer_id")
   rating     Int
   text       String
+
+  foodRating       Int?           @map("food_rating")
+  serviceRating    Int?           @map("service_rating")
+  atmosphereRating Int?           @map("atmosphere_rating")
+  source           FeedbackSource @default(DIRECT)
+
   readAt     DateTime? @map("read_at")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 
-  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  merchant Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([merchantId, createdAt])
   @@index([customerId])
+  @@index([source])
   @@map("merchant_feedback")
+}
+
+enum FeedbackSource {
+  DIRECT
+  GOOGLE_MAPS
+  OTHER
 }
 
 // ─── Gamification Campaigns ──────────────────────────────────
