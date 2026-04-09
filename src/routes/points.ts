@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
+import { validateUuid } from "../middleware/validateUuid";
 
 const router = Router();
 
@@ -110,7 +111,7 @@ router.post("/redeem", async (req: Request, res: Response, next: NextFunction) =
 });
 
 // GET /points/balance/:cardId — Check card balance
-router.get("/balance/:cardId", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/balance/:cardId", validateUuid("cardId"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const card = await prisma.loyaltyCard.findUnique({
       where: { id: req.params.cardId },
@@ -141,7 +142,7 @@ router.get("/balance/:cardId", async (req: Request, res: Response, next: NextFun
 });
 
 // GET /points/history/:cardId — Transaction history for a card
-router.get("/history/:cardId", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/history/:cardId", validateUuid("cardId"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const card = await prisma.loyaltyCard.findUnique({ where: { id: req.params.cardId } });
     if (!card || card.merchantId !== req.merchantId) {

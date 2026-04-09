@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
+import { validateUuid } from "../middleware/validateUuid";
 
 const router = Router();
 
@@ -70,7 +71,7 @@ router.get("/by-email/:email", async (req: Request, res: Response, next: NextFun
 });
 
 // GET /merchants/:id — Get merchant by ID
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.params.id },
@@ -88,7 +89,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // PATCH /merchants/:id — Update merchant (authenticated, own merchant only)
-router.patch("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.patch("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (req.merchantId !== req.params.id) {
       throw new ApiError(403, "You can only update your own merchant profile");
