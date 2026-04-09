@@ -1,29 +1,22 @@
+import crypto from "crypto";
 import { Router, Request, Response, NextFunction } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { Prisma } from "@prisma/client";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
 import { buildWalletSummary } from "../services/walletSummary";
+import { generateRedemptionCode } from "../utils/redemptionCode";
 
 const router = Router();
-
-// ─── Helper: Generate redemption code ────────────────────────
-function generateRedemptionCode(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no confusing chars
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
-}
 
 // ─── Helper: Weighted random prize selection ─────────────────
 function selectRandomPrize(prizes: Array<{ id: string; probability: number }>) {
   const totalWeight = prizes.reduce((sum, p) => sum + p.probability, 0);
-  let random = Math.random() * totalWeight;
+  let random = crypto.randomInt(totalWeight);
 
   for (const prize of prizes) {
     random -= prize.probability;
-    if (random <= 0) {
+    if (random < 0) {
       return prize.id;
     }
   }
@@ -212,20 +205,6 @@ router.post("/:merchantId/claim", async (req: Request, res: Response, next: Next
       });
     }
 
-    // Check if already won in this campaign
-    const existingWin = await prisma.prizeWin.findUnique({
-      where: {
-        campaignId_customerId: {
-          campaignId: prize.campaignId,
-          customerId: customer.id,
-        },
-      },
-    });
-
-    if (existingWin) {
-      throw new ApiError(409, "Prize already claimed");
-    }
-
     // Create or get loyalty card
     let loyaltyCard = await prisma.loyaltyCard.findUnique({
       where: {
@@ -247,55 +226,62 @@ router.post("/:merchantId/claim", async (req: Request, res: Response, next: Next
       });
     }
 
-    // Create prize win
+    // Create prize win — rely on DB unique constraint to prevent duplicates (race-condition-safe)
     const redemptionCode = generateRedemptionCode();
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + prize.validityDays);
 
-    const prizeWin = await prisma.prizeWin.create({
-      data: {
-        campaignId: prize.campaignId,
-        prizeId: prize.id,
-        customerId: customer.id,
-        loyaltyCardId: loyaltyCard.id,
-        redemptionCode,
-        expiresAt,
-      },
-      include: {
-        prize: true,
-        campaign: {
-          include: {
-            merchant: true,
+    try {
+      const prizeWin = await prisma.prizeWin.create({
+        data: {
+          campaignId: prize.campaignId,
+          prizeId: prize.id,
+          customerId: customer.id,
+          loyaltyCardId: loyaltyCard.id,
+          redemptionCode,
+          expiresAt,
+        },
+        include: {
+          prize: true,
+          campaign: {
+            include: {
+              merchant: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const walletSummary = await buildWalletSummary(loyaltyCard.id);
+      const walletSummary = await buildWalletSummary(loyaltyCard.id);
 
-    res.json({
-      prizeWinId: prizeWin.id,
-      redemptionCode: prizeWin.redemptionCode,
-      prizeName: prizeWin.prize.name,
-      prizeType: prizeWin.prize.prizeType,
-      expiresAt: prizeWin.expiresAt,
-      loyaltyCard: {
-        id: loyaltyCard.id,
-        cardNumber: loyaltyCard.cardNumber,
-      },
-      merchant: {
-        id: prizeWin.campaign.merchant.id,
-        name: prizeWin.campaign.merchant.name,
-      },
-      wallet: walletSummary
-        ? {
-            loyaltyPagePath: `/app/loyalty/${walletSummary.customerAccessToken}`,
-            customerAccessToken: walletSummary.customerAccessToken,
-            merchantScanToken: walletSummary.merchantScanToken,
-          }
-        : null,
-      isNewCustomer,
-    });
+      res.json({
+        prizeWinId: prizeWin.id,
+        redemptionCode: prizeWin.redemptionCode,
+        prizeName: prizeWin.prize.name,
+        prizeType: prizeWin.prize.prizeType,
+        expiresAt: prizeWin.expiresAt,
+        loyaltyCard: {
+          id: loyaltyCard.id,
+          cardNumber: loyaltyCard.cardNumber,
+        },
+        merchant: {
+          id: prizeWin.campaign.merchant.id,
+          name: prizeWin.campaign.merchant.name,
+        },
+        wallet: walletSummary
+          ? {
+              loyaltyPagePath: `/app/loyalty/${walletSummary.customerAccessToken}`,
+              customerAccessToken: walletSummary.customerAccessToken,
+              merchantScanToken: walletSummary.merchantScanToken,
+            }
+          : null,
+        isNewCustomer,
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        throw new ApiError(409, "Prize already claimed");
+      }
+      throw err;
+    }
   } catch (err) {
     next(err);
   }
