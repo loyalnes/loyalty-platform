@@ -20,7 +20,13 @@ const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+      : false,
+  })
+);
 app.use(express.json());
 
 // Health check (available at both /health and /api/health for Docker healthcheck compatibility)
