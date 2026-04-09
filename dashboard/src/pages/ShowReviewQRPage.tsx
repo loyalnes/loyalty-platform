@@ -40,7 +40,7 @@ export default function ShowReviewQRPage() {
   return (
     <div className="app-page" style={{ textAlign: 'center' }}>
       <header className="app-page-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+        <button className="app-page-back" onClick={() => navigate(-1)}>
           <X size={20} />
         </button>
         <div>

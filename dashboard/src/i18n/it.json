@@ -231,6 +231,25 @@
       "processing": "Elaborazione..."
     }
   },
+  "campaigns": {
+    "title": "Campagne",
+    "subtitle": "Gestisci le campagne di gamification",
+    "empty": "Nessuna campagna ancora",
+    "emptyDesc": "Crea la tua prima campagna di gamification per coinvolgere i clienti",
+    "createFirst": "Crea Campagna",
+    "new": "Nuova",
+    "scratchCard": "Gratta e Vinci",
+    "spinWheel": "Ruota della Fortuna",
+    "prizes": "Premi",
+    "plays": "Giocate Totali",
+    "status": "Stato",
+    "active": "Attiva",
+    "inactive": "Inattiva",
+    "viewStats": "Vedi Statistiche",
+    "editCampaign": "Modifica Campagna",
+    "deleteCampaign": "Elimina Campagna",
+    "deleteConfirm": "Eliminare questa campagna? L'azione non può essere annullata."
+  },
   "settings": {
     "title": "Impostazioni",
     "subtitle": "Configura il tuo account",

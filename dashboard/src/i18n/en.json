@@ -141,6 +141,25 @@
     "trendUnavailable": "Trend unavailable",
     "noData": "N/A"
   },
+  "campaigns": {
+    "title": "Campaigns",
+    "subtitle": "Manage gamification campaigns",
+    "empty": "No campaigns yet",
+    "emptyDesc": "Create your first gamification campaign to engage customers",
+    "createFirst": "Create Campaign",
+    "new": "New",
+    "scratchCard": "Scratch Card",
+    "spinWheel": "Spin Wheel",
+    "prizes": "Prizes",
+    "plays": "Total Plays",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "viewStats": "View Stats",
+    "editCampaign": "Edit Campaign",
+    "deleteCampaign": "Delete Campaign",
+    "deleteConfirm": "Delete this campaign? This action cannot be undone."
+  },
   "customers": {
     "title": "Customers",
     "searchPlaceholder": "Search by name, email or phone",

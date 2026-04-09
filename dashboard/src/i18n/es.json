@@ -231,6 +231,25 @@
       "processing": "Procesando..."
     }
   },
+  "campaigns": {
+    "title": "Campañas",
+    "subtitle": "Gestiona campañas de gamificación",
+    "empty": "Aún no hay campañas",
+    "emptyDesc": "Crea tu primera campaña de gamificación para atraer clientes",
+    "createFirst": "Crear Campaña",
+    "new": "Nueva",
+    "scratchCard": "Rasca y Gana",
+    "spinWheel": "Rueda de la Fortuna",
+    "prizes": "Premios",
+    "plays": "Jugadas Totales",
+    "status": "Estado",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "viewStats": "Ver Estadísticas",
+    "editCampaign": "Editar Campaña",
+    "deleteCampaign": "Eliminar Campaña",
+    "deleteConfirm": "¿Eliminar esta campaña? Esta acción no se puede deshacer."
+  },
   "settings": {
     "title": "Configuración",
     "subtitle": "Configura tu cuenta",
