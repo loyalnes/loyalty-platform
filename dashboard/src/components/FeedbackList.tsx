@@ -49,10 +49,23 @@ export default function FeedbackList({ items }: FeedbackListProps) {
                   <Star size={14} fill="currentColor" />
                   <span>{item.rating.toFixed(1)}</span>
                 </div>
+                {item.source === 'GOOGLE_MAPS' && (
+                  <span style={{ fontSize: '11px', background: '#e8f5e9', color: '#2e7d32', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px' }}>
+                    Google Maps
+                  </span>
+                )}
               </div>
             </div>
 
             <p className={`feedback-text${isExpanded ? ' expanded' : ''}`}>{item.text}</p>
+
+            {(item.foodRating || item.serviceRating || item.atmosphereRating) && (
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                {item.foodRating && <span>&#127869; {item.foodRating}/5</span>}
+                {item.serviceRating && <span>&#129309; {item.serviceRating}/5</span>}
+                {item.atmosphereRating && <span>&#127912; {item.atmosphereRating}/5</span>}
+              </div>
+            )}
 
             {canExpand && (
               <button type="button" className="feedback-expand" onClick={() => toggleExpanded(item.id)}>

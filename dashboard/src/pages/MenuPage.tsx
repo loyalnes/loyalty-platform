@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Gift, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { Gift, Star, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 export default function MenuPage() {
@@ -22,6 +22,13 @@ export default function MenuPage() {
           label: t('menu.campaigns', 'Gamification Campaigns'),
           description: t('menu.campaignsDesc', 'Scratch cards, spin wheels & prizes'),
           path: '/campaigns',
+          color: '#667eea',
+        },
+        {
+          icon: Star,
+          label: t('menu.reviews', 'Customer Reviews'),
+          description: t('menu.reviewsDesc', 'QR code & review settings'),
+          path: '/show-review-qr',
           color: '#667eea',
         },
       ],

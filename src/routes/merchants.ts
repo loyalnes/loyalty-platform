@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
 import { validateUuid } from "../middleware/validateUuid";
+import { authenticateMerchant } from "../middleware/auth";
 
 const router = Router();
 
@@ -64,6 +65,37 @@ router.get("/by-email/:email", async (req: Request, res: Response, next: NextFun
       throw new ApiError(404, "No merchant found with this email");
     }
 
+    res.json(merchant);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /merchants/me — Get current authenticated merchant
+router.get("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const merchant = await prisma.merchant.findUnique({
+      where: { id: req.merchantId! },
+    });
+    if (!merchant) throw new ApiError(404, "Merchant not found");
+    res.json(merchant);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /merchants/me — Update current authenticated merchant
+router.patch("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const allowed = ["name", "phone", "address", "city", "country", "settings", "preferredLocale"] as const;
+    const data: Record<string, unknown> = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) data[key] = req.body[key];
+    }
+    const merchant = await prisma.merchant.update({
+      where: { id: req.merchantId! },
+      data,
+    });
     res.json(merchant);
   } catch (err) {
     next(err);

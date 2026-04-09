@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  getMerchant,
+  getMerchantMe,
   getMyProgram,
   login as apiLogin,
   signup as apiSignup,
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const key = localStorage.getItem('merchantApiKey');
     if (!key) return;
     let cancelled = false;
-    getMerchant(key)
+    getMerchantMe()
       .then(async (m) => {
         if (cancelled) return;
         setMerchant(m);
