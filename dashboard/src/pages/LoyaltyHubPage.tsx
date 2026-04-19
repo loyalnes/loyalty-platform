@@ -108,7 +108,7 @@ export default function LoyaltyHubPage() {
           <span className="quick-action-label">{t('hub.addPoints')}</span>
         </div>
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab redeem">
+          <button className="quick-action-fab redeem" onClick={() => navigate('/scan-qr')}>
             <span className="material-symbols-outlined">redeem</span>
           </button>
           <span className="quick-action-label">{t('hub.redeem')}</span>
@@ -120,7 +120,7 @@ export default function LoyaltyHubPage() {
           <span className="quick-action-label">{t('hub.showQR')}</span>
         </div>
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab contest">
+          <button className="quick-action-fab contest" onClick={() => navigate('/campaigns')}>
             <span className="material-symbols-outlined">sports_esports</span>
           </button>
           <span className="quick-action-label">{t('hub.contest')}</span>

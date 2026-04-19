@@ -78,6 +78,13 @@ app.get("/app/review/:merchantId", (_req, res) => {
   res.sendFile(path.join(customerPath, "review.html"));
 });
 
+// Favicon
+app.get("/favicon.ico", (_req, res) => {
+  res.sendFile(path.join(process.cwd(), "public/favicon.svg"), {
+    headers: { "Content-Type": "image/svg+xml" },
+  });
+});
+
 // Serve the marketing website at root /
 const marketingPath = path.join(process.cwd(), "marketing");
 app.use(express.static(marketingPath));

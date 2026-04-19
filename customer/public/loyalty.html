@@ -62,7 +62,12 @@
 </head>
 <body>
   <div id="loading" class="loading">Loading loyalty page...</div>
-  <div id="error" class="error" style="display:none;"></div>
+  <div id="error" style="display:none; max-width:500px; margin:60px auto; text-align:center; padding:32px 24px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+    <div style="font-size:48px; margin-bottom:16px;">&#128532;</div>
+    <div style="font-size:20px; font-weight:700; color:#333; margin-bottom:8px;">Something went wrong</div>
+    <div id="errorMessage" style="color:#6b7280; font-size:15px; margin-bottom:24px;"></div>
+    <button onclick="window.location.reload()" style="padding:12px 24px; background:#4F46E5; color:white; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer;">Try Again</button>
+  </div>
   <div id="app" class="shell" style="display:none;">
     <section class="hero">
       <div class="kicker" id="merchantName"></div>
@@ -161,9 +166,8 @@
         document.getElementById('app').style.display = 'grid';
       } catch (err) {
         document.getElementById('loading').style.display = 'none';
-        const error = document.getElementById('error');
-        error.textContent = err.message || 'Failed to load loyalty page';
-        error.style.display = 'block';
+        document.getElementById('errorMessage').textContent = err.message || 'Failed to load loyalty page';
+        document.getElementById('error').style.display = 'block';
       }
     }
 

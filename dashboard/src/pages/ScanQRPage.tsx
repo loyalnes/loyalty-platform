@@ -86,13 +86,13 @@ export default function ScanQRPage() {
     await fetchCustomer(customerId);
   }, [fetchCustomer, t]);
 
-  useEffect(() => {
-    if (hasStartedRef.current) return;
-    hasStartedRef.current = true;
-
-    const scanner = new Html5Qrcode('qr-reader');
+  const startCamera = useCallback(() => {
+    const scanner = scannerRef.current ?? new Html5Qrcode('qr-reader');
     scannerRef.current = scanner;
 
+    if (scanner.isScanning) return;
+
+    setCameraError(false);
     scanner
       .start(
         { facingMode: 'environment' },
@@ -114,6 +114,12 @@ export default function ScanQRPage() {
         setCameraError(true);
         setScanning(false);
       });
+  }, [onScanSuccess]);
+
+  useEffect(() => {
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
+    startCamera();
 
     return () => {
       if (scannerRef.current?.isScanning) {
@@ -125,7 +131,7 @@ export default function ScanQRPage() {
           .catch((err) => console.error('Failed to stop scanner:', err));
       }
     };
-  }, [onScanSuccess]);
+  }, [startCamera]);
 
   const handleManualLookup = async () => {
     if (!manualId.trim()) return;
@@ -163,10 +169,16 @@ export default function ScanQRPage() {
             <Camera size={48} strokeWidth={1.5} />
             <h2>{t('scanQR.cameraError')}</h2>
             <p>{t('scanQR.cameraErrorDesc')}</p>
-            <button className="btn-primary" onClick={() => setShowManualInput(true)}>
-              <KeyboardIcon size={20} />
-              {t('scanQR.manualEntry')}
-            </button>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button className="btn-primary" onClick={() => { setCameraError(false); hasStartedRef.current = false; startCamera(); }}>
+                <Camera size={20} />
+                {t('scanQR.retryCamera', 'Retry Camera')}
+              </button>
+              <button className="btn-primary" onClick={() => setShowManualInput(true)} style={{ background: 'transparent', color: 'var(--on-surface)', border: '1px solid var(--outline)' }}>
+                <KeyboardIcon size={20} />
+                {t('scanQR.manualEntry')}
+              </button>
+            </div>
           </div>
         ) : (
           <>

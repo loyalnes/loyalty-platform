@@ -35,7 +35,7 @@ COPY prisma ./prisma
 COPY prisma.config.ts ./
 RUN npx prisma generate
 
-# Copy built artifacts
+# Copy built artifacts (includes compiled seed for preview environments)
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dashboard/dist ./dashboard/dist
 COPY --from=builder /app/customer/public ./customer/public

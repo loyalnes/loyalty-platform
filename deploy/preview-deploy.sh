@@ -93,20 +93,11 @@ echo "==> Starting preview..."
 COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:${COMPOSE_OVERRIDE}" \
   docker compose -p "$PROJECT_NAME" up -d app
 
-# Seed if empty (first deploy)
-echo "==> Seeding preview database..."
+# Seed preview database with test data (previews always get fresh seed data)
+echo "==> Seeding preview database with test accounts..."
 COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:${COMPOSE_OVERRIDE}" \
-  docker compose -p "$PROJECT_NAME" exec -T app node -e "
-    const { PrismaClient } = require('@prisma/client');
-    const { PrismaPg } = require('@prisma/adapter-pg');
-    const a = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-    const p = new PrismaClient({ adapter: a });
-    p.merchant.count().then(c => {
-      if (c === 0) { console.log('DB empty — run seed manually if needed'); }
-      else { console.log('DB already has data (' + c + ' merchants)'); }
-      p.\$disconnect();
-    });
-  " 2>/dev/null || true
+  docker compose -p "$PROJECT_NAME" exec -T app npm run db:seed:prod 2>&1 || \
+  echo "==> Warning: seed failed (non-blocking)"
 
 # Wait for health check
 echo "==> Waiting for health check..."

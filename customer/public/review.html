@@ -237,6 +237,8 @@
 
     function showError(msg) {
       document.getElementById('errorMessage').textContent = msg;
+      document.getElementById('merchantName').textContent = '';
+      document.getElementById('headerSubtitle').textContent = '';
       showState('errorState');
     }
 
