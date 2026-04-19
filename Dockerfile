@@ -19,6 +19,7 @@ RUN cd marketing && npm install
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+RUN cd dashboard && npm run build
 RUN cd marketing && npm run build
 
 # ── Stage 2: Production ──────────────────────────────────────
