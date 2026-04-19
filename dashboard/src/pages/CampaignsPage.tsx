@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, Play, Pause, Pencil, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, BarChart3, Play, Pause, Pencil, Trash2, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { deleteCampaign, listCampaigns, updateCampaign, type Campaign } from '../api';
 
@@ -59,6 +59,9 @@ export default function CampaignsPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
+          <button className="app-page-back" onClick={() => navigate('/')}>
+            <ArrowLeft size={20} />
+          </button>
           <div>
             <span className="app-page-kicker">{t('menu.acquisition', 'Acquisition')}</span>
             <h1 className="app-page-title">{t('campaigns.title', 'Campaigns')}</h1>
