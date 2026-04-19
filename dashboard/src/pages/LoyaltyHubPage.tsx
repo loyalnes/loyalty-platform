@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
 import { getInsightsKpis, type InsightsKpis } from '../api';
 import HomeQuickStats from '../components/HomeQuickStats';
+import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { PullToRefresh } from '../components/ui/PullToRefresh';
 
 export default function LoyaltyHubPage() {
@@ -59,6 +60,8 @@ export default function LoyaltyHubPage() {
   return (
     <PullToRefresh onRefresh={loadDashboardData}>
       <div className="hub-page stack-lg">
+        <PWAInstallPrompt mode="home" />
+
       {/* Active Program Card */}
       {program ? (
         <div className="program-card-minimal aviator-shadow">

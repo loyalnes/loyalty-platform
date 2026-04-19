@@ -5,7 +5,6 @@ import { OnlineProvider } from './contexts/OnlineContext';
 import { SyncProvider } from './contexts/SyncContext';
 import Header from './components/Header';
 import BottomNavBar from './components/BottomNavBar';
-import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import LoyaltyHubPage from './pages/LoyaltyHubPage';
@@ -31,7 +30,6 @@ function MobileLayout() {
   return (
     <div className="app-shell">
       <Header />
-      {!isSetupRoute && <PWAInstallPrompt />}
       <main className={`app-main${isSetupRoute ? ' app-main-no-nav' : ''}`}>
         <Outlet />
       </main>

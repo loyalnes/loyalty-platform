@@ -59,10 +59,10 @@ export default function CampaignsPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate('/')}>
+          <button className="app-page-back" onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
-          <div>
+          <div style={{ flex: 1 }}>
             <span className="app-page-kicker">{t('menu.acquisition', 'Acquisition')}</span>
             <h1 className="app-page-title">{t('campaigns.title', 'Campaigns')}</h1>
           </div>

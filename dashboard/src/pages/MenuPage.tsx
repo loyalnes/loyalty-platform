@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Gift, Star, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '../AuthContext';
+import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 
 export default function MenuPage() {
   const navigate = useNavigate();
@@ -65,9 +66,10 @@ export default function MenuPage() {
         <span className="app-page-kicker">{t('menu.title', 'Menu')}</span>
         <div>
           <h1 className="app-page-title">{merchant?.name || 'Merchant Dashboard'}</h1>
-          <p className="app-page-subtitle">{t('menu.accountDesc', 'Profile, plan & preferences')}</p>
         </div>
       </header>
+
+      <PWAInstallPrompt mode="menu" />
 
       {menuSections.map((section, idx) => (
         <section key={idx} className="app-menu-section">

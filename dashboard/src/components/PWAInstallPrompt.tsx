@@ -1,32 +1,46 @@
 import { useState, useEffect } from 'react'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 
-export function PWAInstallPrompt() {
+type PWAInstallPromptMode = 'home' | 'menu'
+
+interface PWAInstallPromptProps {
+  mode?: PWAInstallPromptMode
+}
+
+const HOME_DISMISS_KEY = 'pwa_home_dismissed_at'
+const HOME_DISMISS_COUNT_KEY = 'pwa_home_dismiss_count'
+const MENU_DISMISS_KEY = 'pwa_menu_dismissed'
+const INSTALL_DISMISS_KEY = 'pwa_permanently_dismissed'
+const HOME_DISMISS_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000
+const HOME_MAX_DISMISS_COUNT = 3
+
+export function PWAInstallPrompt({ mode = 'home' }: PWAInstallPromptProps) {
   const { isInstallable, isInstalled, install } = usePWAInstall()
   const [dismissed, setDismissed] = useState(false)
   const [isDismissing, setIsDismissing] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
-  const [visitCount, setVisitCount] = useState(0)
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
   const iconSrc = `${import.meta.env.BASE_URL}icons/icon-192.png`
+  const debugForcePrompt =
+    new URLSearchParams(window.location.search).get('debugPwaPrompt') === '1' ||
+    localStorage.getItem('debug_pwa_prompt') === 'true'
 
   useEffect(() => {
-    // Track session count (increments per page load)
-    const sessionCount = parseInt(localStorage.getItem('pwa_session_count') || '0') + 1
-    localStorage.setItem('pwa_session_count', sessionCount.toString())
-    setVisitCount(sessionCount)
-
-    // Check if dismissed in this session cycle
-    const lastDismissSession = parseInt(localStorage.getItem('pwa_last_dismiss_session') || '0')
-
-    // Show again at session 3 even if dismissed before
-    if (sessionCount >= 3 && lastDismissSession < 3) {
-      setDismissed(false)
-    } else if (lastDismissSession > 0 && sessionCount < 3) {
-      // Still dismissed in sessions 1-2 after first dismiss
-      setDismissed(true)
+    if (mode === 'menu') {
+      setDismissed(sessionStorage.getItem(MENU_DISMISS_KEY) === 'true')
+      return
     }
-  }, [])
+
+    const lastDismissedAt = Number(localStorage.getItem(HOME_DISMISS_KEY) || '0')
+    const dismissCount = Number(localStorage.getItem(HOME_DISMISS_COUNT_KEY) || '0')
+    const reachedDisplayLimit = dismissCount >= HOME_MAX_DISMISS_COUNT
+    const withinCooldown =
+      Number.isFinite(lastDismissedAt) &&
+      lastDismissedAt > 0 &&
+      Date.now() - lastDismissedAt < HOME_DISMISS_COOLDOWN_MS
+
+    setDismissed(reachedDisplayLimit || withinCooldown)
+  }, [mode])
 
   const handleInstall = async () => {
     setIsInstalling(true)
@@ -35,10 +49,8 @@ export function PWAInstallPrompt() {
 
     if (success) {
       console.log('PWA installed successfully')
-      // Mark as permanently dismissed after successful install
-      localStorage.setItem('pwa_permanently_dismissed', 'true')
+      localStorage.setItem(INSTALL_DISMISS_KEY, 'true')
 
-      // Animate out before dismissing
       setIsDismissing(true)
       setTimeout(() => {
         setDismissed(true)
@@ -50,8 +62,14 @@ export function PWAInstallPrompt() {
     setIsDismissing(true)
     setTimeout(() => {
       setDismissed(true)
-      // Save which session user dismissed at
-      localStorage.setItem('pwa_last_dismiss_session', visitCount.toString())
+
+      if (mode === 'menu') {
+        sessionStorage.setItem(MENU_DISMISS_KEY, 'true')
+      } else {
+        localStorage.setItem(HOME_DISMISS_KEY, String(Date.now()))
+        const dismissCount = Number(localStorage.getItem(HOME_DISMISS_COUNT_KEY) || '0')
+        localStorage.setItem(HOME_DISMISS_COUNT_KEY, String(dismissCount + 1))
+      }
     }, 300)
   }
 
@@ -61,7 +79,7 @@ export function PWAInstallPrompt() {
   }
 
   // Don't show if permanently dismissed (after install)
-  if (localStorage.getItem('pwa_permanently_dismissed') === 'true') {
+  if (localStorage.getItem(INSTALL_DISMISS_KEY) === 'true') {
     return null
   }
 
@@ -71,7 +89,7 @@ export function PWAInstallPrompt() {
   }
 
   // On non-iOS browsers we need the deferred install prompt to be available.
-  if (!isIOS && !isInstallable) {
+  if (!isIOS && !isInstallable && !debugForcePrompt) {
     return null
   }
 
@@ -130,7 +148,9 @@ export function PWAInstallPrompt() {
       </div>
 
       <p id="pwa-prompt-description" className="pwa-prompt-description">
-        Get faster access, offline support, and instant notifications
+        {debugForcePrompt && !isInstallable
+          ? 'Debug preview mode for the install banner'
+          : 'Get faster access, offline support, and instant notifications'}
       </p>
 
       <button
