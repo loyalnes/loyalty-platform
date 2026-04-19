@@ -25,7 +25,8 @@ import SettingsPage from './pages/SettingsPage';
 
 function MobileLayout() {
   const location = useLocation();
-  const isSetupRoute = location.pathname === '/setup';
+  const { program } = useAuth();
+  const isSetupRoute = location.pathname === '/setup' || (location.pathname === '/' && !program);
 
   return (
     <div className="app-shell">
