@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './AuthContext';
 import { OnlineProvider } from './contexts/OnlineContext';
@@ -24,14 +24,17 @@ import MenuPage from './pages/MenuPage';
 import SettingsPage from './pages/SettingsPage';
 
 function MobileLayout() {
+  const location = useLocation();
+  const isSetupRoute = location.pathname === '/setup';
+
   return (
     <div className="app-shell">
       <Header />
-      <PWAInstallPrompt />
-      <main className="app-main">
+      {!isSetupRoute && <PWAInstallPrompt />}
+      <main className={`app-main${isSetupRoute ? ' app-main-no-nav' : ''}`}>
         <Outlet />
       </main>
-      <BottomNavBar />
+      {!isSetupRoute && <BottomNavBar />}
     </div>
   );
 }

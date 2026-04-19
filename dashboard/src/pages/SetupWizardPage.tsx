@@ -72,7 +72,7 @@ export default function SetupWizardPage() {
   }
 
   return (
-    <div className="app-page stack-lg" style={{ paddingBottom: step === 1 ? '100px' : undefined }}>
+    <div className="app-page stack-lg">
       {step > 1 && (
         <header className="app-page-header">
           <div className="app-page-header-row">

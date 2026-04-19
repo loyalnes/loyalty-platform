@@ -520,6 +520,10 @@ h3, .h3 {
   overflow-y: auto;
 }
 
+.app-main-no-nav {
+  padding-bottom: 0;
+}
+
 .app-main-full {
   padding-top: 0;
   padding-bottom: 0; /* no bottom nav, no header */
