@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { listCustomers, getCustomerCard, type MerchantCustomer, type CustomerCardDetail } from '../api';
@@ -24,6 +24,7 @@ export default function CustomersPage() {
   const [hasMore, setHasMore] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerCardDetail | null>(null);
   const [loadingCustomerDetail, setLoadingCustomerDetail] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,14 +85,30 @@ export default function CustomersPage() {
     }
   }, [loadingMore, hasMore, page, debouncedQuery, loadCustomers]);
 
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
+  useEffect(() => {
+    const node = loadMoreRef.current;
 
-    if (bottom && hasMore && !loadingMore) {
-      handleLoadMore();
+    if (!node || !hasMore) {
+      return;
     }
-  }, [hasMore, loadingMore, handleLoadMore]);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !loadingMore) {
+          handleLoadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '160px 0px',
+        threshold: 0,
+      },
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, handleLoadMore, customers.length]);
 
   const handleCustomerClick = async (customerId: string) => {
     setLoadingCustomerDetail(true);
@@ -107,11 +124,7 @@ export default function CustomersPage() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
-      <div
-        className="app-page stack-lg"
-        onScroll={handleScroll}
-        style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 80px)' }}
-      >
+      <div className="app-page stack-lg">
         <header className="app-page-header">
           <div className="app-page-header-row">
             <div>
@@ -161,9 +174,8 @@ export default function CustomersPage() {
               {customers.map((customer) => (
                 <article
                   key={customer.id}
-                  className="app-surface-card card-technical"
+                  className="app-surface-card card-technical customer-row-card"
                   onClick={() => handleCustomerClick(customer.customerId)}
-                  style={{ cursor: 'pointer', minHeight: '80px' }}
                 >
                   <div className="app-surface-body customer-row">
                     <div className="customer-avatar">
@@ -192,17 +204,19 @@ export default function CustomersPage() {
             </div>
 
             {loadingMore && (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
+              <div className="customers-status-message">
                 <RefreshCw size={20} className="spin" />
                 <p>{t('common.loading')}</p>
               </div>
             )}
 
             {!hasMore && customers.length > 0 && (
-              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
+              <div className="customers-status-message customers-status-message-muted">
                 {t('customers.endOfList') || 'End of list'}
               </div>
             )}
+
+            {hasMore && <div ref={loadMoreRef} aria-hidden="true" className="customers-load-sentinel" />}
           </>
         )}
 

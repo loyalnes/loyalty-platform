@@ -52,7 +52,7 @@ export default function ShowQRPage() {
           <button className="app-page-back" onClick={() => navigate('/')}>
           <X size={24} />
         </button>
-          <div style={{ flex: 1 }}>
+          <div className="app-page-header-copy">
             <span className="app-page-kicker">{t('showQR.title')}</span>
             <h1 className="app-page-title">{merchant?.name}</h1>
           </div>
@@ -61,7 +61,7 @@ export default function ShowQRPage() {
       </header>
 
       <section className="app-surface-card app-surface-card-muted">
-        <div className="app-surface-body" style={{ textAlign: 'center' }}>
+        <div className="app-surface-body show-qr-body">
           <div className="show-qr-merchant">
             <div className="show-qr-merchant-name">{merchant?.name}</div>
             <div className="show-qr-merchant-subtitle">{t('showQR.subtitle', 'Scan to play & win prizes!')}</div>

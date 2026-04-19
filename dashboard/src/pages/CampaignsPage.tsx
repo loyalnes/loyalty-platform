@@ -62,12 +62,12 @@ export default function CampaignsPage() {
           <button className="app-page-back" onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
-          <div style={{ flex: 1 }}>
+          <div className="app-page-header-copy">
             <span className="app-page-kicker">{t('menu.acquisition', 'Acquisition')}</span>
             <h1 className="app-page-title">{t('campaigns.title', 'Campaigns')}</h1>
           </div>
           {campaigns.length > 0 && (
-            <button className="btn btn-primary btn-sm" onClick={() => navigate('/campaigns/new')}>
+            <button className="btn btn-primary btn-sm app-header-cta" onClick={() => navigate('/campaigns/new')}>
               <Plus size={16} />
               {t('campaigns.new', 'New')}
             </button>
@@ -161,7 +161,7 @@ export default function CampaignsPage() {
                   </span>
                 </div>
               </div>
-              <div style={{ marginTop: '1rem' }}>
+              <div className="campaign-card-footer">
                 <button
                   className="btn btn-secondary app-pill-button"
                   onClick={(e) => {

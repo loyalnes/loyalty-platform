@@ -194,7 +194,7 @@ export default function ScanQRPage() {
       <div className="scan-qr-shell">
         <header className="scan-qr-header">
           <div>
-            <span className="app-page-kicker" style={{ color: 'rgba(241, 242, 255, 0.72)' }}>{t('scanQR.title')}</span>
+            <span className="app-page-kicker scan-qr-kicker">{t('scanQR.title')}</span>
             <h1>{t('scanQR.title')}</h1>
           </div>
           <button className="scan-qr-close" onClick={handleClose}>
@@ -204,32 +204,14 @@ export default function ScanQRPage() {
 
         <div className="scan-qr-content">
         {!isOnline && (
-          <div className="offline-scan-badge" style={{
-            backgroundColor: 'var(--warning, #f59e0b)',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <div className="offline-scan-badge">
             <span className="material-symbols-outlined">cloud_off</span>
             <span>{t('scanQR.offlineMode') || 'Offline - scans will sync later'}</span>
           </div>
         )}
 
         {offlineQueued && (
-          <div className="offline-queued-badge" style={{
-            backgroundColor: 'var(--success, #10b981)',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <div className="offline-queued-badge">
             <span className="material-symbols-outlined">check_circle</span>
             <span>{t('scanQR.scanQueued') || 'Scan queued for sync'}</span>
           </div>
@@ -240,12 +222,12 @@ export default function ScanQRPage() {
             <Camera size={48} strokeWidth={1.5} />
             <h2>{t('scanQR.cameraError')}</h2>
             <p>{t('scanQR.cameraErrorDesc')}</p>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div className="scan-qr-error-actions">
               <button className="btn-primary" onClick={() => { setCameraError(false); hasStartedRef.current = false; startCamera(); }}>
                 <Camera size={20} />
                 {t('scanQR.retryCamera', 'Retry Camera')}
               </button>
-              <button className="btn-primary" onClick={() => setShowManualInput(true)} style={{ background: 'transparent', color: 'var(--on-surface)', border: '1px solid var(--outline)' }}>
+              <button className="btn-primary scan-qr-secondary-btn" onClick={() => setShowManualInput(true)}>
                 <KeyboardIcon size={20} />
                 {t('scanQR.manualEntry')}
               </button>
@@ -254,7 +236,7 @@ export default function ScanQRPage() {
         ) : (
           <>
             <div className="scan-qr-scanner">
-              <div id="qr-reader" style={{ width: '100%' }} />
+              <div id="qr-reader" className="scan-qr-reader" />
               <div className="scan-qr-overlay">
                 <div className="scan-qr-frame" />
               </div>
@@ -270,7 +252,6 @@ export default function ScanQRPage() {
             <button
               className="scan-qr-manual-btn"
               onClick={() => setShowManualInput(true)}
-              style={{ minHeight: '48px', padding: '12px 24px' }}
             >
               <KeyboardIcon size={18} />
               {t('scanQR.manualEntry')}

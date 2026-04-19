@@ -55,7 +55,7 @@ export default function CampaignDetailPage() {
           <button className="app-page-back" onClick={() => navigate('/campaigns')}>
           <ArrowLeft size={20} />
         </button>
-          <div style={{ flex: 1 }}>
+          <div className="app-page-header-copy">
             <span className="app-page-kicker">
               {campaign.gameType === 'SCRATCH_CARD'
                 ? t('campaigns.scratchCard', 'Scratch Card')
