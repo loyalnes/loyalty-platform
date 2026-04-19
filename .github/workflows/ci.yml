@@ -74,7 +74,7 @@ jobs:
 
       # Dashboard
       - name: Install dashboard dependencies
-        run: cd dashboard && npm install
+        run: cd dashboard && npm install --legacy-peer-deps
 
       - name: Build dashboard
         run: cd dashboard && npm run build
