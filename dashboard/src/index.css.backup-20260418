@@ -1,41 +1,20 @@
 :root {
-  /* ═══════════════════════════════════════════
-     Material Design 3 Color System
-     ═══════════════════════════════════════════ */
+  /* Colors - Primary */
+  --primary: #0050d4;
+  --primary-dim: #0046bb;
+  --primary-hover: #003d99;
+  --primary-container: #7b9cff;
+  --on-primary: #f1f2ff;
+  --primary-light: #eff6ff;
 
-  /* Colors - Primary (Viola vibrante #725BF3) */
-  --md-sys-color-primary: #725BF3;
-  --md-sys-color-on-primary: #FFFFFF;
-  --md-sys-color-primary-container: #725BF3;
-  --md-sys-color-on-primary-container: #FFFFFF;
-
-  /* Legacy aliases per compatibilità */
-  --primary: #725BF3;
-  --primary-dim: #6550db;
-  --primary-hover: #5745c3;
-  --primary-container: #725BF3;
-  --on-primary: #FFFFFF;
-  --primary-light: #F5F2FF;
-
-  /* Colors - Secondary (Giallo acido #EFFF74 per actions) */
-  --md-sys-color-secondary: #C1CC00;
-  --md-sys-color-on-secondary: #2E3300;
-  --md-sys-color-secondary-container: #EFFF74;
-  --md-sys-color-on-secondary-container: #6B7600;
-
-  /* Legacy aliases */
-  --secondary: #C1CC00;
-  --secondary-dim: #a8b300;
-  --secondary-container: #EFFF74;
-  --on-secondary: #6B7600;
-  --success: #006947; /* Manteniamo verde per success semantico */
+  /* Colors - Secondary */
+  --secondary: #006947;
+  --secondary-dim: #005c3d;
+  --secondary-container: #69f6b8;
+  --on-secondary: #c8ffe0;
+  --success: #006947;
 
   /* Colors - Tertiary */
-  --md-sys-color-tertiary: #815100;
-  --md-sys-color-on-tertiary: #FFFFFF;
-  --md-sys-color-tertiary-container: #f8a010;
-  --md-sys-color-on-tertiary-container: #fff0e3;
-
   --tertiary: #815100;
   --tertiary-dim: #714600;
   --tertiary-container: #f8a010;
@@ -43,72 +22,46 @@
   --warning: #815100;
   --warning-strong: #714600;
 
-  /* Colors - Surface & Background (Lilla neutrale #FCF8FF) */
-  --md-sys-color-surface: #FCF8FF;
-  --md-sys-color-on-surface: #1C1B1F;
-  --md-sys-color-surface-variant: #E7E0EC;
-  --md-sys-color-on-surface-variant: #49454F;
-  --md-sys-color-surface-container: #EFE6F7;
-  --md-sys-color-surface-container-low: #F5F1FA;
-  --md-sys-color-surface-container-lowest: #FFFFFF;
-  --md-sys-color-background: #FCF8FF;
-  --md-sys-color-on-background: #1C1B1F;
-
-  /* Legacy aliases */
-  --neutral: #1C1B1F;
-  --surface: #FCF8FF;
-  --surface-container: #EFE6F7;
-  --surface-container-low: #F5F1FA;
+  /* Colors - Neutral */
+  --neutral: #1F2937;
+  --surface: #F4F6FF;
+  --surface-container: #DCE9FF;
+  --surface-container-low: #EAF1FF;
   --surface-container-lowest: #FFFFFF;
-  --on-surface: #1C1B1F;
-  --on-surface-variant: #49454F;
-  --bg: #FCF8FF;
+  --on-surface: #252F3D;
+  --on-surface-variant: #525C6C;
+  --bg: #F4F6FF;
 
-  /* Colors - Semantic (Manteniamo error rosso) */
-  --md-sys-color-error: #B31B25;
-  --md-sys-color-on-error: #FFFFFF;
-  --md-sys-color-error-container: #FB5151;
-  --md-sys-color-on-error-container: #FFEFEE;
-
+  /* Colors - Semantic */
   --error: #B31B25;
   --error-container: #FB5151;
   --on-error: #FFEFEE;
   --danger: #B31B25;
   --danger-soft: rgba(179, 27, 37, 0.3);
   --danger-surface: rgba(254, 242, 242, 0.8);
-
-  /* Colors - Outline */
-  --md-sys-color-outline: #725BF3;
-  --md-sys-color-outline-variant: #CAC4D0;
-
-  --outline: #725BF3;
-  --outline-variant: #CAC4D0;
-  --border: #CAC4D0;
+  --outline: #6D7788;
+  --outline-variant: #A3AEC0;
+  --border: #A3AEC0;
 
   /* Colors - Text (legacy support) */
-  --text: #1C1B1F;
-  --text-secondary: #49454F;
-  --text-muted: #79747E;
+  --text: #252F3D;
+  --text-secondary: #525C6C;
+  --text-muted: #6D7788;
 
-  /* Colors - Quick Actions (Hybrid: most purple, yellow SOLO per success) */
-  --quick-add-points: #EFFF74;        /* SUCCESS: giallo acido (unico caso) */
-  --quick-add-points-text: #6B7600;
-  --quick-redeem: #725BF3;            /* INTERACTIVE: viola */
-  --quick-redeem-text: #FFFFFF;
-  --quick-show-qr: #725BF3;           /* INTERACTIVE: viola (era giallo) */
-  --quick-show-qr-text: #FFFFFF;
-  --quick-contest: #E7E0EC;           /* NEUTRAL: grigio chiaro */
-  --quick-contest-text: #49454F;
+  /* Colors - Quick Actions */
+  --quick-add-points: #66FFB2;
+  --quick-add-points-text: #004D26;
+  --quick-redeem: #FF9900;
+  --quick-redeem-text: #4D2E00;
+  --quick-show-qr: #7C9DFF;
+  --quick-show-qr-text: #002080;
+  --quick-contest: #D1E1FF;
+  --quick-contest-text: #4A5568;
 
-  /* ═══════════════════════════════════════════
-     Material Design 3 Typography
-     ═══════════════════════════════════════════ */
-
-  /* Typography - M3 Fonts */
-  --font-display: 'DM Serif Display', Georgia, serif;
-  --font-headline: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-label: 'DM Sans', system-ui, -apple-system, sans-serif;
+  /* Typography */
+  --font-headline: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-label: 'Manrope', system-ui, -apple-system, sans-serif;
 
   /* Spacing */
   --spacing-xs: 4px;
@@ -119,55 +72,21 @@
   --spacing-2xl: 32px;
   --spacing-3xl: 48px;
 
-  /* ═══════════════════════════════════════════
-     HYBRID Shape System: Expressive + Technical
-     ═══════════════════════════════════════════ */
-
-  /* EXPRESSIVE (M3 Vibrante) - Interactive Components */
-  --radius-expressive: 12px;        /* Bottoni, FAB, chips interattivi */
-  --radius-expressive-lg: 16px;     /* Modali, dialoghi */
-  --radius-expressive-full: 9999px; /* Avatar, badge circolari */
-
-  /* TECHNICAL (Minimalist) - Data & Dashboard */
-  --radius-technical: 4px;          /* Cards dati, tabelle, KPI containers */
-  --radius-technical-sm: 2px;       /* Bordi sottili, divider */
-  --radius-technical-none: 0px;     /* Insight tables, strict data views */
-
-  /* Legacy Aliases (per compatibilità) */
-  --radius-sm: 4px;    /* Default technical */
-  --radius-md: 8px;    /* Hybrid */
-  --radius-lg: 12px;   /* Default expressive */
-  --radius-xl: 16px;   /* Large expressive */
-  --radius-2xl: 20px;  /* Hero cards (compromesso) */
-  --radius-3xl: 24px;  /* Feature cards */
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
   --radius-full: 9999px;
-  --radius: 4px;       /* Default: technical minimalism */
+  --radius: 12px;
 
-  /* M3 Shape Tokens (mantenuti per web components) */
-  --md-sys-shape-corner-none: 0px;
-  --md-sys-shape-corner-extra-small: 4px;
-  --md-sys-shape-corner-small: 8px;
-  --md-sys-shape-corner-medium: 12px;
-  --md-sys-shape-corner-large: 16px;
-  --md-sys-shape-corner-extra-large: 20px;
-  --md-sys-shape-corner-full: 9999px;
-
-  /* Shadows - Dual System */
-
-  /* EXPRESSIVE: Soft shadows per UI vibrante */
-  --shadow-expressive-sm: 0 2px 8px rgba(114, 91, 243, 0.12);
-  --shadow-expressive-md: 0 4px 12px rgba(114, 91, 243, 0.16);
-  --shadow-expressive-lg: 0 8px 24px rgba(114, 91, 243, 0.2);
-
-  /* TECHNICAL: Zero shadows (flat design) */
-  --shadow-technical: none;
-
-  /* Legacy aliases */
+  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 20px 40px -12px rgba(37, 47, 61, 0.06);
   --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-  --shadow-none: none;
 
   /* Motion */
   --motion-micro: 150ms;
@@ -228,198 +147,6 @@ a:hover {
 
 .aviator-shadow {
   box-shadow: 0 20px 40px -12px rgba(37, 47, 61, 0.06);
-}
-
-/* ═══════════════════════════════════════════
-   HYBRID DESIGN SYSTEM: Expressive + Technical
-   ═══════════════════════════════════════════ */
-
-/* ─── Expressive Components (M3 Vibrante) ─── */
-
-.expressive {
-  border-radius: var(--radius-expressive);
-}
-
-.expressive-lg {
-  border-radius: var(--radius-expressive-lg);
-}
-
-/* Bottoni Expressive (vibranti, colorati) */
-.btn-expressive,
-button.expressive,
-.md-fab,
-.fab-button {
-  border-radius: var(--radius-expressive) !important;
-  font-family: var(--font-label);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-size: 0.875rem;
-}
-
-/* FAB con giallo acido (UNICO punto focale) */
-.fab-primary,
-.fab-action-main {
-  background: var(--md-sys-color-secondary-container) !important;
-  color: var(--md-sys-color-on-secondary-container) !important;
-  border-radius: var(--radius-expressive) !important;
-  box-shadow: 0 4px 12px rgba(239, 255, 116, 0.4);
-}
-
-.fab-primary:hover {
-  filter: brightness(0.95);
-  box-shadow: 0 6px 16px rgba(239, 255, 116, 0.5);
-}
-
-/* Success Indicator (piccoli badge gialli) */
-.success-badge,
-.indicator-success {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-  border-radius: var(--radius-expressive-full);
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  display: inline-block;
-}
-
-/* ─── Technical Components (Minimalist) ─── */
-
-.technical {
-  border-radius: var(--radius-technical);
-  box-shadow: none;
-}
-
-.technical-strict {
-  border-radius: var(--radius-technical-none);
-  box-shadow: none;
-}
-
-/* Cards dati/dashboard (sharp, technical) */
-.card-technical,
-.data-card,
-.kpi-card {
-  border-radius: var(--radius-technical) !important;
-  background: var(--md-sys-color-surface-container-lowest);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  box-shadow: none !important;
-}
-
-/* Insights Page - Ultra Clean */
-.insights-container,
-.page-insights {
-  background: #FFFFFF;
-}
-
-.insights-container .app-surface-card,
-.page-insights .app-surface-card {
-  background: #FFFFFF !important;
-  border: 1px solid var(--md-sys-color-outline-variant) !important;
-  border-radius: var(--radius-technical) !important;
-  box-shadow: none !important;
-}
-
-/* KPI Display (Technical Typography) */
-.kpi-value,
-.stat-technical,
-.data-value {
-  font-family: var(--font-body) !important; /* DM Sans, NO italic */
-  font-weight: 600;
-  font-style: normal !important;
-  letter-spacing: -0.01em;
-  color: var(--md-sys-color-on-surface);
-}
-
-.kpi-label,
-.stat-label-technical {
-  font-family: var(--font-label);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-/* Tabelle Technical (bordi sottili, no shadows) */
-.table-technical,
-.insights-table {
-  border-radius: var(--radius-technical-sm);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  box-shadow: none;
-  overflow: hidden;
-}
-
-.table-technical th,
-.insights-table th {
-  font-family: var(--font-label);
-  font-weight: 700;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: var(--md-sys-color-surface-variant);
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.table-technical td,
-.insights-table td {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 0.875rem;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
-}
-
-/* ─── Hybrid Typography ─── */
-
-/* Titoli Emozionali (DM Serif Display Italic) */
-.title-expressive,
-.headline-emotional {
-  font-family: var(--font-display) !important;
-  font-style: italic !important;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-}
-
-/* Titoli Tecnici (DM Sans, NO italic) */
-.title-technical,
-.headline-data {
-  font-family: var(--font-body) !important;
-  font-style: normal !important;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-/* Numeri e Dati (Sans-serif pulito) */
-.text-data,
-.number-display {
-  font-family: var(--font-body);
-  font-style: normal;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-}
-
-/* ─── Color Usage Guidelines ─── */
-
-/* Giallo SOLO per success/FAB (limitato) */
-.accent-yellow-restricted {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-/* Viola per elementi interattivi */
-.accent-purple {
-  color: var(--md-sys-color-primary);
-}
-
-.accent-purple-bg {
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-}
-
-/* Neutral per technical sections */
-.neutral-bg {
-  background: #FFFFFF;
-  color: var(--md-sys-color-on-surface);
 }
 
 /* ─── Typography Utilities ───────────────── */
@@ -578,15 +305,6 @@ h3, .h3 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* Hybrid: Expressive variant (DM Serif italic, no uppercase) */
-.app-header-title.title-expressive {
-  font-family: var(--font-display) !important;
-  font-style: italic !important;
-  font-weight: 400 !important;
-  text-transform: none !important;
-  letter-spacing: -0.03em !important;
 }
 
 .app-header-bell {
@@ -1187,12 +905,6 @@ h3, .h3 {
 .quick-action-fab.show-qr {
   background: var(--quick-show-qr);
   color: var(--quick-show-qr-text);
-}
-
-/* Hybrid: Force purple for SHOW QR (was yellow) */
-.quick-action-fab.show-qr.accent-purple-bg {
-  background: var(--md-sys-color-primary) !important;
-  color: var(--md-sys-color-on-primary) !important;
 }
 
 .quick-action-fab.contest {

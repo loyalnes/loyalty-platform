@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
 import { getInsightsKpis, type InsightsKpis } from '../api';
 import HomeQuickStats from '../components/HomeQuickStats';
+import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
+import { PullToRefresh } from '../components/ui/PullToRefresh';
 
 export default function LoyaltyHubPage() {
   const navigate = useNavigate();
@@ -38,17 +40,28 @@ export default function LoyaltyHubPage() {
     },
   });
 
+  const loadDashboardData = async () => {
+    try {
+      const [today, week] = await Promise.all([
+        getInsightsKpis('24h'),
+        getInsightsKpis('7d')
+      ]);
+      setTodayKpis(today);
+      setWeekKpis(week);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+    }
+  };
+
   useEffect(() => {
-    Promise.all([getInsightsKpis('24h'), getInsightsKpis('7d')])
-      .then(([today, week]) => {
-        setTodayKpis(today);
-        setWeekKpis(week);
-      })
-      .catch((err) => console.error('Failed to load KPIs:', err));
+    loadDashboardData();
   }, []);
 
   return (
-    <div className="hub-page stack-lg">
+    <PullToRefresh onRefresh={loadDashboardData}>
+      <div className="hub-page stack-lg">
+        <PWAInstallPrompt />
+
       {/* Active Program Card */}
       {program ? (
         <div className="program-card-minimal aviator-shadow">
@@ -99,28 +112,28 @@ export default function LoyaltyHubPage() {
         </div>
       )}
 
-      {/* Quick Actions */}
+      {/* Quick Actions - Hybrid Design */}
       <div className="quick-actions">
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab add-points" onClick={() => navigate('/scan-qr')}>
+          <button className="quick-action-fab add-points fab-primary expressive" onClick={() => navigate('/scan-qr')}>
             <span className="material-symbols-outlined">add</span>
           </button>
           <span className="quick-action-label">{t('hub.addPoints')}</span>
         </div>
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab redeem" onClick={() => navigate('/scan-qr')}>
+          <button className="quick-action-fab redeem expressive accent-purple-bg">
             <span className="material-symbols-outlined">redeem</span>
           </button>
           <span className="quick-action-label">{t('hub.redeem')}</span>
         </div>
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab show-qr" onClick={() => navigate('/show-qr')}>
+          <button className="quick-action-fab show-qr expressive accent-purple-bg" onClick={() => navigate('/show-qr')}>
             <span className="material-symbols-outlined">qr_code_2</span>
           </button>
           <span className="quick-action-label">{t('hub.showQR')}</span>
         </div>
         <div className="quick-action-wrapper">
-          <button className="quick-action-fab contest" onClick={() => navigate('/show-review-qr')}>
+          <button className="quick-action-fab contest expressive" onClick={() => navigate('/show-review-qr')}>
             <span className="material-symbols-outlined">sports_esports</span>
           </button>
           <span className="quick-action-label">{t('hub.reviews')}</span>
@@ -134,6 +147,7 @@ export default function LoyaltyHubPage() {
         onOpenInsights={() => navigate('/insights')}
       />
 
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }

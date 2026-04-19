@@ -1,8 +1,25 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'service-worker.ts',
+      registerType: 'autoUpdate',
+      manifest: false, // Use public/manifest.json
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
+      },
+      devOptions: {
+        enabled: false, // Disabled temporarily for debugging
+        type: 'module'
+      }
+    })
+  ],
   server: {
     port: 5173,
     proxy: {
@@ -12,7 +29,7 @@ export default defineConfig({
       },
     },
   },
-  base: '/dashboard/',
+  base: '/', // Changed for local testing
   build: {
     outDir: 'dist',
   },

@@ -20,8 +20,10 @@ export function getIntlLocale(lng?: string): string {
   return LOCALE_MAP[lang] || 'en-GB';
 }
 
-export function formatDate(date: string | Date, lng?: string): string {
+export function formatDate(date: string | Date | null | undefined, lng?: string): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '-';
   const locale = getIntlLocale(lng);
   return d.toLocaleDateString(locale, {
     day: '2-digit',
@@ -30,8 +32,10 @@ export function formatDate(date: string | Date, lng?: string): string {
   });
 }
 
-export function formatDateTime(date: string | Date, lng?: string): string {
+export function formatDateTime(date: string | Date | null | undefined, lng?: string): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '-';
   const locale = getIntlLocale(lng);
   return d.toLocaleString(locale, {
     day: '2-digit',
@@ -42,12 +46,14 @@ export function formatDateTime(date: string | Date, lng?: string): string {
   });
 }
 
-export function formatNumber(value: number, lng?: string): string {
+export function formatNumber(value: number | null | undefined, lng?: string): string {
+  if (value === null || value === undefined) return '0';
   const locale = getIntlLocale(lng);
   return value.toLocaleString(locale);
 }
 
-export function formatCurrency(value: number, lng?: string, currency = 'EUR'): string {
+export function formatCurrency(value: number | null | undefined, lng?: string, currency = 'EUR'): string {
+  if (value === null || value === undefined) return '0';
   const locale = getIntlLocale(lng);
   return value.toLocaleString(locale, {
     style: 'currency',

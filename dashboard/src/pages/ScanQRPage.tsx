@@ -5,24 +5,59 @@ import { useTranslation } from 'react-i18next';
 import { Html5Qrcode } from 'html5-qrcode';
 import { getCustomerCard, resolveWalletScan, type CustomerCardDetail } from '../api';
 import CustomerProfileModal from '../components/CustomerProfileModal';
+import { useOnline } from '../contexts/OnlineContext';
+import { addToPendingSync } from '../db/operations';
 
 export default function ScanQRPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { isOnline } = useOnline();
   const [scanning, setScanning] = useState(false);
   const [cameraError, setCameraError] = useState(false);
   const [showManualInput, setShowManualInput] = useState(false);
   const [manualId, setManualId] = useState('');
   const [customer, setCustomer] = useState<CustomerCardDetail | null>(null);
   const [error, setError] = useState('');
+  const [offlineQueued, setOfflineQueued] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const hasStartedRef = useRef(false);
 
   const fetchCustomer = useCallback(async (customerId: string) => {
     try {
       setError('');
+      setOfflineQueued(false);
+
+      if (!isOnline) {
+        // Queue for offline sync
+        await addToPendingSync({
+          type: 'scan',
+          method: 'POST',
+          url: `/api/customers/${customerId}/card`,
+          payload: { customerId, timestamp: Date.now() }
+        });
+        setOfflineQueued(true);
+        setError(t('scanQR.offlineQueued') || 'Scan queued for sync when online');
+
+        // Haptic feedback if supported
+        if ('vibrate' in navigator) {
+          navigator.vibrate(100);
+        }
+
+        setTimeout(() => {
+          setError('');
+          setOfflineQueued(false);
+          scannerRef.current?.resume();
+        }, 2000);
+        return;
+      }
+
       const data = await getCustomerCard(customerId);
       setCustomer(data);
+
+      // Haptic feedback on success
+      if ('vibrate' in navigator) {
+        navigator.vibrate(100);
+      }
     } catch {
       setError(t('scanQR.customerNotFound'));
       // Resume scanning after 2 seconds
@@ -31,7 +66,7 @@ export default function ScanQRPage() {
         scannerRef.current?.resume();
       }, 2000);
     }
-  }, [t]);
+  }, [t, isOnline]);
 
   const onScanSuccess = useCallback(async (decodedText: string) => {
     // Stop scanning temporarily
@@ -93,12 +128,16 @@ export default function ScanQRPage() {
     if (scanner.isScanning) return;
 
     setCameraError(false);
+
+    // Calculate QR box size responsively (80% of viewport width, max 300px)
+    const qrBoxSize = Math.min(window.innerWidth * 0.8, 300);
+
     scanner
       .start(
         { facingMode: 'environment' },
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: { width: qrBoxSize, height: qrBoxSize },
         },
         onScanSuccess,
         () => {
@@ -164,6 +203,38 @@ export default function ScanQRPage() {
         </header>
 
         <div className="scan-qr-content">
+        {!isOnline && (
+          <div className="offline-scan-badge" style={{
+            backgroundColor: 'var(--warning, #f59e0b)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span className="material-symbols-outlined">cloud_off</span>
+            <span>{t('scanQR.offlineMode') || 'Offline - scans will sync later'}</span>
+          </div>
+        )}
+
+        {offlineQueued && (
+          <div className="offline-queued-badge" style={{
+            backgroundColor: 'var(--success, #10b981)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span className="material-symbols-outlined">check_circle</span>
+            <span>{t('scanQR.scanQueued') || 'Scan queued for sync'}</span>
+          </div>
+        )}
+
         {cameraError ? (
           <div className="scan-qr-error">
             <Camera size={48} strokeWidth={1.5} />
@@ -183,7 +254,7 @@ export default function ScanQRPage() {
         ) : (
           <>
             <div className="scan-qr-scanner">
-              <div id="qr-reader" />
+              <div id="qr-reader" style={{ width: '100%' }} />
               <div className="scan-qr-overlay">
                 <div className="scan-qr-frame" />
               </div>
@@ -196,7 +267,11 @@ export default function ScanQRPage() {
 
             {error && <div className="scan-qr-error-message">{error}</div>}
 
-            <button className="scan-qr-manual-btn" onClick={() => setShowManualInput(true)}>
+            <button
+              className="scan-qr-manual-btn"
+              onClick={() => setShowManualInput(true)}
+              style={{ minHeight: '48px', padding: '12px 24px' }}
+            >
               <KeyboardIcon size={18} />
               {t('scanQR.manualEntry')}
             </button>

@@ -72,28 +72,28 @@ export default function SetupWizardPage() {
   }
 
   return (
-    <div className="app-page stack-lg">
-      <header className="app-page-header">
-        <div className="app-page-header-row">
-          <button
-            className="app-page-back"
-            onClick={() => (step > 1 ? setStep(step - 1) : navigate('/'))}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div style={{ flex: 1 }}>
-            <span className="app-page-kicker">{t('setup.title')}</span>
-            <h1 className="app-page-title">{t('setup.title')}</h1>
+    <div className="app-page stack-lg" style={{ paddingBottom: step === 1 ? '100px' : undefined }}>
+      {step > 1 && (
+        <header className="app-page-header">
+          <div className="app-page-header-row">
+            <button
+              className="app-page-back"
+              onClick={() => setStep(step - 1)}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div style={{ flex: 1 }}>
+              <span className="app-page-kicker">{t('setup.title')}</span>
+              <h1 className="app-page-title">{t('setup.title')}</h1>
+            </div>
           </div>
-        </div>
-        <p className="app-page-subtitle">
-          {step === 1
-            ? t('setup.chooseSystem')
-            : step === 2
+          <p className="app-page-subtitle">
+            {step === 2
               ? (type === 'STAMPS' ? t('setup.configureStamps') : t('setup.configurePoints'))
               : t('setup.defineRewards')}
-        </p>
-      </header>
+          </p>
+        </header>
+      )}
 
       {/* Step 1: Choose system */}
       {step === 1 && (

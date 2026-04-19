@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './AuthContext';
+import { OnlineProvider } from './contexts/OnlineContext';
+import { SyncProvider } from './contexts/SyncContext';
 import Header from './components/Header';
 import BottomNavBar from './components/BottomNavBar';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import WelcomePage from './pages/WelcomePage';
 import LoyaltyHubPage from './pages/LoyaltyHubPage';
 import SetupWizardPage from './pages/SetupWizardPage';
 import InsightsPage from './pages/InsightsPage';
@@ -45,7 +46,7 @@ function FullPageLayout() {
 
 function HomePage() {
   const { program } = useAuth();
-  return program ? <LoyaltyHubPage /> : <WelcomePage />;
+  return program ? <LoyaltyHubPage /> : <SetupWizardPage />;
 }
 
 
@@ -95,10 +96,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter basename="/dashboard">
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+    <BrowserRouter>
+      <OnlineProvider>
+        <SyncProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </SyncProvider>
+      </OnlineProvider>
     </BrowserRouter>
   );
 }

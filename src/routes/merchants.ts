@@ -71,13 +71,35 @@ router.get("/by-email/:email", async (req: Request, res: Response, next: NextFun
   }
 });
 
-// GET /merchants/me — Get current authenticated merchant
+// GET /merchants/me — Get current authenticated merchant (must come BEFORE /:id)
 router.get("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.merchantId! },
     });
-    if (!merchant) throw new ApiError(404, "Merchant not found");
+
+    if (!merchant) {
+      throw new ApiError(404, "Merchant not found");
+    }
+
+    res.json(merchant);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /merchants/:id — Get merchant by ID
+router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const merchant = await prisma.merchant.findUnique({
+      where: { id: req.params.id },
+      include: { cardTemplates: true },
+    });
+
+    if (!merchant) {
+      throw new ApiError(404, "Merchant not found");
+    }
+
     res.json(merchant);
   } catch (err) {
     next(err);
@@ -90,29 +112,15 @@ router.patch("/me", authenticateMerchant, async (req: Request, res: Response, ne
     const allowed = ["name", "phone", "address", "city", "country", "settings", "preferredLocale"] as const;
     const data: Record<string, unknown> = {};
     for (const key of allowed) {
-      if (req.body[key] !== undefined) data[key] = req.body[key];
+      if (req.body[key] !== undefined) {
+        data[key] = req.body[key];
+      }
     }
+
     const merchant = await prisma.merchant.update({
       where: { id: req.merchantId! },
       data,
     });
-    res.json(merchant);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// GET /merchants/:id — Get merchant by ID
-router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const merchant = await prisma.merchant.findUnique({
-      where: { id: req.params.id },
-      include: { cardTemplates: true },
-    });
-
-    if (!merchant) {
-      throw new ApiError(404, "Merchant not found");
-    }
 
     res.json(merchant);
   } catch (err) {
