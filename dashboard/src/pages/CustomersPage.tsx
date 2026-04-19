@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type TouchEventHandler } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { listCustomers, type MerchantCustomer } from '../api';
+import { listCustomers, getCustomerCard, type MerchantCustomer, type CustomerCardDetail } from '../api';
 import { formatDate, formatNumber } from '../i18n';
+import { PullToRefresh } from '../components/ui/PullToRefresh';
+import CustomerProfileModal from '../components/CustomerProfileModal';
 
 const PAGE_SIZE = 20;
 
@@ -12,18 +13,18 @@ function getInitials(firstName: string, lastName: string): string {
 }
 
 export default function CustomersPage() {
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [customers, setCustomers] = useState<MerchantCustomer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-
-  const [pullDistance, setPullDistance] = useState(0);
-  const pullStartY = useRef<number | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerCardDetail | null>(null);
+  const [loadingCustomerDetail, setLoadingCustomerDetail] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -33,90 +34,109 @@ export default function CustomersPage() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const loadCustomers = async (targetPage: number, currentQuery: string, isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
+  const loadCustomers = useCallback(async (targetPage: number, currentQuery: string, append = false) => {
+    if (append) setLoadingMore(true);
     else setLoading(true);
 
     try {
       const res = await listCustomers(targetPage, PAGE_SIZE, currentQuery);
-      setCustomers(res.data);
+
+      if (append) {
+        setCustomers(prev => [...prev, ...res.data]);
+      } else {
+        setCustomers(res.data);
+      }
+
       setTotal(res.total);
+      // Calculate hasMore based on total
+      setHasMore(targetPage * PAGE_SIZE < res.total);
     } catch {
-      setCustomers([]);
-      setTotal(0);
+      if (!append) {
+        setCustomers([]);
+        setTotal(0);
+      }
     } finally {
       setLoading(false);
-      setRefreshing(false);
+      setLoadingMore(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    void loadCustomers(page, debouncedQuery);
-  }, [page, debouncedQuery]);
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    setPage(1);
+    setCustomers([]);
+    void loadCustomers(1, debouncedQuery, false);
+  }, [debouncedQuery, loadCustomers]);
 
   const summary = useMemo(() => {
     const active = customers.filter((item) => item.status === 'ACTIVE').length;
     return { total: customers.length, active };
   }, [customers]);
 
-  const handleRefresh = () => {
-    void loadCustomers(page, debouncedQuery, true);
+  const handleRefresh = async () => {
+    setPage(1);
+    await loadCustomers(1, debouncedQuery, false);
   };
 
-  const handleTouchStart: TouchEventHandler<HTMLDivElement> = (e) => {
-    const appMain = document.querySelector('.app-main');
-    if (appMain instanceof HTMLElement && appMain.scrollTop <= 0) {
-      pullStartY.current = e.touches[0].clientY;
+  const handleLoadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      void loadCustomers(nextPage, debouncedQuery, true);
     }
-  };
+  }, [loadingMore, hasMore, page, debouncedQuery, loadCustomers]);
 
-  const handleTouchMove: TouchEventHandler<HTMLDivElement> = (e) => {
-    if (pullStartY.current === null) return;
+  useEffect(() => {
+    const node = loadMoreRef.current;
 
-    const appMain = document.querySelector('.app-main');
-    if (!(appMain instanceof HTMLElement) || appMain.scrollTop > 0) {
-      pullStartY.current = null;
-      setPullDistance(0);
+    if (!node || !hasMore) {
       return;
     }
 
-    const delta = e.touches[0].clientY - pullStartY.current;
-    if (delta > 0) {
-      setPullDistance(Math.min(90, delta));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !loadingMore) {
+          handleLoadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '160px 0px',
+        threshold: 0,
+      },
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, handleLoadMore, customers.length]);
+
+  const handleCustomerClick = async (customerId: string) => {
+    setLoadingCustomerDetail(true);
+    try {
+      const detail = await getCustomerCard(customerId);
+      setSelectedCustomer(detail);
+    } catch (error) {
+      console.error('Failed to load customer details:', error);
+    } finally {
+      setLoadingCustomerDetail(false);
     }
   };
 
-  const handleTouchEnd: TouchEventHandler<HTMLDivElement> = () => {
-    if (pullDistance > 60) handleRefresh();
-    pullStartY.current = null;
-    setPullDistance(0);
-  };
-
   return (
-    <div
-      className="app-page stack-lg"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      <header className="app-page-header">
-        <div className="app-page-header-row">
-          <div>
-            <span className="app-page-kicker">{t('customers.title')}</span>
-            <h1 className="app-page-title">{t('customers.title')}</h1>
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="app-page stack-lg">
+        <header className="app-page-header">
+          <div className="app-page-header-row">
+            <div>
+              <span className="app-page-kicker">{t('customers.title')}</span>
+              <h1 className="app-page-title">{t('customers.title')}</h1>
+            </div>
+            <button type="button" className="app-action-icon" onClick={handleRefresh}>
+              <RefreshCw size={16} />
+            </button>
           </div>
-          <button type="button" className="app-action-icon" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw size={16} className={refreshing ? 'spin' : ''} />
-          </button>
-        </div>
-        <p className="app-page-subtitle">{t('customers.searchPlaceholder')}</p>
-      </header>
-
-      <div className="customers-pull-indicator" style={{ height: pullDistance }}>
-        {pullDistance > 40 && <span>{t('customers.pullToRefresh')}</span>}
-      </div>
+          <p className="app-page-subtitle">{t('customers.searchPlaceholder')}</p>
+        </header>
 
       <section className="app-surface-card app-surface-card-muted">
         <div className="app-surface-body app-form-stack">
@@ -132,68 +152,82 @@ export default function CustomersPage() {
           </div>
 
           <div className="app-stat-grid">
-            <div className="app-stat-card">
-              <div className="app-stat-label">{t('customers.total')}</div>
-              <div className="app-stat-value">{formatNumber(total, i18n.language)}</div>
+            <div className="app-stat-card card-technical">
+              <div className="app-stat-label kpi-label">{t('customers.total')}</div>
+              <div className="app-stat-value kpi-value text-data">{formatNumber(total, i18n.language)}</div>
             </div>
-            <div className="app-stat-card">
-              <div className="app-stat-label">{t('customers.active')}</div>
-              <div className="app-stat-value">{formatNumber(summary.active, i18n.language)}</div>
+            <div className="app-stat-card card-technical">
+              <div className="app-stat-label kpi-label">{t('customers.active')}</div>
+              <div className="app-stat-value kpi-value text-data">{formatNumber(summary.active, i18n.language)}</div>
             </div>
           </div>
         </div>
       </section>
 
-      {loading ? (
-        <div className="customers-empty">{t('common.loading')}</div>
-      ) : customers.length === 0 ? (
-        <div className="customers-empty">{t('customers.empty')}</div>
-      ) : (
-        <div className="app-card-grid">
-          {customers.map((customer) => (
-            <article
-              key={customer.id}
-              className="app-surface-card"
-              onClick={() => navigate(`/customers/${customer.customerId}`)}
-            >
-              <div className="app-surface-body customer-row">
-                <div className="customer-avatar">
-                  {customer.avatarUrl ? (
-                    <img src={customer.avatarUrl} alt={`${customer.firstName} ${customer.lastName}`} />
-                  ) : (
-                    <span>{getInitials(customer.firstName, customer.lastName)}</span>
-                  )}
-                </div>
+        {loading ? (
+          <div className="customers-empty">{t('common.loading')}</div>
+        ) : customers.length === 0 ? (
+          <div className="customers-empty">{t('customers.empty')}</div>
+        ) : (
+          <>
+            <div className="app-card-grid">
+              {customers.map((customer) => (
+                <article
+                  key={customer.id}
+                  className="app-surface-card card-technical customer-row-card"
+                  onClick={() => handleCustomerClick(customer.customerId)}
+                >
+                  <div className="app-surface-body customer-row">
+                    <div className="customer-avatar">
+                      {customer.avatarUrl ? (
+                        <img src={customer.avatarUrl} alt={`${customer.firstName} ${customer.lastName}`} />
+                      ) : (
+                        <span>{getInitials(customer.firstName, customer.lastName)}</span>
+                      )}
+                    </div>
 
-                <div className="customer-main">
-                  <p className="customer-name">{customer.firstName} {customer.lastName}</p>
-                  <p className="customer-contact">{customer.phone || customer.email}</p>
-                  <p className="customer-last-visit">
-                    {t('customers.lastVisit')}: {formatDate(customer.lastVisitAt, i18n.language)}
-                  </p>
-                </div>
+                    <div className="customer-main">
+                      <p className="customer-name">{customer.firstName} {customer.lastName}</p>
+                      <p className="customer-contact">{customer.phone || customer.email}</p>
+                      <p className="customer-last-visit">
+                        {t('customers.lastVisit')}: {formatDate(customer.lastVisitAt, i18n.language)}
+                      </p>
+                    </div>
 
-                <div className="customer-points">
-                  <p className="customer-points-value">{formatNumber(customer.pointsBalance, i18n.language)}</p>
-                  <p className="customer-points-label">{t('customers.points')}</p>
-                </div>
+                    <div className="customer-points">
+                      <p className="customer-points-value text-data">{formatNumber(customer.pointsBalance, i18n.language)}</p>
+                      <p className="customer-points-label kpi-label">{t('customers.points')}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {loadingMore && (
+              <div className="customers-status-message">
+                <RefreshCw size={20} className="spin" />
+                <p>{t('common.loading')}</p>
               </div>
-            </article>
-          ))}
-        </div>
-      )}
+            )}
 
-      {totalPages > 1 && (
-        <div className="customers-pagination">
-          <button type="button" className="btn" onClick={() => setPage((prev) => Math.max(1, prev - 1))} disabled={page <= 1}>
-            {t('common.previous')}
-          </button>
-          <span>{t('common.page', { page, totalPages })}</span>
-          <button type="button" className="btn" onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))} disabled={page >= totalPages}>
-            {t('common.next')}
-          </button>
-        </div>
-      )}
-    </div>
+            {!hasMore && customers.length > 0 && (
+              <div className="customers-status-message customers-status-message-muted">
+                {t('customers.endOfList') || 'End of list'}
+              </div>
+            )}
+
+            {hasMore && <div ref={loadMoreRef} aria-hidden="true" className="customers-load-sentinel" />}
+          </>
+        )}
+
+        {/* Bottom Sheet for Customer Details */}
+        {selectedCustomer && !loadingCustomerDetail && (
+          <CustomerProfileModal
+            customer={selectedCustomer}
+            onClose={() => setSelectedCustomer(null)}
+          />
+        )}
+      </div>
+    </PullToRefresh>
   );
 }

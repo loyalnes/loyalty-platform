@@ -60,11 +60,16 @@ export default function SettingsPage() {
   return (
     <div className="app-page stack-lg">
       <header className="app-page-header">
-        <button className="app-page-back" onClick={() => navigate(-1)}>
-          <ArrowLeft size={20} />
-        </button>
+        <div className="app-page-header-row">
+          <button className="app-page-back" onClick={() => navigate('/menu')}>
+            <ArrowLeft size={20} />
+          </button>
+          <div className="app-page-header-copy">
+            <span className="app-page-kicker">{t('menu.settings', 'Settings')}</span>
+            <h1 className="app-page-title">{t('settings.title', 'Settings')}</h1>
+          </div>
+        </div>
         <div>
-          <h1 className="app-page-title">{t('settings.title', 'Settings')}</h1>
           <p className="app-page-subtitle">{t('settings.subtitle', 'Configure your account')}</p>
         </div>
       </header>
@@ -72,7 +77,7 @@ export default function SettingsPage() {
       <section className="app-surface-card">
         <div className="app-surface-body stack-md">
         <h2 className="text-label-large">{t('settings.reviewFlow', 'Review Flow')}</h2>
-        <p style={{ fontSize: '14px', color: '#666' }}>
+        <p className="settings-help-text">
           {t('settings.reviewFlowDesc', 'When customers give 5 stars, they\'ll be redirected to leave a Google Maps review.')}
         </p>
 
@@ -84,12 +89,12 @@ export default function SettingsPage() {
             onChange={(e) => { setGoogleMapsUrl(e.target.value); setSaved(false); }}
             placeholder="https://maps.google.com/..."
           />
-          <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>
+          <p className="settings-hint">
             {t('settings.googleMapsHint', 'Find your business on Google Maps, click "Write a review", and copy the URL.')}
           </p>
         </div>
 
-        {error && <div className="error" style={{ background: '#fee', color: '#c33', padding: '12px', borderRadius: '8px', fontSize: '14px' }}>{error}</div>}
+        {error && <div className="settings-error">{error}</div>}
 
         <button
           className="btn btn-primary"

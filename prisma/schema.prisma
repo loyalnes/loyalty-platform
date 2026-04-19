@@ -30,6 +30,7 @@ model Merchant {
   loyaltyProgram        LoyaltyProgram?
   feedbacks             MerchantFeedback[]
   gamificationCampaigns GamificationCampaign[]
+  pushSubscriptions     PushSubscription[]
 
   @@map("merchants")
 }
@@ -153,6 +154,7 @@ model PointsTransaction {
 
   @@index([loyaltyCardId])
   @@index([createdAt])
+  @@index([loyaltyCardId, createdAt(sort: Desc)]) // For transaction history queries
   @@map("points_transactions")
 }
 
@@ -213,6 +215,7 @@ model MerchantFeedback {
   rating     Int
   text       String
 
+  // Detailed ratings (optional, for review flow)
   foodRating       Int?           @map("food_rating")
   serviceRating    Int?           @map("service_rating")
   atmosphereRating Int?           @map("atmosphere_rating")
@@ -228,13 +231,14 @@ model MerchantFeedback {
   @@index([merchantId, createdAt])
   @@index([customerId])
   @@index([source])
+  @@index([merchantId, readAt, createdAt(sort: Desc)]) // For unread feedback queries
   @@map("merchant_feedback")
 }
 
 enum FeedbackSource {
-  DIRECT
-  GOOGLE_MAPS
-  OTHER
+  DIRECT        // Review flow interno (rating 1-4)
+  GOOGLE_MAPS   // Tracked redirect (rating 5)
+  OTHER         // Future use
 }
 
 // ─── Gamification Campaigns ──────────────────────────────────
@@ -257,6 +261,7 @@ model GamificationCampaign {
 
   @@index([merchantId])
   @@index([active])
+  @@index([merchantId, active]) // For active campaigns queries
   @@map("gamification_campaigns")
 }
 
@@ -388,4 +393,22 @@ model WalletAccessToken {
   @@index([walletPassId])
   @@index([active])
   @@map("wallet_access_tokens")
+}
+
+// ─── Push Notifications (PWA) ────────────────────────────────
+
+model PushSubscription {
+  id         String   @id @default(uuid())
+  merchantId String   @map("merchant_id")
+  endpoint   String   @unique
+  keys       Json     // { p256dh, auth }
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  lastUsedAt DateTime @updatedAt @map("last_used_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([merchantId, active])
+  @@map("push_subscriptions")
 }

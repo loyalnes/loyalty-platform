@@ -38,35 +38,42 @@ export default function ShowReviewQRPage() {
   }
 
   return (
-    <div className="app-page" style={{ textAlign: 'center' }}>
+    <div className="app-page stack-lg show-review-qr-page">
       <header className="app-page-header">
-        <button className="app-page-back" onClick={() => navigate(-1)}>
-          <X size={20} />
-        </button>
-        <div>
-          <h1 className="app-page-title">{t('showReviewQR.title', 'Customer Reviews')}</h1>
-          <p className="app-page-subtitle">{t('showReviewQR.subtitle', 'Scan to leave a review')}</p>
+        <div className="app-page-header-row">
+          <button className="app-page-back" onClick={() => navigate(-1)}>
+            <X size={20} />
+          </button>
+          <div className="app-page-header-copy">
+            <span className="app-page-kicker">{t('showReviewQR.title', 'Customer Reviews')}</span>
+            <h1 className="app-page-title">{t('showReviewQR.title', 'Customer Reviews')}</h1>
+          </div>
         </div>
+        <p className="app-page-subtitle">{t('showReviewQR.subtitle', 'Scan to leave a review')}</p>
       </header>
 
-      <div className="app-surface-card" style={{ padding: '32px', display: 'inline-block', margin: '24px auto' }}>
-        <QRCodeSVG
-          value={reviewUrl}
-          size={240}
-          level="H"
-          includeMargin
-        />
-      </div>
+      <section className="app-surface-card app-surface-card-muted">
+        <div className="app-surface-body show-review-qr-card">
+          <div className="show-review-qr-code">
+            <QRCodeSVG
+              value={reviewUrl}
+              size={240}
+              level="H"
+              includeMargin
+            />
+          </div>
+        </div>
+      </section>
 
-      <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px', padding: '0 24px' }}>
+      <p className="show-review-qr-instruction">
         {t('showReviewQR.instruction', 'Let customers scan this QR code to leave a review')}
       </p>
 
-      <div style={{ display: 'flex', gap: '12px', padding: '0 24px', marginBottom: '24px' }}>
-        <button className="btn btn-secondary" onClick={handleCopy} style={{ flex: 1 }}>
+      <div className="show-review-qr-actions">
+        <button className="btn btn-secondary" onClick={handleCopy}>
           {copied ? <><Check size={16} /> {t('showQR.copied')}</> : <><Copy size={16} /> {t('showQR.copyLink')}</>}
         </button>
-        <button className="btn btn-primary" onClick={handleShare} style={{ flex: 1 }}>
+        <button className="btn btn-primary" onClick={handleShare}>
           <Share2 size={16} /> {t('showQR.share')}
         </button>
       </div>

@@ -101,7 +101,7 @@ export default function CustomerDetailPage() {
           <button className="app-page-back" onClick={() => navigate('/customers')}>
             <ChevronLeft size={24} />
           </button>
-          <div style={{ flex: 1 }}>
+          <div className="app-page-header-copy">
             <span className="app-page-kicker">{t('customerDetail.title')}</span>
             <h1 className="app-page-title">
               {customer.firstName} {customer.lastName}

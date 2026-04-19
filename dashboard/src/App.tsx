@@ -1,15 +1,17 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './AuthContext';
+import { OnlineProvider } from './contexts/OnlineContext';
+import { SyncProvider } from './contexts/SyncContext';
 import Header from './components/Header';
 import BottomNavBar from './components/BottomNavBar';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import WelcomePage from './pages/WelcomePage';
 import LoyaltyHubPage from './pages/LoyaltyHubPage';
 import SetupWizardPage from './pages/SetupWizardPage';
 import InsightsPage from './pages/InsightsPage';
 import ShowQRPage from './pages/ShowQRPage';
+import ShowReviewQRPage from './pages/ShowReviewQRPage';
 import ScanQRPage from './pages/ScanQRPage';
 import CustomersPage from './pages/CustomersPage';
 import CustomerDetailPage from './pages/CustomerDetailPage';
@@ -18,17 +20,20 @@ import CreateCampaignPage from './pages/CreateCampaignPage';
 import CampaignDetailPage from './pages/CampaignDetailPage';
 import EditCampaignPage from './pages/EditCampaignPage';
 import MenuPage from './pages/MenuPage';
-import ShowReviewQRPage from './pages/ShowReviewQRPage';
 import SettingsPage from './pages/SettingsPage';
 
 function MobileLayout() {
+  const location = useLocation();
+  const { program } = useAuth();
+  const isSetupRoute = location.pathname === '/setup' || (location.pathname === '/' && !program);
+
   return (
     <div className="app-shell">
       <Header />
-      <main className="app-main">
+      <main className={`app-main${isSetupRoute ? ' app-main-no-nav' : ''}`}>
         <Outlet />
       </main>
-      <BottomNavBar />
+      {!isSetupRoute && <BottomNavBar />}
     </div>
   );
 }
@@ -45,7 +50,7 @@ function FullPageLayout() {
 
 function HomePage() {
   const { program } = useAuth();
-  return program ? <LoyaltyHubPage /> : <WelcomePage />;
+  return program ? <LoyaltyHubPage /> : <SetupWizardPage />;
 }
 
 
@@ -80,13 +85,13 @@ function AppRoutes() {
         </Route>
         <Route element={<FullPageLayout />}>
           <Route path="/show-qr" element={<ShowQRPage />} />
+          <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
           <Route path="/scan-qr" element={<ScanQRPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/customers/:customerId" element={<CustomerDetailPage />} />
           <Route path="/campaigns/new" element={<CreateCampaignPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
           <Route path="/campaigns/:id/edit" element={<EditCampaignPage />} />
-          <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
     </Routes>
@@ -96,9 +101,13 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter basename="/dashboard">
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <OnlineProvider>
+        <SyncProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </SyncProvider>
+      </OnlineProvider>
     </BrowserRouter>
   );
 }

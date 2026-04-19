@@ -9,7 +9,7 @@ RUN npm ci
 
 # Install dashboard dependencies
 COPY dashboard/package.json dashboard/package-lock.json* ./dashboard/
-RUN cd dashboard && npm install
+RUN cd dashboard && npm install --legacy-peer-deps
 
 # Install marketing dependencies
 COPY marketing/package.json marketing/package-lock.json* ./marketing/
@@ -19,6 +19,7 @@ RUN cd marketing && npm install
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+RUN cd dashboard && npm run build
 RUN cd marketing && npm run build
 
 # ── Stage 2: Production ──────────────────────────────────────

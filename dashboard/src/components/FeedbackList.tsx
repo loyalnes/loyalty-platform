@@ -35,6 +35,8 @@ export default function FeedbackList({ items }: FeedbackListProps) {
         const isExpanded = !!expandedItems[item.id];
         const canExpand = item.text.length > 120;
 
+        const hasDetailedRatings = item.foodRating || item.serviceRating || item.atmosphereRating;
+
         return (
           <article key={item.id} className={`feedback-item${isNegative ? ' negative' : ''}`}>
             <div className="feedback-top-row">
@@ -44,6 +46,7 @@ export default function FeedbackList({ items }: FeedbackListProps) {
               </div>
               <div className="feedback-rating-wrap">
                 {item.isNew && <span className="feedback-new-badge">{t('insights.newBadge')}</span>}
+                {item.source === 'GOOGLE_MAPS' && <span className="feedback-source-badge">📍 Google Maps</span>}
                 <div className={`feedback-rating${isNegative ? ' negative' : ''}`}>
                   {isNegative && <MessageCircleWarning size={14} />}
                   <Star size={14} fill="currentColor" />
@@ -56,6 +59,26 @@ export default function FeedbackList({ items }: FeedbackListProps) {
                 )}
               </div>
             </div>
+
+            {hasDetailedRatings && (
+              <div className="feedback-detailed-ratings">
+                {item.foodRating && (
+                  <span className="feedback-detailed-rating">
+                    🍽️ {t('insights.foodLabel', 'Food')}: <Star size={12} fill="#ffd700" style={{ display: 'inline-block', verticalAlign: 'text-bottom', color: '#ffd700' }} /> {item.foodRating.toFixed(1)}
+                  </span>
+                )}
+                {item.serviceRating && (
+                  <span className="feedback-detailed-rating">
+                    🤝 {t('insights.serviceLabel', 'Service')}: <Star size={12} fill="#ffd700" style={{ display: 'inline-block', verticalAlign: 'text-bottom', color: '#ffd700' }} /> {item.serviceRating.toFixed(1)}
+                  </span>
+                )}
+                {item.atmosphereRating && (
+                  <span className="feedback-detailed-rating">
+                    🎨 {t('insights.atmosphereLabel', 'Atmosphere')}: <Star size={12} fill="#ffd700" style={{ display: 'inline-block', verticalAlign: 'text-bottom', color: '#ffd700' }} /> {item.atmosphereRating.toFixed(1)}
+                  </span>
+                )}
+              </div>
+            )}
 
             <p className={`feedback-text${isExpanded ? ' expanded' : ''}`}>{item.text}</p>
 

@@ -138,15 +138,36 @@ server {
     auth_basic "Loyali Preview PR #${PR_NUMBER}";
     auth_basic_user_file /etc/nginx/.htpasswd;
 
-    location / {
+    # Static assets - no auth required
+    location /assets/ {
+        auth_basic off;
         proxy_pass http://127.0.0.1:${PREVIEW_PORT};
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
+    }
+
+    location /dashboard/assets/ {
+        auth_basic off;
+        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+
+    # Service worker, manifest, icons
+    location ~ ^/(registerSW\.js|manifest\.json|icons/.*\.(png|svg|ico))$ {
+        auth_basic off;
+        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
     location /api/ {
@@ -164,6 +185,17 @@ server {
         proxy_pass http://127.0.0.1:${PREVIEW_PORT};
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:${PREVIEW_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
     }
 }
 NGINXEOF

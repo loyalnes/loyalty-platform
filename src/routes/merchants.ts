@@ -71,31 +71,17 @@ router.get("/by-email/:email", async (req: Request, res: Response, next: NextFun
   }
 });
 
-// GET /merchants/me — Get current authenticated merchant
+// GET /merchants/me — Get current authenticated merchant (must come BEFORE /:id)
 router.get("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.merchantId! },
     });
-    if (!merchant) throw new ApiError(404, "Merchant not found");
-    res.json(merchant);
-  } catch (err) {
-    next(err);
-  }
-});
 
-// PATCH /merchants/me — Update current authenticated merchant
-router.patch("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const allowed = ["name", "phone", "address", "city", "country", "settings", "preferredLocale"] as const;
-    const data: Record<string, unknown> = {};
-    for (const key of allowed) {
-      if (req.body[key] !== undefined) data[key] = req.body[key];
+    if (!merchant) {
+      throw new ApiError(404, "Merchant not found");
     }
-    const merchant = await prisma.merchant.update({
-      where: { id: req.merchantId! },
-      data,
-    });
+
     res.json(merchant);
   } catch (err) {
     next(err);
@@ -103,7 +89,7 @@ router.patch("/me", authenticateMerchant, async (req: Request, res: Response, ne
 });
 
 // GET /merchants/:id — Get merchant by ID
-router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.params.id },
@@ -120,8 +106,30 @@ router.get("/:id", validateUuid("id"), async (req: Request, res: Response, next:
   }
 });
 
+// PATCH /merchants/me — Update current authenticated merchant
+router.patch("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const allowed = ["name", "phone", "address", "city", "country", "settings", "preferredLocale"] as const;
+    const data: Record<string, unknown> = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) {
+        data[key] = req.body[key];
+      }
+    }
+
+    const merchant = await prisma.merchant.update({
+      where: { id: req.merchantId! },
+      data,
+    });
+
+    res.json(merchant);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // PATCH /merchants/:id — Update merchant (authenticated, own merchant only)
-router.patch("/:id", validateUuid("id"), async (req: Request, res: Response, next: NextFunction) => {
+router.patch("/:id", validateUuid("id"), authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (req.merchantId !== req.params.id) {
       throw new ApiError(403, "You can only update your own merchant profile");

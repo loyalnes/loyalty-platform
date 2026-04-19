@@ -12,7 +12,11 @@ export default function ShowQRPage() {
   const [copied, setCopied] = useState(false);
 
   // Customer acquisition through gamification
-  const signupUrl = `${window.location.origin}/app/play/${merchant?.id}`;
+  // In development, Vite runs on different port than backend
+  const apiOrigin = window.location.port === '5174' || window.location.port === '5173' || window.location.port === '5175'
+    ? 'http://localhost:3000'
+    : window.location.origin;
+  const signupUrl = `${apiOrigin}/app/play/${merchant?.id}`;
 
   async function handleCopy() {
     try {
@@ -48,7 +52,7 @@ export default function ShowQRPage() {
           <button className="app-page-back" onClick={() => navigate('/')}>
           <X size={24} />
         </button>
-          <div style={{ flex: 1 }}>
+          <div className="app-page-header-copy">
             <span className="app-page-kicker">{t('showQR.title')}</span>
             <h1 className="app-page-title">{merchant?.name}</h1>
           </div>
@@ -57,7 +61,7 @@ export default function ShowQRPage() {
       </header>
 
       <section className="app-surface-card app-surface-card-muted">
-        <div className="app-surface-body" style={{ textAlign: 'center' }}>
+        <div className="app-surface-body show-qr-body">
           <div className="show-qr-merchant">
             <div className="show-qr-merchant-name">{merchant?.name}</div>
             <div className="show-qr-merchant-subtitle">{t('showQR.subtitle', 'Scan to play & win prizes!')}</div>
