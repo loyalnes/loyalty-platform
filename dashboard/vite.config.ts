@@ -10,6 +10,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'service-worker.ts',
       registerType: 'autoUpdate',
+      injectRegister: null,
       manifest: false, // Use public/manifest.json
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
@@ -29,7 +30,7 @@ export default defineConfig({
       },
     },
   },
-  base: '/', // Changed for local testing
+  base: '/dashboard/',
   build: {
     outDir: 'dist',
   },
