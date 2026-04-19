@@ -7,6 +7,8 @@ export function PWAInstallPrompt() {
   const [isDismissing, setIsDismissing] = useState(false)
   const [isInstalling, setIsInstalling] = useState(false)
   const [visitCount, setVisitCount] = useState(0)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  const iconSrc = `${import.meta.env.BASE_URL}icons/icon-192.png`
 
   useEffect(() => {
     // Track session count (increments per page load)
@@ -68,13 +70,10 @@ export function PWAInstallPrompt() {
     return null
   }
 
-  // Don't show if not installable (browser doesn't support or criteria not met)
-  if (!isInstallable) {
+  // On non-iOS browsers we need the deferred install prompt to be available.
+  if (!isIOS && !isInstallable) {
     return null
   }
-
-  // iOS specific message (no automatic prompt support)
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
   if (isIOS) {
     return (
@@ -95,7 +94,7 @@ export function PWAInstallPrompt() {
 
         <div className="pwa-prompt-header">
           <div className="pwa-prompt-icon">
-            <img src="/icons/icon-192.png" alt="" aria-hidden="true" />
+            <img src={iconSrc} alt="" aria-hidden="true" />
           </div>
           <h3 id="pwa-prompt-title" className="title-expressive">Install Loyalty Platform</h3>
         </div>
@@ -125,7 +124,7 @@ export function PWAInstallPrompt() {
 
       <div className="pwa-prompt-header">
         <div className="pwa-prompt-icon">
-          <img src="/icons/icon-192.png" alt="" aria-hidden="true" />
+          <img src={iconSrc} alt="" aria-hidden="true" />
         </div>
         <h3 id="pwa-prompt-title" className="title-expressive">Install Loyalty Platform</h3>
       </div>
