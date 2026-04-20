@@ -179,11 +179,11 @@
   --content-max: 480px;
   --page-gutter: clamp(1rem, 4vw, 1.5rem);
   --section-gap: clamp(1rem, 4vw, 2rem);
-  --header-height: clamp(88px, 22vw, 108px);
+  --header-height: clamp(64px, 16vw, 72px); /* Industry standard (was 88-108px) */
   --bottom-nav-height: clamp(96px, 22vw, 128px);
   --fab-size: clamp(72px, 23vw, 112px);
   --fab-icon-size: clamp(30px, 9vw, 48px);
-  --avatar-size: clamp(56px, 14vw, 64px); /* Increased for better visibility */
+  --avatar-size: clamp(40px, 10vw, 48px); /* Industry standard (was 56-64px) */
   --title-xl: clamp(1.125rem, 5.2vw, 1.625rem);
   --title-lg: clamp(1.125rem, 4.8vw, 1.5rem);
   --title-md: clamp(1rem, 4vw, 1.25rem);
@@ -606,11 +606,11 @@ h3, .h3 {
   border: none;
   background: none;
   color: #1d4ed8;
-  font-size: clamp(28px, 8vw, 38px);
+  font-size: clamp(24px, 6vw, 28px); /* Industry standard icon size */
   line-height: 1;
-  padding: 8px; /* Touch target: 28px icon + 16px padding = 44px min */
-  min-width: 44px;
-  min-height: 44px;
+  padding: 12px; /* Touch target: 24px icon + 24px padding = 48px ✅ */
+  min-width: 48px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
