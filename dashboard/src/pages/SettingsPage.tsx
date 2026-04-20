@@ -45,7 +45,10 @@ export default function SettingsPage() {
     setError('');
     try {
       const currentSettings = JSON.parse(merchant?.settings || '{}');
-      const newSettings = { ...currentSettings, googleMapsUrl: googleMapsUrl.trim() || null };
+      const newSettings = {
+        ...currentSettings,
+        googleMapsUrl: googleMapsUrl.trim() || null
+      };
 
       await updateMerchantMe({ settings: JSON.stringify(newSettings) });
       setSaved(true);
@@ -81,16 +84,25 @@ export default function SettingsPage() {
           {t('settings.reviewFlowDesc', 'When customers give 5 stars, they\'ll be redirected to leave a Google Maps review.')}
         </p>
 
+        <div className="settings-info-box">
+          <p>
+            <strong>💡 {t('settings.autoExtractInfo', 'Automatic extraction')}:</strong>{' '}
+            {t('settings.autoExtractDesc', 'Just paste the Google Maps link. We\'ll automatically extract the Place ID to open the review dialog directly.')}
+          </p>
+        </div>
+
         <div className="form-group">
-          <label>{t('settings.googleMapsUrl', 'Google Maps Review URL')}</label>
+          <label>
+            {t('settings.googleMapsUrl', 'Google Maps URL')}
+          </label>
           <input
             type="url"
             value={googleMapsUrl}
             onChange={(e) => { setGoogleMapsUrl(e.target.value); setSaved(false); }}
-            placeholder="https://maps.google.com/..."
+            placeholder="https://maps.app.goo.gl/..."
           />
           <p className="settings-hint">
-            {t('settings.googleMapsHint', 'Find your business on Google Maps, click "Write a review", and copy the URL.')}
+            {t('settings.googleMapsHint', 'Find your business on Google Maps, click Share, and paste the link here.')}
           </p>
         </div>
 
