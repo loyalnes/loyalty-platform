@@ -26,6 +26,7 @@ router.get("/:merchantId/config", async (req: Request, res: Response, next: Next
       merchantId: merchant.id,
       merchantName: merchant.name,
       googleMapsUrl: (settings.googleMapsUrl as string) || null,
+      googlePlaceId: (settings.googlePlaceId as string) || null,
       reviewFlowEnabled: settings.reviewFlowEnabled !== false,
       locale: merchant.preferredLocale,
     });
@@ -120,10 +121,18 @@ router.post("/:merchantId/google-redirect", feedbackRateLimiter, async (req: Req
       if (merchant.settings) settings = JSON.parse(merchant.settings);
     } catch { settings = {}; }
 
+    // Prioritize Place ID for direct review dialog
+    const googlePlaceId = settings.googlePlaceId as string | undefined;
     const googleMapsUrl = settings.googleMapsUrl as string | undefined;
-    if (!googleMapsUrl) {
-      return res.status(400).json({ error: "Google Maps URL not configured", fallback: true });
+
+    if (!googlePlaceId && !googleMapsUrl) {
+      return res.status(400).json({ error: "Google Maps configuration missing", fallback: true });
     }
+
+    // Build direct review URL if Place ID is available
+    const redirectUrl = googlePlaceId
+      ? `https://search.google.com/local/writereview?placeid=${googlePlaceId}`
+      : googleMapsUrl as string;
 
     let customerId: string | null = null;
     if (email) {
@@ -143,7 +152,7 @@ router.post("/:merchantId/google-redirect", feedbackRateLimiter, async (req: Req
       },
     });
 
-    res.json({ success: true, redirectUrl: googleMapsUrl });
+    res.json({ success: true, redirectUrl });
   } catch (err) {
     next(err);
   }
