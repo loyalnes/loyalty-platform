@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
+import { feedbackRateLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.get("/:merchantId/config", async (req: Request, res: Response, next: Next
 });
 
 // POST /feedback/:merchantId — submit detailed feedback (1-4 star flow)
-router.post("/:merchantId", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/:merchantId", feedbackRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { merchantId } = req.params;
     const { rating, foodRating, serviceRating, atmosphereRating, text, email, firstName, lastName } = req.body;
@@ -100,7 +101,7 @@ router.post("/:merchantId", async (req: Request, res: Response, next: NextFuncti
 });
 
 // POST /feedback/:merchantId/google-redirect — track 5-star Google Maps redirect
-router.post("/:merchantId/google-redirect", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/:merchantId/google-redirect", feedbackRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { merchantId } = req.params;
     const { email } = req.body;

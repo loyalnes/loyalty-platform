@@ -31,6 +31,7 @@ model Merchant {
   feedbacks             MerchantFeedback[]
   gamificationCampaigns GamificationCampaign[]
   pushSubscriptions     PushSubscription[]
+  apiKeys               ApiKey[]
 
   @@map("merchants")
 }
@@ -411,4 +412,24 @@ model PushSubscription {
   @@index([merchantId])
   @@index([merchantId, active])
   @@map("push_subscriptions")
+}
+
+// ─── API Keys (Merchant Authentication) ──────────────────────
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  merchantId String    @map("merchant_id")
+  keyHash    String    @map("key_hash") // bcrypt hash of the API key
+  name       String    @default("Default API Key") // Descriptive name
+  active     Boolean   @default(true)
+  lastUsedAt DateTime? @map("last_used_at")
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([merchantId, active])
+  @@map("api_keys")
 }

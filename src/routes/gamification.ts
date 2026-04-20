@@ -6,6 +6,7 @@ import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
 import { buildWalletSummary } from "../services/walletSummary";
 import { generateRedemptionCode } from "../utils/redemptionCode";
+import { gamificationRateLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
 
@@ -90,7 +91,7 @@ router.get("/:merchantId", async (req: Request, res: Response, next: NextFunctio
  * Body: { email: string }
  * Returns: { prizeWinId, prizeName, expiresAt }
  */
-router.post("/:merchantId/play", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/:merchantId/play", gamificationRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { merchantId } = req.params;
     const { email } = req.body;

@@ -3,6 +3,7 @@ import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
 import { validateUuid } from "../middleware/validateUuid";
 import { authenticateMerchant } from "../middleware/auth";
+import { generateApiKey, hashApiKey } from "../utils/apiKey";
 
 const router = Router();
 
@@ -149,6 +150,96 @@ router.patch("/:id", validateUuid("id"), authenticateMerchant, async (req: Reque
     });
 
     res.json(merchant);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── API Key Management ──────────────────────────────────────────
+
+// POST /merchants/me/api-keys — Generate a new API key
+router.post("/me/api-keys", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      throw new ApiError(400, "API key name is required");
+    }
+
+    // Generate new API key
+    const plainApiKey = generateApiKey();
+    const keyHash = await hashApiKey(plainApiKey);
+
+    // Store hashed key in database
+    const apiKey = await prisma.apiKey.create({
+      data: {
+        merchantId: req.merchantId!,
+        keyHash,
+        name: name.trim(),
+        active: true
+      }
+    });
+
+    // Return the plain key ONCE (user must save it)
+    res.status(201).json({
+      id: apiKey.id,
+      name: apiKey.name,
+      apiKey: plainApiKey, // ⚠️ Only shown once, never stored in plain text
+      createdAt: apiKey.createdAt,
+      message: "Save this API key securely. It will not be shown again."
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /merchants/me/api-keys — List all API keys (without exposing the key)
+router.get("/me/api-keys", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const apiKeys = await prisma.apiKey.findMany({
+      where: { merchantId: req.merchantId! },
+      select: {
+        id: true,
+        name: true,
+        active: true,
+        lastUsedAt: true,
+        expiresAt: true,
+        createdAt: true,
+        updatedAt: true
+        // keyHash is never exposed
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({ data: apiKeys });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /merchants/me/api-keys/:id — Revoke an API key
+router.delete("/me/api-keys/:id", validateUuid("id"), authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Verify the API key belongs to the authenticated merchant
+    const apiKey = await prisma.apiKey.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!apiKey) {
+      throw new ApiError(404, "API key not found");
+    }
+
+    if (apiKey.merchantId !== req.merchantId) {
+      throw new ApiError(403, "You can only revoke your own API keys");
+    }
+
+    // Soft delete by marking as inactive
+    await prisma.apiKey.update({
+      where: { id: req.params.id },
+      data: { active: false }
+    });
+
+    res.json({ message: "API key revoked successfully" });
   } catch (err) {
     next(err);
   }
