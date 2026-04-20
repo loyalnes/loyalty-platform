@@ -183,7 +183,7 @@
   --bottom-nav-height: clamp(96px, 22vw, 128px);
   --fab-size: clamp(72px, 23vw, 112px);
   --fab-icon-size: clamp(30px, 9vw, 48px);
-  --avatar-size: clamp(44px, 12vw, 52px);
+  --avatar-size: clamp(56px, 14vw, 64px); /* Increased for better visibility */
   --title-xl: clamp(1.125rem, 5.2vw, 1.625rem);
   --title-lg: clamp(1.125rem, 4.8vw, 1.5rem);
   --title-md: clamp(1rem, 4vw, 1.25rem);
@@ -608,7 +608,12 @@ h3, .h3 {
   color: #1d4ed8;
   font-size: clamp(28px, 8vw, 38px);
   line-height: 1;
-  padding: 0;
+  padding: 8px; /* Touch target: 28px icon + 16px padding = 44px min */
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
   transition: opacity var(--motion-micro) ease;
