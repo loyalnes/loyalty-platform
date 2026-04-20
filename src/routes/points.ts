@@ -23,29 +23,31 @@ router.post("/earn", async (req: Request, res: Response, next: NextFunction) => 
       throw new ApiError(400, "Card is not active");
     }
 
-    const newBalance = card.pointsBalance + points;
+    // Use atomic increment to prevent race conditions
+    const updatedCard = await prisma.$transaction(async (tx) => {
+      const updated = await tx.loyaltyCard.update({
+        where: { id: loyaltyCardId },
+        data: {
+          pointsBalance: { increment: points },
+          totalEarned: { increment: points },
+        },
+      });
 
-    const [transaction, updatedCard] = await prisma.$transaction([
-      prisma.pointsTransaction.create({
+      await tx.pointsTransaction.create({
         data: {
           loyaltyCardId,
           type: "EARN",
           points,
-          balanceAfter: newBalance,
+          balanceAfter: updated.pointsBalance,
           description: description || null,
           referenceId: referenceId || null,
         },
-      }),
-      prisma.loyaltyCard.update({
-        where: { id: loyaltyCardId },
-        data: {
-          pointsBalance: newBalance,
-          totalEarned: card.totalEarned + points,
-        },
-      }),
-    ]);
+      });
 
-    res.status(201).json({ transaction, balance: updatedCard.pointsBalance });
+      return updated;
+    });
+
+    res.status(201).json({ balance: updatedCard.pointsBalance });
   } catch (err) {
     next(err);
   }
@@ -82,29 +84,36 @@ router.post("/redeem", async (req: Request, res: Response, next: NextFunction) =
       throw new ApiError(400, "Insufficient points balance");
     }
 
-    const newBalance = card.pointsBalance - points;
+    // Use atomic decrement to prevent race conditions
+    const updatedCard = await prisma.$transaction(async (tx) => {
+      const updated = await tx.loyaltyCard.update({
+        where: { id: loyaltyCardId },
+        data: {
+          pointsBalance: { decrement: points },
+          totalRedeemed: { increment: points },
+        },
+      });
 
-    const [transaction, updatedCard] = await prisma.$transaction([
-      prisma.pointsTransaction.create({
+      // Double-check balance after decrement (shouldn't go negative)
+      if (updated.pointsBalance < 0) {
+        throw new ApiError(400, "Insufficient points balance");
+      }
+
+      await tx.pointsTransaction.create({
         data: {
           loyaltyCardId,
           type: "REDEEM",
           points: -points,
-          balanceAfter: newBalance,
+          balanceAfter: updated.pointsBalance,
           description: description || null,
           referenceId: referenceId || null,
         },
-      }),
-      prisma.loyaltyCard.update({
-        where: { id: loyaltyCardId },
-        data: {
-          pointsBalance: newBalance,
-          totalRedeemed: card.totalRedeemed + points,
-        },
-      }),
-    ]);
+      });
 
-    res.status(201).json({ transaction, balance: updatedCard.pointsBalance });
+      return updated;
+    });
+
+    res.status(201).json({ balance: updatedCard.pointsBalance });
   } catch (err) {
     next(err);
   }
@@ -122,20 +131,23 @@ router.get("/balance/:cardId", validateUuid("cardId"), async (req: Request, res:
         totalEarned: true,
         totalRedeemed: true,
         status: true,
+        merchantId: true,
       },
     });
 
-    if (!card || (req.merchantId && card.id !== req.params.cardId)) {
+    if (!card) {
       throw new ApiError(404, "Card not found");
     }
 
     // Verify the card belongs to the authenticated merchant
-    const fullCard = await prisma.loyaltyCard.findUnique({ where: { id: req.params.cardId } });
-    if (!fullCard || fullCard.merchantId !== req.merchantId) {
+    if (req.merchantId && card.merchantId !== req.merchantId) {
       throw new ApiError(404, "Card not found");
     }
 
-    res.json(card);
+    // Remove merchantId from response
+    const { merchantId, ...cardData } = card;
+
+    res.json(cardData);
   } catch (err) {
     next(err);
   }

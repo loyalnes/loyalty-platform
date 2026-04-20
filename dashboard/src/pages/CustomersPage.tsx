@@ -127,15 +127,11 @@ export default function CustomersPage() {
       <div className="app-page stack-lg">
         <header className="app-page-header">
           <div className="app-page-header-row">
-            <div>
-              <span className="app-page-kicker">{t('customers.title')}</span>
-              <h1 className="app-page-title">{t('customers.title')}</h1>
-            </div>
+            <p className="app-page-subtitle">{t('customers.searchPlaceholder')}</p>
             <button type="button" className="app-action-icon" onClick={handleRefresh}>
               <RefreshCw size={16} />
             </button>
           </div>
-          <p className="app-page-subtitle">{t('customers.searchPlaceholder')}</p>
         </header>
 
       <section className="app-surface-card app-surface-card-muted">

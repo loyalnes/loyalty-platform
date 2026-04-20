@@ -2,11 +2,12 @@ import { Router, Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
+import { registerRateLimiter, authRateLimiter } from "../middleware/rateLimiter";
 
 const router = Router();
 
 // POST /auth/signup — Register a new merchant with password
-router.post("/signup", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/signup", registerRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
 
@@ -47,7 +48,7 @@ router.post("/signup", async (req: Request, res: Response, next: NextFunction) =
 });
 
 // POST /auth/login — Login with email and password
-router.post("/login", async (req: Request, res: Response, next: NextFunction) => {
+router.post("/login", authRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
