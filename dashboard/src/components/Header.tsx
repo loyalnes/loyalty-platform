@@ -10,16 +10,20 @@ export default function Header() {
 
   const getPageTitle = () => {
     const path = location.pathname;
+    const merchantName = merchant?.name || 'Dashboard';
 
+    // Home page (Today) - show greeting
+    if (path === '/') return `Buongiorno, ${merchantName}`;
+
+    // Other pages - show page title
     if (path === '/insights') return t('insights.title');
     if (path === '/customers') return t('customers.title');
-    if (path === '/menu') return merchant?.name || t('menu.title', 'Menu');
+    if (path === '/menu') return merchantName;
     if (path === '/campaigns') return t('campaigns.title');
     if (path === '/settings') return t('settings.title');
-    if (path === '/') return merchant?.name || 'Dashboard';
     if (path === '/setup') return t('setup.title', 'Setup');
 
-    return merchant?.name || 'Dashboard';
+    return merchantName;
   };
 
   return (
