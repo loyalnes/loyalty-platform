@@ -7,7 +7,7 @@ import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 export default function MenuPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { merchant, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -62,13 +62,6 @@ export default function MenuPage() {
 
   return (
     <div className="app-page stack-lg">
-      <header className="app-page-header">
-        <span className="app-page-kicker">{t('menu.title', 'Menu')}</span>
-        <div>
-          <h1 className="app-page-title">{merchant?.name || 'Merchant Dashboard'}</h1>
-        </div>
-      </header>
-
       <PWAInstallPrompt mode="menu" />
 
       {menuSections.map((section, idx) => (

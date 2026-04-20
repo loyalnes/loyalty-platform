@@ -93,8 +93,6 @@ export default function InsightsPage() {
   return (
     <div className="app-page stack-lg page-insights">
       <header className="app-page-header">
-        <span className="app-page-kicker">{t('insights.title')}</span>
-        <h1 className="app-page-title title-technical">{t('insights.title')}</h1>
         <p className="app-page-subtitle">{t('insights.subtitle')}</p>
       </header>
 
