@@ -70,6 +70,7 @@ export default function HomePage() {
           <video
             className="hero-video"
             src="/hero.mp4"
+            poster="/hero-poster.jpg"
             autoPlay
             loop
             muted
