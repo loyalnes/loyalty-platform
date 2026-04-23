@@ -104,6 +104,21 @@ Note: If port 5432 is in use, change the DB port in docker-compose.dev.yml.
 - Dashboard imports: `import '../../packages/ui/src/index.css'` in `dashboard/src/main.tsx`
 - Marketing imports: tokens copied via `prebuild` script in `marketing/package.json`
 
+### Marketing Website Redesign (In Progress)
+
+The marketing website (`marketing/`) is being redesigned to match the style of https://luyoa.com/en/:
+
+- **Design reference**: `/Users/eliobencini/luyoa.com/en/` (local files) + https://luyoa.com/en/ (live)
+- **Documentation**: `MARKETING_REDESIGN.md` — complete design system, task breakdown, progress tracking
+- **Key changes**:
+  - Font: Helvetica Neue (system font) instead of Inter
+  - Colors: Purple primary (#7750e7), beige/cream backgrounds (#f7f4ee)
+  - Typography: Large headings (48px) with tight letter-spacing (-0.07em)
+  - Border radius: Very rounded (40-54px for cards, pill buttons)
+  - Spacing: Generous padding and section spacing
+- **Custom tokens**: `marketing/src/app/tokens.css` (Luyoa-inspired, independent from dashboard)
+- **Task tracking**: See `MARKETING_REDESIGN.md` for 11-task breakdown and current progress
+
 ## Deploy Pipeline
 
 1. Push to `main` → GitHub Actions builds Docker image → pushes to GHCR → SSHs to server → runs `deploy/deploy.sh production`
