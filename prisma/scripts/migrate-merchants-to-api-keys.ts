@@ -4,11 +4,11 @@
  * This script creates one "Default API Key" for each existing merchant
  * to ensure they can continue using the API after the API key system is deployed.
  *
- * Run with: npx ts-node prisma/migrations/data/migrate-merchants-to-api-keys.ts
+ * Run with: npx ts-node prisma/scripts/migrate-merchants-to-api-keys.ts
  */
 
 import { PrismaClient } from '@prisma/client';
-import { generateApiKey, hashApiKey } from '../../../src/utils/apiKey';
+import { generateApiKey, hashApiKey } from '../../src/utils/apiKey';
 
 const prisma = new PrismaClient();
 
