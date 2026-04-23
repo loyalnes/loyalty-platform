@@ -4,6 +4,7 @@ import { ApiError } from "../middleware/errorHandler";
 import { validateUuid } from "../middleware/validateUuid";
 import { authenticateMerchant } from "../middleware/auth";
 import { generateApiKey, hashApiKey } from "../utils/apiKey";
+import { extractPlaceIdFromUrl } from "../utils/googleMaps";
 
 const router = Router();
 
@@ -115,6 +116,25 @@ router.patch("/me", authenticateMerchant, async (req: Request, res: Response, ne
     for (const key of allowed) {
       if (req.body[key] !== undefined) {
         data[key] = req.body[key];
+      }
+    }
+
+    // If settings are being updated, process Google Maps URL to extract Place ID
+    if (data.settings && typeof data.settings === 'string') {
+      try {
+        const settings = JSON.parse(data.settings);
+
+        // If googleMapsUrl is provided, try to extract Place ID automatically
+        if (settings.googleMapsUrl && typeof settings.googleMapsUrl === 'string') {
+          const extractedPlaceId = await extractPlaceIdFromUrl(settings.googleMapsUrl);
+          if (extractedPlaceId) {
+            settings.googlePlaceId = extractedPlaceId;
+            data.settings = JSON.stringify(settings);
+          }
+        }
+      } catch (parseError) {
+        // If settings parsing fails, continue with original value
+        console.error('Failed to parse settings for Place ID extraction:', parseError);
       }
     }
 
