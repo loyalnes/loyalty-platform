@@ -86,7 +86,7 @@ export default function HomePage() {
               {t('hero.ctaSecondary')}
             </a>
             <div className="hero-primary-group">
-              <a href="/signup/" className="btn-hero btn-hero-primary">
+              <a href="/dashboard/signup" className="btn-hero btn-hero-primary">
                 {t('hero.ctaPrimary')}
               </a>
               <p className="hero-trust">
@@ -207,7 +207,7 @@ export default function HomePage() {
       </section>
 
       {/* Pricing */}
-      <section className="section" style={{ background: 'var(--background-surface)' }}>
+      <section id="pricing" className="section" style={{ background: 'var(--background-surface)' }}>
         <div className="section-header reveal">
           <h2>{t('pricing.sectionTitle')}</h2>
           <p>{t('pricing.sectionSubtitle')}</p>
@@ -228,7 +228,7 @@ export default function HomePage() {
               <li>{t('pricing.core.feature5')}</li>
               <li>{t('pricing.core.feature6')}</li>
             </ul>
-            <a href="/signup/" className="pricing-cta">{t('pricing.core.cta')}</a>
+            <a href="/dashboard/signup" className="pricing-cta">{t('pricing.core.cta')}</a>
           </div>
 
           <div className="pricing-card featured reveal-stagger delay-2">
@@ -245,7 +245,7 @@ export default function HomePage() {
               <li>{t('pricing.grow.feature5')}</li>
               <li>{t('pricing.grow.feature6')}</li>
             </ul>
-            <a href="/signup/" className="pricing-cta">{t('pricing.grow.cta')}</a>
+            <a href="/dashboard/signup" className="pricing-cta">{t('pricing.grow.cta')}</a>
           </div>
         </div>
       </section>
@@ -279,7 +279,7 @@ export default function HomePage() {
       <section className="cta-section reveal">
         <h2>{t('finalCta.title')}</h2>
         <p>{t('finalCta.body')}</p>
-        <a href="/signup/" className="btn-cta">{t('finalCta.button')}</a>
+        <a href="/dashboard/signup" className="btn-cta">{t('finalCta.button')}</a>
         <p className="cta-trust">{t('finalCta.trust')}</p>
       </section>
     </>
