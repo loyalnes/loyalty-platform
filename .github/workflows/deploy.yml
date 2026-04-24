@@ -149,7 +149,7 @@ jobs:
 
             # Configure nginx with basic auth
             cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf
-            cp deploy/nginx.conf /etc/nginx/sites-available/loyalty-platform
+            cp deploy/nginx-production.conf /etc/nginx/sites-available/loyalty-platform
             ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
             rm -f /etc/nginx/sites-enabled/default
 
@@ -235,9 +235,9 @@ jobs:
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
             cd /opt/loyalty-platform
-            if [ -f deploy/nginx.conf ]; then
-              echo "==> Copying nginx config..."
-              cp deploy/nginx.conf /etc/nginx/sites-available/loyalty-platform
+            if [ -f deploy/nginx-production.conf ]; then
+              echo "==> Copying production nginx config..."
+              cp deploy/nginx-production.conf /etc/nginx/sites-available/loyalty-platform
               cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf 2>/dev/null || true
               ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
               nginx -t && systemctl reload nginx && echo "==> Nginx reloaded"

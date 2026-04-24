@@ -30,10 +30,11 @@ echo "==> Deploying $ENV environment"
 # Update nginx config on every deploy (picks up domain/auth changes).
 # The deploy user typically isn't root, so use sudo -n (non-interactive).
 # If sudo isn't available we log a clear warning instead of silently skipping.
-if [ -f "$DEPLOY_DIR/deploy/nginx.conf" ]; then
+NGINX_CONF="$DEPLOY_DIR/deploy/nginx-${ENV}.conf"
+if [ -f "$NGINX_CONF" ]; then
   if sudo -n true 2>/dev/null; then
-    echo "==> Updating nginx configuration..."
-    sudo cp "$DEPLOY_DIR/deploy/nginx.conf" /etc/nginx/sites-available/loyalty-platform
+    echo "==> Updating nginx configuration from $(basename "$NGINX_CONF")..."
+    sudo cp "$NGINX_CONF" /etc/nginx/sites-available/loyalty-platform
     sudo cp "$DEPLOY_DIR/deploy/nginx-rate-limit.conf" /etc/nginx/conf.d/rate-limit.conf 2>/dev/null || true
     sudo ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
     sudo rm -f /etc/nginx/sites-enabled/default
