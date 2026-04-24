@@ -27,24 +27,30 @@ cd "$DEPLOY_DIR"
 
 echo "==> Deploying $ENV environment"
 
-# Update nginx config on every deploy (picks up domain/auth changes)
-# Requires root or sudo — skip gracefully if not available
-if [ -f "$DEPLOY_DIR/deploy/nginx.conf" ] && [ -w /etc/nginx/sites-available/ ]; then
-  echo "==> Updating nginx configuration..."
-  cp "$DEPLOY_DIR/deploy/nginx.conf" /etc/nginx/sites-available/loyalty-platform
-  cp "$DEPLOY_DIR/deploy/nginx-rate-limit.conf" /etc/nginx/conf.d/rate-limit.conf 2>/dev/null || true
-  ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
-  rm -f /etc/nginx/sites-enabled/default
+# Update nginx config on every deploy (picks up domain/auth changes).
+# The deploy user typically isn't root, so use sudo -n (non-interactive).
+# If sudo isn't available we log a clear warning instead of silently skipping.
+if [ -f "$DEPLOY_DIR/deploy/nginx.conf" ]; then
+  if sudo -n true 2>/dev/null; then
+    echo "==> Updating nginx configuration..."
+    sudo cp "$DEPLOY_DIR/deploy/nginx.conf" /etc/nginx/sites-available/loyalty-platform
+    sudo cp "$DEPLOY_DIR/deploy/nginx-rate-limit.conf" /etc/nginx/conf.d/rate-limit.conf 2>/dev/null || true
+    sudo ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
+    sudo rm -f /etc/nginx/sites-enabled/default
 
-  # Create basic auth if not yet set up
-  if [ ! -f /etc/nginx/.htpasswd ]; then
-    command -v htpasswd >/dev/null 2>&1 || apt-get install -y apache2-utils 2>/dev/null || true
-    HTPASSWD=$(openssl rand -base64 16 | tr -d '/+=' | head -c 16)
-    htpasswd -bc /etc/nginx/.htpasswd loyali "$HTPASSWD"
-    echo "==> Basic auth created — user: loyali, password: $HTPASSWD"
+    # Create basic auth if not yet set up (only needed on first run;
+    # content of nginx.conf controls which server blocks actually use it).
+    if ! sudo test -f /etc/nginx/.htpasswd; then
+      command -v htpasswd >/dev/null 2>&1 || sudo apt-get install -y apache2-utils 2>/dev/null || true
+      HTPASSWD=$(openssl rand -base64 16 | tr -d '/+=' | head -c 16)
+      sudo htpasswd -bc /etc/nginx/.htpasswd loyali "$HTPASSWD"
+      echo "==> Basic auth created — user: loyali, password: $HTPASSWD"
+    fi
+
+    sudo nginx -t && sudo systemctl reload nginx && echo "==> Nginx reloaded" || echo "==> Warning: nginx reload failed"
+  else
+    echo "==> Warning: sudo not available — skipping nginx update (config changes will not apply)"
   fi
-
-  nginx -t && systemctl reload nginx && echo "==> Nginx reloaded" || echo "==> Warning: nginx reload failed"
 fi
 
 # Load env file if present
