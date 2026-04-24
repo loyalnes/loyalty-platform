@@ -214,12 +214,12 @@ export default async function LocaleLayout({ children, params }: Props) {
             <a href={`/${locale}`} className="nav-brand">{t('nav.brand')}</a>
             <div className="nav-center">
               <a href={`/${locale}#features`}>{t('nav.features')}</a>
-              <a href="/pricing/">{t('nav.pricing')}</a>
+              <a href={`/${locale}#pricing`}>{t('nav.pricing')}</a>
             </div>
             <div className="nav-actions">
               <LanguageSwitcher />
               <a href="/dashboard/" className="nav-link-secondary">{t('nav.login')}</a>
-              <a href="/signup/" className="nav-cta">{t('nav.cta')}</a>
+              <a href="/dashboard/signup" className="nav-cta">{t('nav.cta')}</a>
             </div>
           </nav>
 
@@ -235,7 +235,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 <div className="footer-section">
                   <div className="footer-section-title">{t('footer.product')}</div>
                   <a href={`/${locale}#features`}>{t('footer.linkFeatures')}</a>
-                  <a href="/pricing/">{t('footer.linkPricing')}</a>
+                  <a href={`/${locale}#pricing`}>{t('footer.linkPricing')}</a>
                 </div>
                 <div className="footer-section">
                   <div className="footer-section-title">{t('footer.company')}</div>

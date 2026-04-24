@@ -1,64 +1,59 @@
-export default function PricingPage() {
+'use client';
+
+import { useEffect } from 'react';
+import { routing } from '@/i18n/routing';
+
+/**
+ * /pricing/ now redirects to the pricing section on the localized
+ * homepage (/{locale}#pricing). Keeps old inbound links working while
+ * showing the single, up-to-date pricing section instead of a stale page.
+ */
+export default function PricingRedirect() {
+  useEffect(() => {
+    const supported = routing.locales as readonly string[];
+
+    const readCookie = () => {
+      const match = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]+)/);
+      return match ? decodeURIComponent(match[1]) : null;
+    };
+
+    const stored = readCookie() || (() => {
+      try { return localStorage.getItem('NEXT_LOCALE'); } catch { return null; }
+    })();
+
+    const fromNavigator = typeof navigator !== 'undefined'
+      ? (navigator.languages || [navigator.language])
+          .map((l) => l?.toLowerCase().split('-')[0])
+          .find((l) => l && supported.includes(l))
+      : null;
+
+    const chosen = (stored && supported.includes(stored) ? stored : null)
+      ?? fromNavigator
+      ?? routing.defaultLocale;
+
+    window.location.replace(`/${chosen}#pricing`);
+  }, []);
+
   return (
-    <section className="section">
-      <div className="section-header">
-        <h2>Simple, transparent pricing</h2>
-        <p>Start free. Upgrade when you grow.</p>
-      </div>
-
-      <div className="pricing-grid">
-        <div className="pricing-card">
-          <h3>Free</h3>
-          <div className="pricing-price">
-            &euro;0<span>/mo</span>
-          </div>
-          <ul className="pricing-features">
-            <li>1 location</li>
-            <li>Up to 50 loyalty cards</li>
-            <li>QR-based points</li>
-            <li>Basic analytics</li>
-          </ul>
-          <a href="/signup/" className="btn-hero btn-hero-primary" style={{ display: "block", textAlign: "center" }}>
-            Get Started
-          </a>
-        </div>
-
-        <div className="pricing-card featured">
-          <h3>Starter</h3>
-          <div className="pricing-price">
-            &euro;29<span>/mo</span>
-          </div>
-          <ul className="pricing-features">
-            <li>Up to 3 locations</li>
-            <li>Unlimited loyalty cards</li>
-            <li>Digital stamp cards</li>
-            <li>Review management</li>
-            <li>Customer analytics</li>
-            <li>Wallet passes</li>
-          </ul>
-          <a href="/signup/" className="btn-hero btn-hero-primary" style={{ display: "block", textAlign: "center" }}>
-            Start Free Trial
-          </a>
-        </div>
-
-        <div className="pricing-card">
-          <h3>Professional</h3>
-          <div className="pricing-price">
-            &euro;79<span>/mo</span>
-          </div>
-          <ul className="pricing-features">
-            <li>Unlimited locations</li>
-            <li>Everything in Starter</li>
-            <li>Advanced segmentation</li>
-            <li>Custom rewards</li>
-            <li>Priority support</li>
-            <li>API access</li>
-          </ul>
-          <a href="/signup/" className="btn-hero btn-hero-secondary" style={{ display: "block", textAlign: "center" }}>
-            Contact Sales
-          </a>
-        </div>
-      </div>
-    </section>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Helvetica Neue', Helvetica, system-ui, sans-serif",
+        color: '#0c0c0d',
+        background: '#f7f4ee',
+      }}
+    >
+      <noscript>
+        <p>
+          Go to pricing:
+          {' '}<a href="/en#pricing">English</a>
+          {' · '}<a href="/it#pricing">Italiano</a>
+          {' · '}<a href="/es#pricing">Español</a>
+        </p>
+      </noscript>
+    </div>
   );
 }
