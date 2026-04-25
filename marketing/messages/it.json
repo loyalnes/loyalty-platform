@@ -143,6 +143,28 @@
     "linkTerms": "Termini",
     "copyright": "Tutti i diritti riservati."
   },
+  "contact": {
+    "pageTitle": "Mettiti in contatto",
+    "pageSubtitle": "Hai una domanda? Siamo qui per te. Scegli il canale che preferisci.",
+    "whatsappLabel": "Risposta più veloce",
+    "whatsappCta": "Scrivici su WhatsApp",
+    "whatsappBody": "Clicca per scriverci direttamente. Di solito rispondiamo in pochi minuti.",
+    "whatsappPrefilledMessage": "Ciao Loyali! Vorrei più info sul programma fedeltà",
+    "emailFormTitle": "Oppure scrivici un messaggio",
+    "emailFormSubtitle": "Ti rispondiamo entro 24 ore.",
+    "emailField": "La tua email",
+    "emailPlaceholder": "tu@tuaattivita.com",
+    "messageField": "Il tuo messaggio",
+    "messagePlaceholder": "Raccontaci della tua attività e di cosa hai bisogno…",
+    "submitButton": "Invia messaggio",
+    "submittingButton": "Invio in corso…",
+    "successTitle": "Messaggio inviato!",
+    "successBody": "Grazie per averci scritto. Ti contatteremo presto.",
+    "errorBody": "Qualcosa è andato storto. Riprova o scrivici su WhatsApp."
+  },
+  "floatingChat": {
+    "ariaLabel": "Scrivici su WhatsApp"
+  },
   "languageSwitcher": {
     "label": "Lingua",
     "en": "English",

@@ -143,6 +143,28 @@
     "linkTerms": "Términos",
     "copyright": "Todos los derechos reservados."
   },
+  "contact": {
+    "pageTitle": "Ponte en contacto",
+    "pageSubtitle": "¿Tienes una pregunta? Estaremos encantados de ayudarte. Elige el canal que prefieras.",
+    "whatsappLabel": "Respuesta más rápida",
+    "whatsappCta": "Escríbenos por WhatsApp",
+    "whatsappBody": "Haz clic para chatear directamente con nosotros. Solemos responder en minutos.",
+    "whatsappPrefilledMessage": "¡Hola Loyali! Me gustaría más información sobre el programa de fidelidad",
+    "emailFormTitle": "O envíanos un mensaje",
+    "emailFormSubtitle": "Te responderemos en menos de 24 horas.",
+    "emailField": "Tu email",
+    "emailPlaceholder": "tu@tunegocio.com",
+    "messageField": "Tu mensaje",
+    "messagePlaceholder": "Cuéntanos un poco sobre tu negocio y qué buscas…",
+    "submitButton": "Enviar mensaje",
+    "submittingButton": "Enviando…",
+    "successTitle": "¡Mensaje enviado!",
+    "successBody": "Gracias por escribirnos. Te contactaremos pronto.",
+    "errorBody": "Algo ha fallado. Inténtalo de nuevo o escríbenos por WhatsApp."
+  },
+  "floatingChat": {
+    "ariaLabel": "Escríbenos por WhatsApp"
+  },
   "languageSwitcher": {
     "label": "Idioma",
     "en": "English",

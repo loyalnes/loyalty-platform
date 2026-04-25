@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -253,6 +254,8 @@ export default async function LocaleLayout({ children, params }: Props) {
               <p>&copy; {new Date().getFullYear()} Loyali. {t('footer.copyright')}</p>
             </div>
           </footer>
+
+          <FloatingWhatsApp />
         </NextIntlClientProvider>
       </body>
     </html>

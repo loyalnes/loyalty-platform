@@ -1456,3 +1456,188 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+
+/* ----------------- Contact page ----------------- */
+
+.contact-page .section-header h1 {
+  font-size: var(--text-4xl-responsive);
+  letter-spacing: var(--tracking-tighter);
+  margin-bottom: var(--space-md);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.contact-card {
+  background: var(--background-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  transition: all var(--duration-micro) var(--easing-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  position: relative;
+}
+
+.contact-card-wa {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contact-card-wa:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.contact-card-wa h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: var(--text-2xl-responsive);
+}
+
+.contact-card-wa p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.contact-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.contact-card-badge {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.contact-card-form h2 {
+  margin: 0;
+  font-size: var(--text-2xl-responsive);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.contact-field input,
+.contact-field textarea {
+  font: inherit;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  padding: 12px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--background-page);
+  transition: border-color var(--duration-micro) var(--easing-default);
+  resize: vertical;
+}
+
+.contact-field input:focus,
+.contact-field textarea:focus {
+  outline: none;
+  border-color: var(--interactive-default);
+}
+
+.contact-error {
+  color: #c62828;
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.contact-success {
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+
+.contact-success h3 {
+  color: var(--interactive-default);
+  margin-bottom: var(--space-sm);
+}
+
+/* ----------------- Floating WhatsApp button ----------------- */
+
+.floating-wa {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: #25d366;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  transition: transform var(--duration-micro) var(--easing-default);
+  text-decoration: none;
+}
+
+.floating-wa:hover {
+  transform: scale(1.08);
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.floating-wa:active {
+  transform: scale(0.95);
+}
+
+@media (min-width: 768px) {
+  .floating-wa {
+    width: 64px;
+    height: 64px;
+    bottom: 24px;
+    right: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-wa {
+    transition: none;
+  }
+}
