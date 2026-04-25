@@ -14,7 +14,7 @@ case "$ENV" in
     ENV_FILE="$DEPLOY_DIR/deploy/.env.staging"
     ;;
   production)
-    COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml"
+    COMPOSE_FILE="docker-compose.yml:docker-compose.prod.yml:docker-compose.umami.yml"
     ENV_FILE="$DEPLOY_DIR/deploy/.env.prod"
     ;;
   *)
@@ -59,6 +59,23 @@ if [ -f "$ENV_FILE" ]; then
   set -a
   source "$ENV_FILE"
   set +a
+fi
+
+# Generate Umami secrets on first run if missing (production only).
+# Stored in .env.prod so subsequent deploys reuse the same values.
+if [ "$ENV" = "production" ] && [ -f "$ENV_FILE" ]; then
+  if ! grep -q '^UMAMI_DB_PASSWORD=' "$ENV_FILE"; then
+    UMAMI_DB_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
+    echo "UMAMI_DB_PASSWORD=$UMAMI_DB_PASSWORD" >> "$ENV_FILE"
+    export UMAMI_DB_PASSWORD
+    echo "==> Generated UMAMI_DB_PASSWORD"
+  fi
+  if ! grep -q '^UMAMI_APP_SECRET=' "$ENV_FILE"; then
+    UMAMI_APP_SECRET=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
+    echo "UMAMI_APP_SECRET=$UMAMI_APP_SECRET" >> "$ENV_FILE"
+    export UMAMI_APP_SECRET
+    echo "==> Generated UMAMI_APP_SECRET"
+  fi
 fi
 
 export COMPOSE_FILE
