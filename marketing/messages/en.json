@@ -143,6 +143,28 @@
     "linkTerms": "Terms",
     "copyright": "All rights reserved."
   },
+  "contact": {
+    "pageTitle": "Get in touch",
+    "pageSubtitle": "Have a question? We'd love to hear from you. Pick the channel that works best for you.",
+    "whatsappLabel": "Quickest reply",
+    "whatsappCta": "Chat on WhatsApp",
+    "whatsappBody": "Tap the button to message us directly. We typically reply within minutes.",
+    "whatsappPrefilledMessage": "Hi Loyali! I'd like more info about the loyalty program",
+    "emailFormTitle": "Or send us a message",
+    "emailFormSubtitle": "We'll get back to you within 24 hours.",
+    "emailField": "Your email",
+    "emailPlaceholder": "you@yourbusiness.com",
+    "messageField": "Your message",
+    "messagePlaceholder": "Tell us a bit about your business and what you're looking for…",
+    "submitButton": "Send message",
+    "submittingButton": "Sending…",
+    "successTitle": "Message sent!",
+    "successBody": "Thanks for reaching out. We'll be in touch soon.",
+    "errorBody": "Something went wrong. Please try again or use WhatsApp."
+  },
+  "floatingChat": {
+    "ariaLabel": "Chat with us on WhatsApp"
+  },
   "languageSwitcher": {
     "label": "Language",
     "en": "English",
