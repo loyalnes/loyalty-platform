@@ -216,6 +216,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <div className="nav-center">
               <a href={`/${locale}#features`}>{t('nav.features')}</a>
               <a href={`/${locale}#pricing`}>{t('nav.pricing')}</a>
+              <a href={`/${locale}/contact/`}>{t('nav.contact')}</a>
             </div>
             <div className="nav-actions">
               <LanguageSwitcher />

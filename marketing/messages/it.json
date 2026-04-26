@@ -3,6 +3,7 @@
     "brand": "Loyali",
     "features": "Funzionalità",
     "pricing": "Prezzi",
+    "contact": "Contatti",
     "login": "Accedi",
     "cta": "Richiedi una demo"
   },
@@ -149,7 +150,7 @@
     "whatsappLabel": "Risposta più veloce",
     "whatsappCta": "Scrivici su WhatsApp",
     "whatsappBody": "Clicca per scriverci direttamente. Di solito rispondiamo in pochi minuti.",
-    "whatsappPrefilledMessage": "Ciao Loyali! Vorrei più info sul programma fedeltà",
+    "whatsappPrefilledMessage": "Ciao Loyali! Voglio trasformare i nuovi clienti in abituali, migliorare il mio ranking su Google e attivare il passaparola. Come funziona?",
     "emailFormTitle": "Oppure scrivici un messaggio",
     "emailFormSubtitle": "Ti rispondiamo entro 24 ore.",
     "emailField": "La tua email",
