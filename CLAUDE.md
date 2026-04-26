@@ -38,12 +38,18 @@ prisma/               → Database schema and migrations
 
 | Environment | URL | Notes |
 |---|---|---|
-| Production | `https://loyali.online` | Behind basic auth (user: `loyali`) |
+| Production | `https://loyali.online` | Public (basic auth removed in PR #45) |
 | Staging | `https://staging.loyali.online` | Behind basic auth |
-| Preview | `http://pr-N.preview.loyali.online` | Auto-deployed per PR |
+| Preview | `http://pr-N.preview.loyali.online` | Auto-deployed per PR, behind basic auth |
+| Analytics | `https://analytics.loyali.online` | Umami self-hosted (PR #49, awaiting DNS+SSL) |
 
 ### URL Paths
-- `/` — Marketing website (homepage, pricing, signup)
+- `/` — Marketing website (client-side redirect to `/{locale}` based on cookie / browser language)
+- `/en`, `/it`, `/es` — Localized marketing pages (next-intl, PR #44)
+- `/{locale}/contact/` — Contact page with WhatsApp + email form (PR #52)
+- `/contact/` — Locale-aware redirect to `/{locale}/contact/`
+- `/pricing/` — Locale-aware redirect to `/{locale}#pricing`
+- `/signup/` — Redirects to `/dashboard/signup`
 - `/dashboard/` — B2B merchant dashboard
 - `/app/` — B2C customer app (not yet built)
 - `/api/` — REST API (all routes under /api/ prefix)
@@ -104,33 +110,39 @@ Note: If port 5432 is in use, change the DB port in docker-compose.dev.yml.
 - Dashboard imports: `import '../../packages/ui/src/index.css'` in `dashboard/src/main.tsx`
 - Marketing imports: tokens copied via `prebuild` script in `marketing/package.json`
 
-### Marketing Website Redesign (In Progress)
+### Marketing Website (Live)
 
-The marketing website (`marketing/`) is being redesigned to match the style of https://luyoa.com/en/:
+The marketing website (`marketing/`) is live at `https://loyali.online/`.
 
-- **Design reference**: `/Users/eliobencini/luyoa.com/en/` (local files) + https://luyoa.com/en/ (live)
-- **Documentation**: `MARKETING_REDESIGN.md` — complete design system, task breakdown, progress tracking
-- **Key changes**:
-  - Font: Helvetica Neue (system font) instead of Inter
-  - Colors: Purple primary (#7750e7), beige/cream backgrounds (#f7f4ee)
-  - Typography: Large headings (48px) with tight letter-spacing (-0.07em)
-  - Border radius: Very rounded (40-54px for cards, pill buttons)
-  - Spacing: Generous padding and section spacing
-- **Custom tokens**: `marketing/src/app/tokens.css` (Luyoa-inspired, independent from dashboard)
-- **Task tracking**: See `MARKETING_REDESIGN.md` for 11-task breakdown and current progress
+- **Design**: Luyoa-style (`https://luyoa.com/en/`). Purple `#7750e7`, beige `#f7f4ee`, Helvetica Neue, rounded 40-54px.
+- **Tokens**: `marketing/src/app/tokens.css` (Luyoa-inspired, independent from dashboard).
+- **i18n**: `next-intl` with `[locale]` routes (`en`, `it`, `es`). Translations in `marketing/messages/`.
+- **Components**: `marketing/src/components/` — `LanguageSwitcher`, `FloatingWhatsApp`, `NewsletterSignup`.
+- **Contact constants**: `marketing/src/lib/contact.ts` — single source of truth for WhatsApp number, contact email, footer email/phone/location.
+- **Documentation**: see `MARKETING_REDESIGN.md` for full design system + post-launch PR log (#42 → #55).
+
+### Analytics (in progress)
+
+Self-hosted Umami at `https://analytics.loyali.online` — Phase 1 (infra) shipped in PR #49, awaiting DNS+SSL operator action. See `ANALYTICS_PLAN.md` and `ANALYTICS_SETUP.md`.
 
 ## Deploy Pipeline
 
-1. Push to `main` → GitHub Actions builds Docker image → pushes to GHCR → SSHs to server → runs `deploy/deploy.sh production`
+1. Push to `main` → GitHub Actions builds Docker image → pushes to GHCR → SSHs to server → runs `deploy/deploy.sh production`. A follow-up step then SSHs as `root` (same key) to copy the nginx config and reload (PR #47, needed because the deploy user can't sudo).
 2. Push to `staging` → same flow with `deploy/deploy.sh staging`
 3. PR opened → `preview.yml` builds image tagged `pr-N` → deploys preview on port 4000+N
 
+### Nginx config split (PR #48)
+The combined `deploy/nginx.conf` was split per environment so each host only references its own SSL certificates:
+- `deploy/nginx-production.conf` — `loyali.online` + preview subdomains + analytics:80 placeholder
+- `deploy/nginx-staging.conf` — `staging.loyali.online` only
+
 ### Deploy Script (`deploy/deploy.sh`)
-- Updates nginx config + basic auth
+- Selects the right `deploy/nginx-${ENV}.conf` and copies it via `sudo`
+- Generates `UMAMI_DB_PASSWORD` and `UMAMI_APP_SECRET` on first run (analytics)
 - Backs up database (production only)
 - Pulls Docker image from GHCR
 - Runs Prisma migrations (falls back to `db push`)
-- Starts containers
+- Starts containers (production also includes `docker-compose.umami.yml`)
 - Health check with auto-rollback on failure
 
 ## Commit Convention
