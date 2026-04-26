@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import NewsletterSignup from '@/components/NewsletterSignup';
+import { FOOTER_EMAIL, FOOTER_PHONE, FOOTER_LOCATION } from '@/lib/contact';
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -228,31 +230,33 @@ export default async function LocaleLayout({ children, params }: Props) {
           <main>{children}</main>
 
           <footer className="footer">
-            <div className="footer-content">
-              <div className="footer-brand">
+            <div className="footer-grid">
+              <div className="footer-join">
                 <p className="footer-logo">{t('nav.brand')}</p>
                 <p className="footer-tagline">{t('footer.tagline')}</p>
+                <p className="footer-eyebrow">{t('footer.joinTitle')}</p>
+                <p className="footer-join-subtitle">{t('footer.joinSubtitle')}</p>
+                <NewsletterSignup />
               </div>
-              <div className="footer-links">
-                <div className="footer-section">
-                  <div className="footer-section-title">{t('footer.product')}</div>
-                  <a href={`/${locale}#features`}>{t('footer.linkFeatures')}</a>
-                  <a href={`/${locale}#pricing`}>{t('footer.linkPricing')}</a>
-                </div>
-                <div className="footer-section">
-                  <div className="footer-section-title">{t('footer.company')}</div>
-                  <a href="/about/">{t('footer.linkAbout')}</a>
-                  <a href="/contact/">{t('footer.linkContact')}</a>
-                </div>
-                <div className="footer-section">
-                  <div className="footer-section-title">{t('footer.legal')}</div>
-                  <a href="/privacy/">{t('footer.linkPrivacy')}</a>
-                  <a href="/terms/">{t('footer.linkTerms')}</a>
-                </div>
+
+              <div className="footer-contact">
+                <p className="footer-eyebrow footer-eyebrow-right">{t('footer.contactTitle')}</p>
+                <a href={`mailto:${FOOTER_EMAIL}`} className="footer-contact-line">
+                  {FOOTER_EMAIL}
+                </a>
+                <a href={`tel:${FOOTER_PHONE.replace(/\s/g, '')}`} className="footer-contact-line">
+                  {FOOTER_PHONE}
+                </a>
+                <p className="footer-contact-line footer-contact-meta">{FOOTER_LOCATION}</p>
               </div>
             </div>
+
             <div className="footer-bottom">
               <p>&copy; {new Date().getFullYear()} Loyali. {t('footer.copyright')}</p>
+              <div className="footer-legal-links">
+                <a href="/privacy/">{t('footer.linkPrivacy')}</a>
+                <a href="/terms/">{t('footer.linkTerms')}</a>
+              </div>
             </div>
           </footer>
 

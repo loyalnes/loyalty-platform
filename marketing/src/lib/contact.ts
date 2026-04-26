@@ -5,7 +5,14 @@
  */
 
 export const WHATSAPP_NUMBER = '+34634716447';
+// Mailbox where every contact-form / newsletter signup actually lands.
+// FormSubmit relays here.
 export const CONTACT_EMAIL = 'Loyalicustomer@gmail.com';
+// Branded address shown in the footer (set up email forwarding so this
+// arrives at CONTACT_EMAIL, otherwise messages to it are lost).
+export const FOOTER_EMAIL = 'hello@loyali.online';
+export const FOOTER_PHONE = '+34 634 716 447';
+export const FOOTER_LOCATION = 'Madrid, Spain';
 
 /**
  * Builds a wa.me URL with an optional pre-filled message. Numbers are passed
