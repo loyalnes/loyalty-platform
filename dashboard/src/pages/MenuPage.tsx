@@ -7,7 +7,7 @@ import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 export default function MenuPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { logout } = useAuth();
+  const { logout, program } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -63,6 +63,57 @@ export default function MenuPage() {
   return (
     <div className="app-page stack-lg">
       <PWAInstallPrompt mode="menu" />
+
+      {/* Active Program Card — moved from LoyaltyHubPage so it's reachable from
+          any tab via the always-visible Menu in the bottom nav. */}
+      {program ? (
+        <div className="program-card-minimal aviator-shadow">
+          <button className="btn-edit" onClick={() => navigate('/setup')}>
+            {t('hub.edit')}
+          </button>
+          <div className="program-card-info">
+            <h2 className="program-card-name">{t('hub.activeProgram')}</h2>
+            <p className="program-card-type">
+              {program.type === 'STAMPS' ? t('hub.stampCard') : t('hub.pointsProgram')}
+            </p>
+            <div className="program-card-stats">
+              {program.type === 'STAMPS' && (
+                <>
+                  <div className="program-stat">
+                    <p className="program-stat-label">{t('hub.welcomeBonus')}</p>
+                    <p className="program-stat-value">{program.welcomeStamps || 0} {t('hub.stampsUnit')}</p>
+                  </div>
+                  <div className="program-stat">
+                    <p className="program-stat-label">{t('hub.goal')}</p>
+                    <p className="program-stat-value">{program.goalStamps} {t('hub.stampsUnit')}</p>
+                  </div>
+                </>
+              )}
+              {program.type === 'POINTS' && (
+                <>
+                  <div className="program-stat">
+                    <p className="program-stat-label">{t('hub.pointsPerEuro')}</p>
+                    <p className="program-stat-value">{program.pointsPerCurrency}</p>
+                  </div>
+                  <div className="program-stat">
+                    <p className="program-stat-label">{t('hub.tiers')}</p>
+                    <p className="program-stat-value">{program.rewardTiers.length}</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="program-card-minimal program-card-empty aviator-shadow">
+          <div className="empty-state-icon">🎯</div>
+          <div className="empty-state-title">{t('hub.noProgramTitle')}</div>
+          <div className="empty-state-desc">{t('hub.noProgramDesc')}</div>
+          <button className="btn btn-primary btn-sm" onClick={() => navigate('/setup')}>
+            {t('hub.setupProgram')}
+          </button>
+        </div>
+      )}
 
       {menuSections.map((section, idx) => (
         <section key={idx} className="app-menu-section">
