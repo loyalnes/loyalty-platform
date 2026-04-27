@@ -111,7 +111,7 @@ export default function HomePage() {
 
         <div className="benefits-grid">
           <div className="benefit-card benefit-loyalty reveal-stagger delay-1">
-            <div className="benefit-icon">💳</div>
+            <div className="benefit-icon">📱</div>
             <h3>{t('benefits.loyalty.title')}</h3>
             <p className="benefit-subtitle">{t('benefits.loyalty.subtitle')}</p>
             <p>{t('benefits.loyalty.body')}</p>

@@ -119,7 +119,7 @@ The marketing website (`marketing/`) is live at `https://loyali.online/`.
 - **i18n**: `next-intl` with `[locale]` routes (`en`, `it`, `es`). Translations in `marketing/messages/`.
 - **Components**: `marketing/src/components/` — `LanguageSwitcher`, `FloatingWhatsApp`, `NewsletterSignup`.
 - **Contact constants**: `marketing/src/lib/contact.ts` — single source of truth for WhatsApp number, contact email, footer email/phone/location.
-- **Documentation**: see `MARKETING_REDESIGN.md` for full design system + post-launch PR log (#42 → #61).
+- **Documentation**: see `MARKETING_REDESIGN.md` for full design system + post-launch PR log (#42 → #68).
 
 ### Dashboard (notable post-launch)
 
