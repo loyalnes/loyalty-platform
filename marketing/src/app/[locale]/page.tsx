@@ -130,7 +130,7 @@ export default function HomePage() {
       </section>
 
       {/* Benefits */}
-      <section className="benefits-section">
+      <section id="benefits" className="benefits-section">
         <div className="section-header reveal">
           <h2>{t('benefits.sectionTitle')}</h2>
           <p>{t('benefits.sectionSubtitle')}</p>
@@ -175,46 +175,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="section">
-        <div className="section-header reveal">
-          <h2>{t('features.sectionTitle')}</h2>
-          <p>{t('features.sectionSubtitle')}</p>
-        </div>
-
-        <div className="features-grid">
-          <div className="feature-card reveal-stagger delay-1">
-            <div className="feature-icon">📱</div>
-            <h3>{t('features.wallet.title')}</h3>
-            <p>{t('features.wallet.body')}</p>
-          </div>
-          <div className="feature-card reveal-stagger delay-2">
-            <div className="feature-icon">🔔</div>
-            <h3>{t('features.push.title')}</h3>
-            <p>{t('features.push.body')}</p>
-          </div>
-          <div className="feature-card reveal-stagger delay-3">
-            <div className="feature-icon">🎯</div>
-            <h3>{t('features.qr.title')}</h3>
-            <p>{t('features.qr.body')}</p>
-          </div>
-          <div className="feature-card reveal-stagger delay-4">
-            <div className="feature-icon">🎁</div>
-            <h3>{t('features.rewards.title')}</h3>
-            <p>{t('features.rewards.body')}</p>
-          </div>
-          <div className="feature-card reveal-stagger delay-5">
-            <div className="feature-icon">📊</div>
-            <h3>{t('features.analytics.title')}</h3>
-            <p>{t('features.analytics.body')}</p>
-          </div>
-          <div className="feature-card reveal-stagger delay-6">
-            <div className="feature-icon">⭐</div>
-            <h3>{t('features.reviews.title')}</h3>
-            <p>{t('features.reviews.body')}</p>
-          </div>
-        </div>
-      </section>
+      {/* Features section removed (PR #66) — content overlapped with the
+          Benefits cards above. Translation keys in features.* retained
+          in messages/*.json for re-introduction on a /features page. */}
 
       {/* Pricing */}
       <section id="pricing" className="section" style={{ background: 'var(--background-surface)' }}>
