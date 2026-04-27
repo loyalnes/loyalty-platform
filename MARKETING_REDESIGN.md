@@ -528,6 +528,39 @@ full picture without spelunking the git log.
 - **#61** — 10px breathing room between the app-header and the
   quick-actions grid on the Hub page.
 
+### Honest pre-launch & narrative cleanup (#63 → #68)
+- **#63** — Killed all fake social proof. Hero badge "Trusted by 500+"
+  → "Made for local businesses in Spain & Italy". Stats section (500+
+  businesses / 85% retention / 30k users / 24h) → "How Loyali works"
+  3-step + reassurance bar. Testimonials section removed.
+  `aggregateRating` dropped from `organizationSchema` and
+  `productSchema` (Google penalises fabricated ratings).
+- **#64** — Hero badges per-locale (IT only mentions Italia, ES only
+  España, EN keeps both). Secondary CTA gets its outlined-pill border
+  back; `align-items: flex-start` so both CTAs share the same top edge.
+  How-it-works copy upgraded after a parallel content-marketer +
+  SEO-specialist review.
+- **#65** — Tighter How-it-works copy after live iteration. Step 1:
+  "Plan how to keep customers loyal" (was tactical "Print your QR").
+  Step 2: "Customers add it to Apple **or** Google Wallet" (was Apple
+  only). Step 3 body: mixes 2 mechanics + 2 outcomes.
+- **#66** — Dropped the redundant Features section from the homepage:
+  every Features card was duplicated by a bullet inside one of the
+  Benefits cards. Features translation keys retained for re-use on a
+  future `/features` page. Navbar "Features" link repointed to
+  `#benefits`.
+- **#67** — Reversed course on #66 in a smarter way: Features section
+  back, How-it-works dropped instead (it overlapped with Benefits).
+  The unique payload of How-it-works (Apple/Google Wallet differentiator)
+  moved up into the hero subtitle. Translation keys for `howItWorks.*`
+  and `reassurance.*` retained.
+- **#68** — Operator preferred the original retention-led hero
+  subtitle, so reverted line 2 to "Aumenta visite ricorrenti, migliora
+  Google ranking, attiva passaparola" (and parallel locales). Wallet
+  message lives only in the Features card now. Loyalty benefits card
+  body changed from "pocket / tasca / bolsillo" to "phone / telefono /
+  teléfono" (less abstract). Loyalty card emoji 💳 → 📱 to match.
+
 ### Analytics (in progress — see ANALYTICS_PLAN.md)
 - **#49** — Phase 1: Umami container deployed (shared Postgres, isolated
   DB + user). Pending: DNS A record + certbot for
@@ -551,6 +584,9 @@ full picture without spelunking the git log.
 7. `/pricing/` redirects to `/{locale}#pricing` anchor
 8. `/signup/` redirects to `/dashboard/signup`
 9. Brand-purple favicon
+10. Page narrative is now Hero → Benefits (3 pillars) → Features
+    (6 capabilities) → Pricing → Final CTA → Footer — no fake stats,
+    no fake testimonials, no `aggregateRating` schema spam
 
 **Dashboard (https://loyali.online/dashboard/)**
 1. Active Program card at the top of the Menu page
