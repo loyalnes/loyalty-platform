@@ -97,37 +97,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it works — pre-launch trust: educational, no fake numbers */}
-      <section id="how-it-works" className="how-section">
-        <div className="section-header reveal">
-          <h2>{t('howItWorks.sectionTitle')}</h2>
-          <p>{t('howItWorks.sectionSubtitle')}</p>
-        </div>
-        <ol className="how-grid" aria-label={t('howItWorks.sectionTitle')}>
-          <li className="how-step reveal-stagger delay-1">
-            <div className="how-step-number" aria-hidden="true">1</div>
-            <h3>{t('howItWorks.step1.title')}</h3>
-            <p>{t('howItWorks.step1.body')}</p>
-          </li>
-          <li className="how-step reveal-stagger delay-2">
-            <div className="how-step-number" aria-hidden="true">2</div>
-            <h3>{t('howItWorks.step2.title')}</h3>
-            <p>{t('howItWorks.step2.body')}</p>
-          </li>
-          <li className="how-step reveal-stagger delay-3">
-            <div className="how-step-number" aria-hidden="true">3</div>
-            <h3>{t('howItWorks.step3.title')}</h3>
-            <p>{t('howItWorks.step3.body')}</p>
-          </li>
-        </ol>
-
-        <ul className="reassurance-bar reveal" aria-label="Reassurance">
-          <li>{t('reassurance.price')}</li>
-          <li>{t('reassurance.trial')}</li>
-          <li>{t('reassurance.cancel')}</li>
-          <li>{t('reassurance.noCard')}</li>
-        </ul>
-      </section>
+      {/* How-it-works section dropped (PR #67): the 3-step explainer
+          overlapped heavily with Benefits below. The wallet differentiator
+          (was Step 2) now lives in the hero subtitle. Translation keys in
+          howItWorks.* and reassurance.* retained for future re-use. */}
 
       {/* Benefits */}
       <section id="benefits" className="benefits-section">
@@ -175,9 +148,48 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features section removed (PR #66) — content overlapped with the
-          Benefits cards above. Translation keys in features.* retained
-          in messages/*.json for re-introduction on a /features page. */}
+      {/* Features — re-introduced after dropping How-it-works (PR #67).
+          Now plays a clear role: capabilities-level detail below the
+          high-level Benefits storytelling. */}
+      <section id="features" className="section">
+        <div className="section-header reveal">
+          <h2>{t('features.sectionTitle')}</h2>
+          <p>{t('features.sectionSubtitle')}</p>
+        </div>
+
+        <div className="features-grid">
+          <div className="feature-card reveal-stagger delay-1">
+            <div className="feature-icon">📱</div>
+            <h3>{t('features.wallet.title')}</h3>
+            <p>{t('features.wallet.body')}</p>
+          </div>
+          <div className="feature-card reveal-stagger delay-2">
+            <div className="feature-icon">🔔</div>
+            <h3>{t('features.push.title')}</h3>
+            <p>{t('features.push.body')}</p>
+          </div>
+          <div className="feature-card reveal-stagger delay-3">
+            <div className="feature-icon">🎯</div>
+            <h3>{t('features.qr.title')}</h3>
+            <p>{t('features.qr.body')}</p>
+          </div>
+          <div className="feature-card reveal-stagger delay-4">
+            <div className="feature-icon">🎁</div>
+            <h3>{t('features.rewards.title')}</h3>
+            <p>{t('features.rewards.body')}</p>
+          </div>
+          <div className="feature-card reveal-stagger delay-5">
+            <div className="feature-icon">📊</div>
+            <h3>{t('features.analytics.title')}</h3>
+            <p>{t('features.analytics.body')}</p>
+          </div>
+          <div className="feature-card reveal-stagger delay-6">
+            <div className="feature-icon">⭐</div>
+            <h3>{t('features.reviews.title')}</h3>
+            <p>{t('features.reviews.body')}</p>
+          </div>
+        </div>
+      </section>
 
       {/* Pricing */}
       <section id="pricing" className="section" style={{ background: 'var(--background-surface)' }}>
