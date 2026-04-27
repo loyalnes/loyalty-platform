@@ -498,21 +498,35 @@ full picture without spelunking the git log.
 - **#52** — New `/contact/` page (localized) with a big WhatsApp CTA
   and an email-form fallback. Floating WhatsApp button anchored
   bottom-right on every page. Form posts to FormSubmit, lands at
-  `Loyalicustomer@gmail.com` with subject "New Loyali contact".
+  `loyalicustomer@gmail.com` with subject "New Loyali contact".
 - **#54** — Footer redesigned Luyoa-style: left column "Join the
   community" with email signup → newsletter list (FormSubmit, subject
-  "New newsletter signup"); right column CONTACT (`hello@loyali.online`,
-  `+34 634 716 447`, `Madrid, Spain`); thin bottom strip with copyright
-  + Privacy/Terms.
-  - **Operator note**: `hello@loyali.online` is a branded address; set
-    up email forwarding (Cloudflare Email Routing) so messages arrive
-    in the Gmail inbox. Until then, mails to it bounce.
+  "New newsletter signup"); right column CONTACT, thin bottom strip
+  with copyright + Privacy/Terms.
+- **#59** — Lowercase the contact email constant
+  (`loyalicustomer@gmail.com`). Single source of truth in
+  `marketing/src/lib/contact.ts`.
+- **#60** — Footer CONTACT now surfaces the real mailbox
+  (`loyalicustomer@gmail.com`) instead of the unconfigured
+  `hello@loyali.online`. `FOOTER_EMAIL` aliases `CONTACT_EMAIL`; flip
+  to a branded address in one line once email forwarding is in place.
 
 ### Dashboard (cross-cutting)
 - **#41** — Auto-extract Google Place ID from a Maps URL in merchant
   settings (helper at `src/utils/googleMaps.ts`).
 - **#55** — Active Program card moved from the Hub page to the top of
   the Menu page so it's always one tap away via the bottom nav.
+- **#57** — Language picker added to the Menu page (initial top-level
+  section). Tapping a locale: switches UI immediately, persists in
+  localStorage, and PATCHes `/merchants/me` so the choice follows the
+  merchant across devices. Backend wiring (Merchant.preferredLocale,
+  AuthContext) was already in place.
+- **#58** — Language picker refactored: nested as an expandable item
+  inside the Settings group of the Menu, alongside Account Settings.
+  Row description shows current flag + locale name (e.g. 🇮🇹 Italiano);
+  tap to expand the 3-pill picker inline.
+- **#61** — 10px breathing room between the app-header and the
+  quick-actions grid on the Hub page.
 
 ### Analytics (in progress — see ANALYTICS_PLAN.md)
 - **#49** — Phase 1: Umami container deployed (shared Postgres, isolated
@@ -524,24 +538,36 @@ full picture without spelunking the git log.
 
 ## ✅ What's actually live right now
 
-1. Marketing site at `https://loyali.online/` (public, no basic auth)
-2. Three locales served at `/en`, `/it`, `/es` with auto-detect
-3. WhatsApp button on every page → `+34 634 716 447`
-4. `/contact/` page + email form
-5. Newsletter signup in the footer
-6. `/pricing/` redirects to `/{locale}#pricing` anchor
-7. `/signup/` redirects to `/dashboard/signup`
-8. Brand-purple favicon
-9. Active Program card on the dashboard Menu page
+**Marketing site (https://loyali.online/)**
+1. Public, no basic auth — anyone can browse
+2. Three locales `/en`, `/it`, `/es` with browser-based auto-detect
+3. WhatsApp button on every page → `+34 634 716 447` (localized
+   pre-filled message)
+4. `/contact/` page with WhatsApp CTA + email form (FormSubmit →
+   `loyalicustomer@gmail.com`)
+5. Newsletter signup in the footer (same FormSubmit pipeline, subject
+   "New newsletter signup")
+6. Footer CONTACT shows the real `loyalicustomer@gmail.com`
+7. `/pricing/` redirects to `/{locale}#pricing` anchor
+8. `/signup/` redirects to `/dashboard/signup`
+9. Brand-purple favicon
+
+**Dashboard (https://loyali.online/dashboard/)**
+1. Active Program card at the top of the Menu page
+2. Language picker inside Settings group (expandable; persists in
+   localStorage + backend `Merchant.preferredLocale`)
+3. 10px gap between app-header and quick-actions grid
 
 ## 🚧 Pending (non-blocking)
 
-- Set up email forwarding for `hello@loyali.online` → Gmail
 - Activate FormSubmit on first contact submission (one click in Gmail)
 - Phase 2-4 of the Umami analytics rollout (operator action + Phase 4 PR)
 - OG image (`1200x630`) for social previews
 - Replace hero video with a final production cut (current is the
   optimized 1.3MB placeholder)
+- (Optional) Set up email forwarding for `hello@loyali.online` → Gmail,
+  then flip `FOOTER_EMAIL` back to the branded address (one-line change
+  in `marketing/src/lib/contact.ts`)
 
 ---
 

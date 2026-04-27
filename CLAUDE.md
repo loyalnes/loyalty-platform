@@ -119,7 +119,13 @@ The marketing website (`marketing/`) is live at `https://loyali.online/`.
 - **i18n**: `next-intl` with `[locale]` routes (`en`, `it`, `es`). Translations in `marketing/messages/`.
 - **Components**: `marketing/src/components/` — `LanguageSwitcher`, `FloatingWhatsApp`, `NewsletterSignup`.
 - **Contact constants**: `marketing/src/lib/contact.ts` — single source of truth for WhatsApp number, contact email, footer email/phone/location.
-- **Documentation**: see `MARKETING_REDESIGN.md` for full design system + post-launch PR log (#42 → #55).
+- **Documentation**: see `MARKETING_REDESIGN.md` for full design system + post-launch PR log (#42 → #61).
+
+### Dashboard (notable post-launch)
+
+- **Active Program** card lives at the top of the Menu page (PR #55).
+- **Language picker** is an expandable item inside Menu → Settings (PR #58). Tap it to switch UI language; persists to localStorage and to `Merchant.preferredLocale` via `PATCH /merchants/me`.
+- See `dashboard/src/pages/MenuPage.tsx` and `dashboard/src/AuthContext.tsx` for the wiring.
 
 ### Analytics (in progress)
 
