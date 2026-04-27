@@ -8,7 +8,7 @@
     "cta": "Get a Demo"
   },
   "hero": {
-    "badge": "Trusted by 500+ Local Businesses",
+    "badge": "Made for local businesses in Spain & Italy",
     "titlePrefix": "Loyali.",
     "titleShimmer": "Where every visit counts.",
     "subtitleLine1": "Turn first-time customers into regulars.",
@@ -18,11 +18,27 @@
     "trust": "No credit card required",
     "videoAria": "Loyali loyalty card demo"
   },
-  "stats": {
-    "businesses": "Active Businesses",
-    "retention": "Customer Retention",
-    "users": "Active Users",
-    "goLive": "Go Live Time"
+  "howItWorks": {
+    "sectionTitle": "How Loyali works",
+    "sectionSubtitle": "Three steps. No technical skills. Live in an afternoon.",
+    "step1": {
+      "title": "Print your QR",
+      "body": "Customize rewards and branding in 5 minutes — no developer needed."
+    },
+    "step2": {
+      "title": "Customers scan it",
+      "body": "The loyalty card lands directly in their Apple or Google Wallet. No app to download."
+    },
+    "step3": {
+      "title": "They keep coming back",
+      "body": "Push notifications, Google reviews, and referrals — automatically."
+    }
+  },
+  "reassurance": {
+    "price": "€9/month",
+    "trial": "14-day free trial",
+    "cancel": "Cancel anytime",
+    "noCard": "No credit card required"
   },
   "benefits": {
     "sectionTitle": "Three Ways to Grow Your Business",

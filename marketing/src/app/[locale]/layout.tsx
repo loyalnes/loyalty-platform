@@ -138,13 +138,9 @@ export default async function LocaleLayout({ children, params }: Props) {
       "availableLanguage": ["en", "it", "es"],
       "areaServed": ["IT", "ES", "EU"],
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "500",
-      "bestRating": "5",
-      "worstRating": "1",
-    },
+    // aggregateRating intentionally omitted while pre-launch — Google
+    // penalizes fabricated review counts and we're at 0 customers.
+    // Re-add (with real numbers) once we collect verified reviews.
   };
 
   const productSchema = {
@@ -170,11 +166,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         "description": t('pricing.grow.tagline'),
       },
     ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "500",
-    },
+    // aggregateRating intentionally omitted (see organizationSchema above).
   };
 
   const faqSchema = {

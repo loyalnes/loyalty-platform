@@ -97,26 +97,36 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="stats-section">
-        <div className="stats-grid">
-          <div className="stat-item reveal">
-            <div className="stat-number">500+</div>
-            <div className="stat-label">{t('stats.businesses')}</div>
-          </div>
-          <div className="stat-item reveal">
-            <div className="stat-number">85%</div>
-            <div className="stat-label">{t('stats.retention')}</div>
-          </div>
-          <div className="stat-item reveal">
-            <div className="stat-number">30k+</div>
-            <div className="stat-label">{t('stats.users')}</div>
-          </div>
-          <div className="stat-item reveal">
-            <div className="stat-number">24h</div>
-            <div className="stat-label">{t('stats.goLive')}</div>
-          </div>
+      {/* How it works — pre-launch trust: educational, no fake numbers */}
+      <section className="how-section">
+        <div className="section-header reveal">
+          <h2>{t('howItWorks.sectionTitle')}</h2>
+          <p>{t('howItWorks.sectionSubtitle')}</p>
         </div>
+        <ol className="how-grid" aria-label={t('howItWorks.sectionTitle')}>
+          <li className="how-step reveal-stagger delay-1">
+            <div className="how-step-number" aria-hidden="true">1</div>
+            <h3>{t('howItWorks.step1.title')}</h3>
+            <p>{t('howItWorks.step1.body')}</p>
+          </li>
+          <li className="how-step reveal-stagger delay-2">
+            <div className="how-step-number" aria-hidden="true">2</div>
+            <h3>{t('howItWorks.step2.title')}</h3>
+            <p>{t('howItWorks.step2.body')}</p>
+          </li>
+          <li className="how-step reveal-stagger delay-3">
+            <div className="how-step-number" aria-hidden="true">3</div>
+            <h3>{t('howItWorks.step3.title')}</h3>
+            <p>{t('howItWorks.step3.body')}</p>
+          </li>
+        </ol>
+
+        <ul className="reassurance-bar reveal" aria-label="Reassurance">
+          <li>{t('reassurance.price')}</li>
+          <li>{t('reassurance.trial')}</li>
+          <li>{t('reassurance.cancel')}</li>
+          <li>{t('reassurance.noCard')}</li>
+        </ul>
       </section>
 
       {/* Benefits */}
@@ -250,30 +260,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="testimonials">
-        <div className="section-header reveal">
-          <h2>{t('testimonials.sectionTitle')}</h2>
-        </div>
-
-        <div className="testimonials-grid">
-          <div className="testimonial reveal-stagger delay-1">
-            <blockquote>&ldquo;{t('testimonials.one.quote')}&rdquo;</blockquote>
-            <div className="testimonial-author">{t('testimonials.one.author')}</div>
-            <div className="testimonial-role">{t('testimonials.one.role')}</div>
-          </div>
-          <div className="testimonial reveal-stagger delay-2">
-            <blockquote>&ldquo;{t('testimonials.two.quote')}&rdquo;</blockquote>
-            <div className="testimonial-author">{t('testimonials.two.author')}</div>
-            <div className="testimonial-role">{t('testimonials.two.role')}</div>
-          </div>
-          <div className="testimonial reveal-stagger delay-3">
-            <blockquote>&ldquo;{t('testimonials.three.quote')}&rdquo;</blockquote>
-            <div className="testimonial-author">{t('testimonials.three.author')}</div>
-            <div className="testimonial-role">{t('testimonials.three.role')}</div>
-          </div>
-        </div>
-      </section>
+      {/* Testimonials section removed pre-launch (PR #63 — no fake social
+          proof while we're at 0 customers). Translation keys retained in
+          messages/*.json for re-introduction once we have real pilot
+          quotes. */}
 
       {/* Final CTA */}
       <section className="cta-section reveal">

@@ -1749,3 +1749,96 @@ a.footer-contact-line:hover {
     transition: none;
   }
 }
+
+/* ---------- "How it works" section (replaces fake-numbers stats) ---------- */
+.how-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-md);
+}
+
+.how-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+.how-step {
+  background: var(--background-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.how-step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--interactive-default);
+  color: var(--color-white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.how-step h3 {
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.how-step p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--leading-relaxed);
+}
+
+/* Reassurance pill bar — concrete commitments below the steps */
+.reassurance-bar {
+  list-style: none;
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-xl) auto 0;
+  background: var(--background-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md) var(--space-lg);
+  max-width: max-content;
+}
+
+.reassurance-bar li {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.reassurance-bar li::before {
+  content: '✓';
+  color: var(--interactive-default);
+  margin-right: 8px;
+  font-weight: var(--weight-bold);
+}
+
+@media (min-width: 768px) {
+  .how-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xl);
+  }
+
+  .reassurance-bar {
+    padding: var(--space-md) var(--space-2xl);
+  }
+}

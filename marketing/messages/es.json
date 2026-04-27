@@ -8,7 +8,7 @@
     "cta": "Solicita una demo"
   },
   "hero": {
-    "badge": "La eligen más de 500 negocios locales",
+    "badge": "Hecho para negocios locales en España e Italia",
     "titlePrefix": "Loyali.",
     "titleShimmer": "Donde cada visita cuenta.",
     "subtitleLine1": "Convierte a los nuevos clientes en habituales.",
@@ -18,11 +18,27 @@
     "trust": "Sin tarjeta de crédito",
     "videoAria": "Demo de la tarjeta de fidelidad Loyali"
   },
-  "stats": {
-    "businesses": "Negocios activos",
-    "retention": "Retención de clientes",
-    "users": "Usuarios activos",
-    "goLive": "Tiempo de activación"
+  "howItWorks": {
+    "sectionTitle": "Cómo funciona Loyali",
+    "sectionSubtitle": "Tres pasos. Sin conocimientos técnicos. Online en una tarde.",
+    "step1": {
+      "title": "Imprime tu QR",
+      "body": "Personalizas recompensas y branding en 5 minutos — sin desarrolladores."
+    },
+    "step2": {
+      "title": "Los clientes lo escanean",
+      "body": "La tarjeta de fidelidad entra directamente en su Apple o Google Wallet. Sin descargar apps."
+    },
+    "step3": {
+      "title": "Vuelven una y otra vez",
+      "body": "Notificaciones push, reseñas de Google y referidos — automáticamente."
+    }
+  },
+  "reassurance": {
+    "price": "9€/mes",
+    "trial": "14 días gratis",
+    "cancel": "Cancelas cuando quieras",
+    "noCard": "Sin tarjeta de crédito"
   },
   "benefits": {
     "sectionTitle": "Tres formas de hacer crecer tu negocio",
