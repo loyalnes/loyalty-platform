@@ -1,13 +1,45 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Gift, Star, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
+import { SUPPORTED_LOCALES, type SupportedLocale } from '../i18n';
+import { updateMerchantMe } from '../api';
+
+const LOCALE_FLAGS: Record<SupportedLocale, string> = {
+  en: '🇬🇧',
+  it: '🇮🇹',
+  es: '🇪🇸',
+};
 
 export default function MenuPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { logout, program } = useAuth();
+  const [savingLocale, setSavingLocale] = useState<SupportedLocale | null>(null);
+
+  const currentLocale = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0] as SupportedLocale;
+
+  const handleLocaleChange = async (locale: SupportedLocale) => {
+    if (locale === currentLocale) return;
+
+    // 1. Apply locally — UI updates immediately, i18next-browser-languagedetector
+    //    persists it in localStorage under key "preferredLocale".
+    await i18n.changeLanguage(locale);
+    setSavingLocale(locale);
+
+    // 2. Persist on the backend so the choice follows the merchant across
+    //    devices. Best-effort: a network failure shouldn't undo the UI change.
+    try {
+      await updateMerchantMe({ preferredLocale: locale });
+    } catch {
+      // swallow — localStorage + i18n already applied; backend will pick up
+      // the next time the merchant edits settings
+    } finally {
+      setSavingLocale(null);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -114,6 +146,34 @@ export default function MenuPage() {
           </button>
         </div>
       )}
+
+      {/* Language picker — saved to localStorage immediately and synced to
+          the merchant record on the backend so it follows them across devices. */}
+      <section className="app-menu-section">
+        <div>
+          <span className="section-kicker">{t('locale.label')}</span>
+        </div>
+        <div className="lang-picker" role="radiogroup" aria-label={t('locale.label')}>
+          {SUPPORTED_LOCALES.map((locale) => {
+            const isActive = locale === currentLocale;
+            const isSaving = savingLocale === locale;
+            return (
+              <button
+                key={locale}
+                type="button"
+                role="radio"
+                aria-checked={isActive}
+                disabled={isSaving}
+                onClick={() => handleLocaleChange(locale)}
+                className={`lang-picker-option${isActive ? ' active' : ''}`}
+              >
+                <span className="lang-picker-flag" aria-hidden="true">{LOCALE_FLAGS[locale]}</span>
+                <span className="lang-picker-name">{t(`locale.${locale}`)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {menuSections.map((section, idx) => (
         <section key={idx} className="app-menu-section">
