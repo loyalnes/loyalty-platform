@@ -8,7 +8,7 @@
     "cta": "Richiedi una demo"
   },
   "hero": {
-    "badge": "Pensato per le attività locali in Italia e Spagna",
+    "badge": "Pensato per le attività locali in Italia",
     "titlePrefix": "Loyali.",
     "titleShimmer": "Perché ogni visita conta.",
     "subtitleLine1": "Trasforma i nuovi clienti in clienti abituali.",
@@ -20,18 +20,18 @@
   },
   "howItWorks": {
     "sectionTitle": "Come funziona Loyali",
-    "sectionSubtitle": "Tre passi. Nessuna competenza tecnica. Online in un pomeriggio.",
+    "sectionSubtitle": "Da zero al tuo primo cliente fedele in un pomeriggio.",
     "step1": {
-      "title": "Stampi il tuo QR",
-      "body": "Personalizzi premi e branding in 5 minuti, senza tecnici."
+      "title": "Crea il tuo programma fedeltà",
+      "body": "Scegli i premi, aggiungi il logo, genera il QR. Cinque minuti, senza tecnici."
     },
     "step2": {
-      "title": "I clienti lo scansionano",
-      "body": "La tessera fedeltà entra direttamente nel loro Apple o Google Wallet. Nessuna app da scaricare."
+      "title": "I clienti salvano la tessera su Apple Wallet",
+      "body": "Una scansione e la tessera fedeltà digitale entra nel Wallet di Apple o Google. Niente app, niente moduli."
     },
     "step3": {
-      "title": "Tornano sempre più",
-      "body": "Notifiche push, recensioni Google e referral — in automatico."
+      "title": "Falli tornare in automatico",
+      "body": "Notifiche push, richieste di recensione su Google e referral lavorano per te in background."
     }
   },
   "reassurance": {

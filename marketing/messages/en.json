@@ -20,18 +20,18 @@
   },
   "howItWorks": {
     "sectionTitle": "How Loyali works",
-    "sectionSubtitle": "Three steps. No technical skills. Live in an afternoon.",
+    "sectionSubtitle": "From zero to your first loyal customer this afternoon.",
     "step1": {
-      "title": "Print your QR",
-      "body": "Customize rewards and branding in 5 minutes — no developer needed."
+      "title": "Design your loyalty program",
+      "body": "Pick your rewards, add your logo, generate your QR. Five minutes, no developer."
     },
     "step2": {
-      "title": "Customers scan it",
-      "body": "The loyalty card lands directly in their Apple or Google Wallet. No app to download."
+      "title": "Customers save the card to Apple Wallet",
+      "body": "One scan and the digital loyalty card lands in their Apple or Google Wallet. No app, no signup form."
     },
     "step3": {
-      "title": "They keep coming back",
-      "body": "Push notifications, Google reviews, and referrals — automatically."
+      "title": "Bring them back on autopilot",
+      "body": "Push notifications, Google review requests and referrals run quietly in the background."
     }
   },
   "reassurance": {
