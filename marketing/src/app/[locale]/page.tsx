@@ -98,7 +98,7 @@ export default function HomePage() {
       </section>
 
       {/* How it works — pre-launch trust: educational, no fake numbers */}
-      <section className="how-section">
+      <section id="how-it-works" className="how-section">
         <div className="section-header reveal">
           <h2>{t('howItWorks.sectionTitle')}</h2>
           <p>{t('howItWorks.sectionSubtitle')}</p>
