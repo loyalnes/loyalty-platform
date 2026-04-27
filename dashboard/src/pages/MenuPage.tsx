@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Gift, Star, Settings, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { Gift, Star, Settings, HelpCircle, LogOut, ChevronRight, Languages } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../i18n';
@@ -13,11 +13,20 @@ const LOCALE_FLAGS: Record<SupportedLocale, string> = {
   es: '🇪🇸',
 };
 
+type MenuItem = {
+  icon: typeof Gift;
+  label: string;
+  description: string;
+  path: string;
+  color: string;
+};
+
 export default function MenuPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { logout, program } = useAuth();
   const [savingLocale, setSavingLocale] = useState<SupportedLocale | null>(null);
+  const [languageExpanded, setLanguageExpanded] = useState(false);
 
   const currentLocale = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0] as SupportedLocale;
 
@@ -34,8 +43,7 @@ export default function MenuPage() {
     try {
       await updateMerchantMe({ preferredLocale: locale });
     } catch {
-      // swallow — localStorage + i18n already applied; backend will pick up
-      // the next time the merchant edits settings
+      // swallow — localStorage + i18n already applied
     } finally {
       setSavingLocale(null);
     }
@@ -46,51 +54,57 @@ export default function MenuPage() {
     navigate('/login');
   };
 
-  const menuSections = [
+  const acquisitionItems: MenuItem[] = [
     {
-      title: t('menu.acquisition', 'Acquisition'),
-      items: [
-        {
-          icon: Gift,
-          label: t('menu.campaigns', 'Gamification Campaigns'),
-          description: t('menu.campaignsDesc', 'Scratch cards, spin wheels & prizes'),
-          path: '/campaigns',
-          color: '#667eea',
-        },
-        {
-          icon: Star,
-          label: t('menu.reviews', 'Customer Reviews'),
-          description: t('menu.reviewsDesc', 'QR code & review settings'),
-          path: '/show-review-qr',
-          color: '#667eea',
-        },
-      ],
+      icon: Gift,
+      label: t('menu.campaigns', 'Gamification Campaigns'),
+      description: t('menu.campaignsDesc', 'Scratch cards, spin wheels & prizes'),
+      path: '/campaigns',
+      color: '#667eea',
     },
     {
-      title: t('menu.settings', 'Settings'),
-      items: [
-        {
-          icon: Settings,
-          label: t('menu.account', 'Account Settings'),
-          description: t('menu.accountDesc', 'Profile, plan & preferences'),
-          path: '/settings',
-          color: '#666',
-        },
-      ],
-    },
-    {
-      title: t('menu.support', 'Support'),
-      items: [
-        {
-          icon: HelpCircle,
-          label: t('menu.help', 'Help & Documentation'),
-          description: t('menu.helpDesc', 'Guides, FAQs & support'),
-          path: '/help',
-          color: '#666',
-        },
-      ],
+      icon: Star,
+      label: t('menu.reviews', 'Customer Reviews'),
+      description: t('menu.reviewsDesc', 'QR code & review settings'),
+      path: '/show-review-qr',
+      color: '#667eea',
     },
   ];
+
+  const accountItem: MenuItem = {
+    icon: Settings,
+    label: t('menu.account', 'Account Settings'),
+    description: t('menu.accountDesc', 'Profile, plan & preferences'),
+    path: '/settings',
+    color: '#666',
+  };
+
+  const supportItem: MenuItem = {
+    icon: HelpCircle,
+    label: t('menu.help', 'Help & Documentation'),
+    description: t('menu.helpDesc', 'Guides, FAQs & support'),
+    path: '/help',
+    color: '#666',
+  };
+
+  const renderMenuItem = (item: MenuItem, key: string | number) => (
+    <div
+      key={key}
+      className="app-menu-item"
+      onClick={() => navigate(item.path)}
+    >
+      <div className="app-menu-item-body">
+        <div className={item.color === '#667eea' ? 'app-icon-chip app-icon-chip-primary' : 'app-icon-chip app-icon-chip-neutral'}>
+          <item.icon size={24} color={item.color} />
+        </div>
+        <div className="app-menu-item-text">
+          <div className="app-menu-item-title">{item.label}</div>
+          <div className="app-menu-item-description">{item.description}</div>
+        </div>
+        <ChevronRight size={20} color="#999" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="app-page stack-lg">
@@ -147,61 +161,91 @@ export default function MenuPage() {
         </div>
       )}
 
-      {/* Language picker — saved to localStorage immediately and synced to
-          the merchant record on the backend so it follows them across devices. */}
+      {/* Acquisition */}
       <section className="app-menu-section">
         <div>
-          <span className="section-kicker">{t('locale.label')}</span>
+          <span className="section-kicker">{t('menu.acquisition', 'Acquisition')}</span>
         </div>
-        <div className="lang-picker" role="radiogroup" aria-label={t('locale.label')}>
-          {SUPPORTED_LOCALES.map((locale) => {
-            const isActive = locale === currentLocale;
-            const isSaving = savingLocale === locale;
-            return (
-              <button
-                key={locale}
-                type="button"
-                role="radio"
-                aria-checked={isActive}
-                disabled={isSaving}
-                onClick={() => handleLocaleChange(locale)}
-                className={`lang-picker-option${isActive ? ' active' : ''}`}
-              >
-                <span className="lang-picker-flag" aria-hidden="true">{LOCALE_FLAGS[locale]}</span>
-                <span className="lang-picker-name">{t(`locale.${locale}`)}</span>
-              </button>
-            );
-          })}
+        <div className="app-menu-list">
+          {acquisitionItems.map((item, idx) => renderMenuItem(item, idx))}
         </div>
       </section>
 
-      {menuSections.map((section, idx) => (
-        <section key={idx} className="app-menu-section">
-          <div>
-            <span className="section-kicker">{section.title}</span>
-          </div>
-          <div className="app-menu-list">
-            {section.items.map((item, itemIdx) => (
-              <div
-                key={itemIdx}
-                className="app-menu-item"
-                onClick={() => navigate(item.path)}
-              >
-                <div className="app-menu-item-body">
-                  <div className={item.color === '#667eea' ? 'app-icon-chip app-icon-chip-primary' : 'app-icon-chip app-icon-chip-neutral'}>
-                      <item.icon size={24} color={item.color} />
-                  </div>
-                  <div className="app-menu-item-text">
-                    <div className="app-menu-item-title">{item.label}</div>
-                    <div className="app-menu-item-description">{item.description}</div>
-                  </div>
-                    <ChevronRight size={20} color="#999" />
+      {/* Settings — includes the inline-expandable Language item */}
+      <section className="app-menu-section">
+        <div>
+          <span className="section-kicker">{t('menu.settings', 'Settings')}</span>
+        </div>
+        <div className="app-menu-list">
+          {/* Language: tap to expand the 3-pill picker inline */}
+          <div className="app-menu-item">
+            <div
+              className="app-menu-item-body"
+              onClick={() => setLanguageExpanded((v) => !v)}
+              role="button"
+              aria-expanded={languageExpanded}
+              aria-controls="language-picker"
+            >
+              <div className="app-icon-chip app-icon-chip-neutral">
+                <Languages size={24} color="#666" />
+              </div>
+              <div className="app-menu-item-text">
+                <div className="app-menu-item-title">{t('locale.label')}</div>
+                <div className="app-menu-item-description">
+                  {LOCALE_FLAGS[currentLocale]} {t(`locale.${currentLocale}`)}
                 </div>
               </div>
-            ))}
+              <ChevronRight
+                size={20}
+                color="#999"
+                style={{
+                  transform: languageExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transition: 'transform 200ms ease',
+                }}
+              />
+            </div>
+            {languageExpanded && (
+              <div
+                id="language-picker"
+                className="lang-picker"
+                role="radiogroup"
+                aria-label={t('locale.label')}
+              >
+                {SUPPORTED_LOCALES.map((locale) => {
+                  const isActive = locale === currentLocale;
+                  const isSaving = savingLocale === locale;
+                  return (
+                    <button
+                      key={locale}
+                      type="button"
+                      role="radio"
+                      aria-checked={isActive}
+                      disabled={isSaving}
+                      onClick={() => handleLocaleChange(locale)}
+                      className={`lang-picker-option${isActive ? ' active' : ''}`}
+                    >
+                      <span className="lang-picker-flag" aria-hidden="true">{LOCALE_FLAGS[locale]}</span>
+                      <span className="lang-picker-name">{t(`locale.${locale}`)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </section>
-      ))}
+
+          {renderMenuItem(accountItem, 'account')}
+        </div>
+      </section>
+
+      {/* Support */}
+      <section className="app-menu-section">
+        <div>
+          <span className="section-kicker">{t('menu.support', 'Support')}</span>
+        </div>
+        <div className="app-menu-list">
+          {renderMenuItem(supportItem, 'help')}
+        </div>
+      </section>
 
       <div>
         <button onClick={handleLogout} className="app-danger-button">
