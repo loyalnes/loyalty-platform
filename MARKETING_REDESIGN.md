@@ -451,15 +451,103 @@ npm run build
 
 ---
 
-**Ultimo aggiornamento:** 2026-04-22
-**Completato:** 11/11 tasks (100%) ✅
-**Status:** Ready for production deployment
+**Ultimo aggiornamento:** 2026-04-26
+**Status:** ✅ Live in produzione su https://loyali.online (pubblico, no basic auth)
+
+---
+
+## 📜 Post-launch evolution (PR #41 → #55)
+
+After the original Luyoa redesign shipped (PR #42), the marketing site
+kept evolving. Quick log of every PR merged so future agents have the
+full picture without spelunking the git log.
+
+### Infrastructure / DevOps
+- **#43** — Fixed `build-and-test` CI: Postgres health check pointed at
+  the wrong DB and a TypeScript helper inside `prisma/migrations/data/`
+  was being treated as a SQL migration. Both unblocked.
+- **#46** — `deploy.sh` now uses `sudo -n` for nginx writes (the deploy
+  user isn't root); previously the nginx update block was silently
+  skipped after first bootstrap.
+- **#47** — `deploy.yml` falls back to a root-SSH step that copies the
+  nginx config when the deploy user can't sudo. Same SSH key works for
+  both `deploy` and `root` accounts (bootstrap copied authorized_keys).
+- **#48** — Split monolithic `deploy/nginx.conf` into per-environment
+  files (`nginx-production.conf`, `nginx-staging.conf`) so the prod
+  server doesn't need staging's SSL cert. Also re-routes `/pricing/`
+  and `/signup/` to localized homepage anchor / dashboard signup.
+- **#50** — Defer the `analytics.loyali.online` 443 server block until
+  certbot has issued the cert (chicken-and-egg avoided).
+
+### Public launch
+- **#45** — Removed nginx basic auth from production; staging + preview
+  subdomains stay protected. Dashboard keeps its own merchant login.
+
+### i18n (EN / IT / ES)
+- **#44** — `next-intl` v4 added with `[locale]` route segments. Root
+  `/` redirects client-side based on cookie → `localStorage` →
+  `Accept-Language` → `en`. Language switcher (🇬🇧🇮🇹🇪🇸) in the navbar
+  persists choice across sessions.
+- **#53** — WhatsApp pre-filled message rewritten in all 3 locales to
+  mirror the hero benefits (regulars / Google ranking / word-of-mouth).
+  Also added "Contact" link to the navbar.
+
+### Content & UX
+- **#51** — Favicon refreshed to brand purple `#7750e7` (was indigo
+  `#4F46E5` from the dashboard palette).
+- **#52** — New `/contact/` page (localized) with a big WhatsApp CTA
+  and an email-form fallback. Floating WhatsApp button anchored
+  bottom-right on every page. Form posts to FormSubmit, lands at
+  `Loyalicustomer@gmail.com` with subject "New Loyali contact".
+- **#54** — Footer redesigned Luyoa-style: left column "Join the
+  community" with email signup → newsletter list (FormSubmit, subject
+  "New newsletter signup"); right column CONTACT (`hello@loyali.online`,
+  `+34 634 716 447`, `Madrid, Spain`); thin bottom strip with copyright
+  + Privacy/Terms.
+  - **Operator note**: `hello@loyali.online` is a branded address; set
+    up email forwarding (Cloudflare Email Routing) so messages arrive
+    in the Gmail inbox. Until then, mails to it bounce.
+
+### Dashboard (cross-cutting)
+- **#41** — Auto-extract Google Place ID from a Maps URL in merchant
+  settings (helper at `src/utils/googleMaps.ts`).
+- **#55** — Active Program card moved from the Hub page to the top of
+  the Menu page so it's always one tap away via the bottom nav.
+
+### Analytics (in progress — see ANALYTICS_PLAN.md)
+- **#49** — Phase 1: Umami container deployed (shared Postgres, isolated
+  DB + user). Pending: DNS A record + certbot for
+  `analytics.loyali.online` + Phase 4 PR with the tracking script and
+  custom events. Operator runbook in `ANALYTICS_SETUP.md`.
+
+---
+
+## ✅ What's actually live right now
+
+1. Marketing site at `https://loyali.online/` (public, no basic auth)
+2. Three locales served at `/en`, `/it`, `/es` with auto-detect
+3. WhatsApp button on every page → `+34 634 716 447`
+4. `/contact/` page + email form
+5. Newsletter signup in the footer
+6. `/pricing/` redirects to `/{locale}#pricing` anchor
+7. `/signup/` redirects to `/dashboard/signup`
+8. Brand-purple favicon
+9. Active Program card on the dashboard Menu page
+
+## 🚧 Pending (non-blocking)
+
+- Set up email forwarding for `hello@loyali.online` → Gmail
+- Activate FormSubmit on first contact submission (one click in Gmail)
+- Phase 2-4 of the Umami analytics rollout (operator action + Phase 4 PR)
+- OG image (`1200x630`) for social previews
+- Replace hero video with a final production cut (current is the
+  optimized 1.3MB placeholder)
+
+---
 
 **Next Steps (Optional Enhancements):**
-1. **Create OG image** (1200x630px) - PRIORITY for social sharing
-2. Replace hero image placeholder with actual lifestyle photo (1200x800px WebP)
-3. Submit sitemap to Google Search Console + Bing Webmaster Tools
-4. Set up Google Analytics 4 tracking
-5. Add real customer testimonials and case studies
-6. Content optimization with content-marketer agent
-7. Backlink building (SaaS directories, guest posts)
+1. Submit sitemap to Google Search Console + Bing Webmaster Tools
+2. Real customer testimonials & case studies
+3. Content optimization with content-marketer agent
+4. Backlink building (SaaS directories, guest posts)
+5. Privacy Policy + Terms of Service pages (currently linked but 404)

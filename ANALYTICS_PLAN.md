@@ -4,6 +4,17 @@
 
 **Tool**: [Umami](https://umami.is/) — open-source, lightweight (~2KB script), privacy-first by design (no cookies, no PII, no fingerprinting).
 
+## Status (2026-04-26)
+
+| Phase | What | Status |
+|-------|------|--------|
+| 1 | Infra (Docker, DB init, nginx HTTP block, secrets) | ✅ Shipped in PR #49 + #50 — `umami` container running on the production VPS |
+| 2 | DNS A record `analytics.loyali.online` → `46.224.138.230` + `sudo certbot --nginx -d analytics.loyali.online` | ⏳ Waiting on operator |
+| 3 | First Umami login → change admin password → create website → send back UUID | ⏳ Waiting on operator |
+| 4 | Tracking `<script>` + custom events (CTAs, scroll, lang switch) + restore the `:443` server block in `nginx-production.conf` | ⏳ Pending Phase 3 UUID |
+
+Operator runbook for Phases 2 + 3: see [`ANALYTICS_SETUP.md`](./ANALYTICS_SETUP.md).
+
 ---
 
 ## 🎯 What we'll measure
