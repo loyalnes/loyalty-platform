@@ -7,7 +7,7 @@
 export const WHATSAPP_NUMBER = '+34634716447';
 // Mailbox where every contact-form / newsletter signup actually lands.
 // FormSubmit relays here.
-export const CONTACT_EMAIL = 'Loyalicustomer@gmail.com';
+export const CONTACT_EMAIL = 'loyalicustomer@gmail.com';
 // Branded address shown in the footer (set up email forwarding so this
 // arrives at CONTACT_EMAIL, otherwise messages to it are lost).
 export const FOOTER_EMAIL = 'hello@loyali.online';
