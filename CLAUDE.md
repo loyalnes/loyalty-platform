@@ -38,10 +38,10 @@ prisma/               → Database schema and migrations
 
 | Environment | URL | Notes |
 |---|---|---|
-| Production | `https://loyali.online` | Public (basic auth removed in PR #45) |
-| Staging | `https://staging.loyali.online` | Behind basic auth |
-| Preview | `http://pr-N.preview.loyali.online` | Auto-deployed per PR, behind basic auth |
-| Analytics | `https://analytics.loyali.online` | Umami self-hosted (PR #49, awaiting DNS+SSL) |
+| Production | `https://loyali.online` | Public, no basic auth (removed in PR #45) |
+| Staging | `https://staging.loyali.online` | Behind nginx basic auth |
+| Preview | `http://pr-N.preview.loyali.online` | Auto-deployed per PR, behind nginx basic auth |
+| Analytics | `https://analytics.loyali.online` | Umami self-hosted (PR #49, awaiting DNS+SSL — see `ANALYTICS.md`) |
 
 ### URL Paths
 - `/` — Marketing website (client-side redirect to `/{locale}` based on cookie / browser language)
@@ -92,7 +92,7 @@ Note: If port 5432 is in use, change the DB port in docker-compose.dev.yml.
 
 - **B2B (merchants)**: `X-API-Key` header with merchant UUID
 - **B2C (customers)**: Planned — email magic link + JWT Bearer token
-- **Nginx**: Basic auth on all environments (pre-launch)
+- **Nginx**: basic auth on `staging` + preview subdomains; production (`loyali.online`) is public. Catch-all server (IP/unknown host) requires basic auth.
 
 ## Database
 
@@ -119,26 +119,21 @@ The marketing website (`marketing/`) is live at `https://loyali.online/`.
 - **i18n**: `next-intl` with `[locale]` routes (`en`, `it`, `es`). Translations in `marketing/messages/`.
 - **Components**: `marketing/src/components/` — `LanguageSwitcher`, `FloatingWhatsApp`, `NewsletterSignup`.
 - **Contact constants**: `marketing/src/lib/contact.ts` — single source of truth for WhatsApp number, contact email, footer email/phone/location.
-- **Documentation**: see `MARKETING_REDESIGN.md` for full design system + post-launch PR log (#42 → #68).
+- **Documentation**: `MARKETING_REDESIGN.md` covers the design system. For post-launch history use `git log --grep=marketing`.
 
 ### Dashboard (notable post-launch)
 
-- **Active Program** card lives at the top of the Menu page (PR #55).
-- **Language picker** is an expandable item inside Menu → Settings (PR #58). Tap it to switch UI language; persists to localStorage and to `Merchant.preferredLocale` via `PATCH /merchants/me`.
-- See `dashboard/src/pages/MenuPage.tsx` and `dashboard/src/AuthContext.tsx` for the wiring.
-- **Home (`LoyaltyHubPage`)** redesigned. Full plan & rationale in `HOME_REDESIGN.md`. Top→bottom layout:
-  1. **Header**: greeting "Buongiorno, {name}" (Inter sentence-case, no more italic serif on home) + bell with red-dot indicator (replaces numeric badge). Bell tap opens `NotificationsSheet`.
-  2. **Today's Activity card** (`HomeTodayStrip`): "TODAY'S ACTIVITY" + "Live" pulsing indicator + 3 stats (`+N New | N Returning | N Reviews`) with vertical dividers. Lavender gradient (matches `app-surface-card-muted` tokens). Tap → `/insights`.
-  3. **Secondary row** of 3 lavender-gradient tiles: Show QR (`qr_code_2`), Redeem (`confirmation_number`), Reviews (`star`). The gamepad icon for Reviews has been retired.
-  4. **Hero "Add points"**: full-width chartreuse card (`#EFFF74`), olive title + "Reward your customers instantly" sublabel, dark olive circular FAB with white `+` on the right. Tap → `/scan-qr`.
-  - The legacy `HomeQuickStats` "Estadísticas" card was removed in PR #69.
-- **`NotificationsSheet`** (`dashboard/src/components/NotificationsSheet.tsx`): bottom sheet opened by header bell. Lists operational alerts from `getInsightsNotifications()`. Each alert tappable (deep-link via `actionPath`) and dismissible with 7-day cooldown persisted in `localStorage` (`notifications_dismissed_v1`). Empty state when none.
-- **`InsightsKpis`** extended with `returningCustomers` (loyalty cards created before window with ≥1 transaction inside) and `reviewsCount` (count of `MerchantFeedback` in window). See `src/services/statsService.ts` and `dashboard/src/api.ts`.
-- **Insights time filter** (`dashboard/src/components/TimeFilter.tsx`) uses presets `24h / 7d / 30d` plus a **Custom** chip that opens a bottom-sheet date range picker (with shortcuts: last 90d, 6m, 1y). State is `InsightsRange = { kind: 'preset', preset } | { kind: 'custom', from, to }` (see `dashboard/src/api.ts`). The backend accepts either `?period=` or `?from=&to=` ISO timestamps via `statsService.parseWindow` (`src/services/statsService.ts`).
+One line per shipped feature; details live in the linked doc or in the code.
+
+- **Home redesign** (PR #70) — `LoyaltyHubPage` with Today's Activity card, secondary tile row, chartreuse "Add points" hero, and bell → `NotificationsSheet`. See `HOME_REDESIGN.md` and `dashboard/src/components/NotificationsSheet.tsx`.
+- **Insights extensions** — `InsightsKpis` adds `returningCustomers` + `reviewsCount` (`src/services/statsService.ts`). Time filter has a Custom date-range chip; backend accepts `?period=` or `?from=&to=` (`dashboard/src/components/TimeFilter.tsx`).
+- **Menu page** — Active Program card at the top (PR #55). Language picker expandable inside Settings (PR #58); persists to `localStorage` and `Merchant.preferredLocale` via `PATCH /merchants/me` (`dashboard/src/pages/MenuPage.tsx`, `dashboard/src/AuthContext.tsx`).
+
+For post-launch dashboard history use `git log --grep=dashboard`.
 
 ### Analytics (in progress)
 
-Self-hosted Umami at `https://analytics.loyali.online` — Phase 1 (infra) shipped in PR #49, awaiting DNS+SSL operator action. See `ANALYTICS_PLAN.md` and `ANALYTICS_SETUP.md`.
+Self-hosted Umami at `https://analytics.loyali.online` — Phase 1 (infra) shipped in PR #49, awaiting DNS+SSL operator action. See `ANALYTICS.md`.
 
 ## Deploy Pipeline
 
@@ -177,6 +172,30 @@ Co-Authored-By: Paperclip <noreply@paperclip.ing>
 - `design/design-tokens.json` — Design token source (edit this)
 - `deploy/deploy.sh` — Main deployment script
 - `.github/workflows/` — CI/CD pipelines
+
+## Agent routing
+
+Use these specialized agents proactively without waiting to be asked. Match by topic, then invoke via the Agent tool with the right `subagent_type`:
+
+- **frontend-developer** — React 19 dashboard / Next.js marketing component work, hooks, state management.
+- **ui-designer** — visual design critique, design system, spacing, color, typography decisions.
+- **ux-researcher** — JTBD analysis, hierarchy critique, behavioral recommendations.
+- **product-manager** — scope decisions, prioritization, metric/outcome framing, paid-feature wedges.
+- **api-designer** — adding/refactoring `/api/*` endpoints, REST consistency, request/response shapes.
+- **postgres-pro** — Prisma schema migrations, advanced PostgreSQL features, indexes, constraints.
+- **database-optimizer** — slow queries, execution plan analysis, index strategy.
+- **architect-reviewer** — before shipping structural changes (new app, multi-tenancy, breaking infra changes).
+- **performance-engineer** — bundle size regressions, API latency, Vite build tuning.
+- **debugger** / **error-detective** — diagnosing reproducible bugs / triaging production errors.
+- **qa-expert** — defining test strategy, test plans for new features.
+- **compliance-auditor** — GDPR/data-handling review (we store customer PII; relevant pre-launch and before any data export feature).
+- **documentation-engineer** — when docs grow stale or sprawl (we just had to triage 2200+ lines of doc rot).
+- **code-reviewer** — second-opinion review of pending diff before commit on non-trivial changes.
+- **security-review** (built-in skill) — when touching auth, payments, PII, or external API surfaces.
+
+Spawn multiple in parallel when their concerns are independent (e.g., `ui-designer` + `ux-researcher` + `product-manager` for any home/feature redesign — that's exactly the cycle that produced HOME_REDESIGN.md).
+
+For multi-step tasks, use `Plan` to design the approach before opening the editor.
 
 ## Paperclip Integration
 
