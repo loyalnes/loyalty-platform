@@ -5,7 +5,10 @@
     "next": "Siguiente",
     "page": "Página {{page}} de {{totalPages}}",
     "signOut": "Cerrar sesión",
-    "na": "-"
+    "na": "-",
+    "apply": "Aplicar",
+    "cancel": "Cancelar",
+    "close": "Cerrar"
   },
   "nav": {
     "today": "Hoy",
@@ -73,11 +76,24 @@
     "goodMorning": "Buenos días",
     "goodAfternoon": "Buenas tardes",
     "goodEvening": "Buenas noches",
-    "title": "Loyalty Hub",
+    "title": "Merchant Hub",
+    "greeting": "Buenos días, {{name}}",
     "addPoints": "Añadir puntos",
+    "addPointsHint": "Recompensa a tus clientes al instante",
     "redeem": "Canjear",
     "showQR": "Mostrar QR",
     "reviews": "Reseñas",
+    "todayStrip": {
+      "heading": "Actividad de hoy",
+      "live": "En vivo",
+      "newUsers": "Nuevos",
+      "returning": "Recurrentes",
+      "reviews": "Reseñas",
+      "empty": "Sin actividad hoy · invita a un cliente"
+    },
+    "alertsStrip": {
+      "dismiss": "Ocultar"
+    },
     "activeProgram": "Programa Activo",
     "stampCard": "Tarjeta de Sellos",
     "pointsProgram": "Programa de Puntos",
@@ -109,6 +125,10 @@
     "activeCommunity": "Comunidad Activa",
     "newUsers": "Nuevos Usuarios"
   },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "Todo al día · sin notificaciones"
+  },
   "insights": {
     "title": "Estadísticas",
     "subtitle": "Pulso del negocio y sentimiento de clientes en una sola vista",
@@ -117,9 +137,12 @@
     "periods": {
       "24h": "24h",
       "7d": "7d",
-      "15d": "15d",
-      "30d": "30d"
+      "30d": "30d",
+      "custom": "Personalizar"
     },
+    "rangeFrom": "Desde",
+    "rangeTo": "Hasta",
+    "rangeHint": "Los datos comienzan desde la fecha de creación de tu cuenta ({{date}}).",
     "kpis": {
       "activeMembers": "Miembros activos",
       "newMembers": "Nuevos miembros",

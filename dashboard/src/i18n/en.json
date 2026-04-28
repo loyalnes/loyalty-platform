@@ -5,7 +5,10 @@
     "next": "Next",
     "page": "Page {{page}} of {{totalPages}}",
     "signOut": "Sign Out",
-    "na": "-"
+    "na": "-",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "nav": {
     "today": "Today",
@@ -73,11 +76,24 @@
     "goodMorning": "Good morning",
     "goodAfternoon": "Good afternoon",
     "goodEvening": "Good evening",
-    "title": "Loyalty Hub",
+    "title": "Merchant Hub",
+    "greeting": "Good morning, {{name}}",
     "addPoints": "Add points",
+    "addPointsHint": "Reward your customers instantly",
     "redeem": "Redeem",
     "showQR": "Show QR",
     "reviews": "Reviews",
+    "todayStrip": {
+      "heading": "Today's activity",
+      "live": "Live",
+      "newUsers": "New",
+      "returning": "Returning",
+      "reviews": "Reviews",
+      "empty": "No activity today · invite a customer"
+    },
+    "alertsStrip": {
+      "dismiss": "Dismiss"
+    },
     "activeProgram": "Active Program",
     "stampCard": "Stamp Card",
     "pointsProgram": "Points Program",
@@ -109,6 +125,10 @@
     "activeCommunity": "Active Community",
     "newUsers": "New Users"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "All caught up · no notifications"
+  },
   "insights": {
     "title": "Insights",
     "subtitle": "Business pulse and customer sentiment in one view",
@@ -117,9 +137,12 @@
     "periods": {
       "24h": "24h",
       "7d": "7d",
-      "15d": "15d",
-      "30d": "30d"
+      "30d": "30d",
+      "custom": "Custom"
     },
+    "rangeFrom": "From",
+    "rangeTo": "To",
+    "rangeHint": "Data starts from your account creation date ({{date}}).",
     "kpis": {
       "activeMembers": "Active members",
       "newMembers": "New members",

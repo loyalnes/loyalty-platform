@@ -1,18 +1,36 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../prisma";
 
-export type Period = "24h" | "7d" | "15d" | "30d";
+export type Period = "24h" | "7d" | "30d";
+
+export interface Window {
+  since: Date;
+  windowMs: number;
+}
 
 export function parsePeriod(value?: string): Period {
-  if (value === "24h" || value === "7d" || value === "15d" || value === "30d") return value;
+  if (value === "24h" || value === "7d" || value === "30d") return value;
   return "7d";
 }
 
 export function resolvePeriodMs(period: Period): number {
   if (period === "24h") return 24 * 60 * 60 * 1000;
-  if (period === "15d") return 15 * 24 * 60 * 60 * 1000;
   if (period === "30d") return 30 * 24 * 60 * 60 * 1000;
   return 7 * 24 * 60 * 60 * 1000;
+}
+
+export function parseWindow(query: { period?: string; from?: string; to?: string }): Window {
+  const { from, to } = query;
+  if (typeof from === "string" && typeof to === "string") {
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    if (!Number.isNaN(fromDate.getTime()) && !Number.isNaN(toDate.getTime()) && toDate > fromDate) {
+      return { since: fromDate, windowMs: toDate.getTime() - fromDate.getTime() };
+    }
+  }
+  const period = parsePeriod(query.period);
+  const windowMs = resolvePeriodMs(period);
+  return { since: new Date(Date.now() - windowMs), windowMs };
 }
 
 function calculateTrend(current: number | null, previous: number | null): number | null {
@@ -112,6 +130,8 @@ export interface InsightsKpis {
   newUsers: number;
   activeMembers: number;
   newMembers: number;
+  returningCustomers: number;
+  reviewsCount: number;
   nearRewardCustomers: number;
   avgRating: number | null;
   retention: number | null;
@@ -124,11 +144,8 @@ export interface InsightsKpis {
   };
 }
 
-export async function getDashboardStats(merchantId: string, period: Period = "7d"): Promise<InsightsKpis> {
-  const windowMs = resolvePeriodMs(period);
-
-  const now = new Date();
-  const since = new Date(now.getTime() - windowMs);
+export async function getDashboardStats(merchantId: string, window: Window = { since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), windowMs: 7 * 24 * 60 * 60 * 1000 }): Promise<InsightsKpis> {
+  const { since, windowMs } = window;
   const previousSince = new Date(since.getTime() - windowMs);
 
   const [
@@ -141,6 +158,7 @@ export async function getDashboardStats(merchantId: string, period: Period = "7d
     activeBeforePreviousSince,
     existingBeforePreviousSince,
     nearRewardCustomers,
+    returningCardsRaw,
   ] = await Promise.all([
     prisma.loyaltyCard.count({ where: { merchantId, status: "ACTIVE" } }),
     prisma.loyaltyCard.count({ where: { merchantId, status: "ACTIVE", createdAt: { lt: since } } }),
@@ -151,7 +169,26 @@ export async function getDashboardStats(merchantId: string, period: Period = "7d
     prisma.loyaltyCard.count({ where: { merchantId, status: "ACTIVE", createdAt: { lt: previousSince } } }),
     prisma.loyaltyCard.count({ where: { merchantId, createdAt: { lt: previousSince } } }),
     countNearRewardCustomers(merchantId),
+    prisma.loyaltyCard.findMany({
+      where: {
+        merchantId,
+        createdAt: { lt: since },
+        transactions: { some: { createdAt: { gte: since } } },
+      },
+      select: { id: true },
+    }),
   ]);
+
+  const returningCustomers = returningCardsRaw.length;
+
+  let reviewsCount = 0;
+  try {
+    reviewsCount = await prisma.merchantFeedback.count({
+      where: { merchantId, createdAt: { gte: since } },
+    });
+  } catch (err) {
+    if (!isMissingFeedbackTableError(err)) throw err;
+  }
 
   let avgRating: number | null = null;
   let previousAvgRating: number | null = null;
@@ -176,6 +213,8 @@ export async function getDashboardStats(merchantId: string, period: Period = "7d
     newUsers: newMembers,
     activeMembers,
     newMembers,
+    returningCustomers,
+    reviewsCount,
     nearRewardCustomers,
     avgRating,
     retention,
@@ -202,8 +241,8 @@ export interface FeedbackRow {
   source: string;
 }
 
-export async function getRecentFeedback(merchantId: string, period: Period, limit: number): Promise<FeedbackRow[]> {
-  const since = new Date(Date.now() - resolvePeriodMs(period));
+export async function getRecentFeedback(merchantId: string, window: Window, limit: number): Promise<FeedbackRow[]> {
+  const { since } = window;
 
   try {
     const feedbackRows = await prisma.merchantFeedback.findMany({
@@ -244,8 +283,8 @@ export interface SentimentData {
   distribution: { "1": number; "2": number; "3": number; "4": number; "5": number };
 }
 
-export async function getSentimentAnalysis(merchantId: string, period: Period): Promise<SentimentData> {
-  const since = new Date(Date.now() - resolvePeriodMs(period));
+export async function getSentimentAnalysis(merchantId: string, window: Window): Promise<SentimentData> {
+  const { since } = window;
 
   try {
     const feedbackRows = await prisma.merchantFeedback.findMany({
