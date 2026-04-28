@@ -695,12 +695,13 @@
       if (!customerAccessToken) return;
       try {
         const res = await fetch(`/api/wallet/access/${customerAccessToken}/google-pass`);
-        const data = await res.json();
-        if (data.saveUrl) {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.saveUrl) {
           window.location.href = data.saveUrl;
-        } else {
-          throw new Error('Failed to generate Google Wallet pass');
+          return;
         }
+        const reason = data.error || data.message || `HTTP ${res.status}`;
+        throw new Error(reason);
       } catch (err) {
         alert('Failed to add to Google Wallet: ' + err.message);
       }

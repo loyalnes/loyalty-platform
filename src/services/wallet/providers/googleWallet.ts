@@ -113,12 +113,16 @@ export async function generateGoogleWalletPass(summary: WalletSummary): Promise<
   const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
   const payload = Buffer.from(JSON.stringify(claims)).toString("base64url");
 
+  // Normalize escaped newlines — env files / GitHub secrets typically store
+  // the PEM key with literal `\n` instead of real newlines, which breaks PEM parsing.
+  const normalizedKey = serviceAccountKey.replace(/\\n/g, "\n");
+
   // Sign with RSA private key
   let signature: string;
   try {
     const sign = crypto.createSign("RSA-SHA256");
     sign.update(`${header}.${payload}`);
-    signature = sign.sign(serviceAccountKey, "base64url");
+    signature = sign.sign(normalizedKey, "base64url");
   } catch (err) {
     console.error("Google Wallet JWT signing error:", err);
     throw new Error(`Failed to sign JWT: ${err instanceof Error ? err.message : "Unknown error"}`);
