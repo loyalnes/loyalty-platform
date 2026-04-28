@@ -7,6 +7,7 @@ import FeedbackList from '../components/FeedbackList';
 import SentimentChart from '../components/SentimentChart';
 import InsightsAlerts from '../components/InsightsAlerts';
 import {
+  DEFAULT_RANGE,
   getInsightsFeedback,
   getInsightsKpis,
   getInsightsNotifications,
@@ -14,7 +15,7 @@ import {
   type FeedbackItem,
   type InsightsKpis,
   type InsightsNotification,
-  type InsightsPeriod,
+  type InsightsRange,
   type InsightsSentiment,
 } from '../api';
 import { formatNumber } from '../i18n';
@@ -43,7 +44,7 @@ const EMPTY_SENTIMENT: InsightsSentiment = {
 export default function InsightsPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const [period, setPeriod] = useState<InsightsPeriod>('7d');
+  const [range, setRange] = useState<InsightsRange>(DEFAULT_RANGE);
   const [kpis, setKpis] = useState<InsightsKpis>(DEFAULT_KPIS);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [sentiment, setSentiment] = useState<InsightsSentiment>(EMPTY_SENTIMENT);
@@ -58,9 +59,9 @@ export default function InsightsPage() {
       setLoading(true);
       try {
         const [nextKpis, nextFeedback, nextSentiment, nextNotifications] = await Promise.all([
-          getInsightsKpis(period),
-          getInsightsFeedback(period),
-          getInsightsSentiment(period),
+          getInsightsKpis(range),
+          getInsightsFeedback(range),
+          getInsightsSentiment(range),
           getInsightsNotifications(),
         ]);
         if (cancelled) return;
@@ -85,7 +86,7 @@ export default function InsightsPage() {
     return () => {
       cancelled = true;
     };
-  }, [period]);
+  }, [range]);
 
   const avgRatingValue = kpis.avgRating === null ? t('insights.noData') : kpis.avgRating.toFixed(1);
   const retentionValue = kpis.retention === null ? t('insights.noData') : `${kpis.retention.toFixed(1)}%`;
@@ -96,7 +97,7 @@ export default function InsightsPage() {
         <p className="app-page-subtitle">{t('insights.subtitle')}</p>
       </header>
 
-      <TimeFilter value={period} onChange={setPeriod} />
+      <TimeFilter value={range} onChange={setRange} />
 
       {loading ? (
         <div className="insights-loading">{t('insights.loading')}</div>

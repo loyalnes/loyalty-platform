@@ -3,15 +3,20 @@ import * as statsService from "../services/statsService";
 
 const router = Router();
 
+function windowFromReq(req: Request) {
+  return statsService.parseWindow({
+    period: req.query.period as string | undefined,
+    from: req.query.from as string | undefined,
+    to: req.query.to as string | undefined,
+  });
+}
+
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchantId = req.merchantId!;
-    const period = statsService.parsePeriod(req.query.period as string | undefined);
+    const stats = await statsService.getDashboardStats(merchantId, windowFromReq(req));
 
-    const stats = await statsService.getDashboardStats(merchantId, period);
-
-    // Add caching headers for mobile PWA
-    res.set('Cache-Control', 'private, max-age=300'); // 5 minutes
+    res.set('Cache-Control', 'private, max-age=300');
     res.set('Last-Modified', new Date().toUTCString());
 
     res.json(stats);
@@ -23,12 +28,10 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 router.get("/feedback", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchantId = req.merchantId!;
-    const period = statsService.parsePeriod(req.query.period as string | undefined);
     const limit = Number(req.query.limit || 6);
 
-    const feedback = await statsService.getRecentFeedback(merchantId, period, limit);
+    const feedback = await statsService.getRecentFeedback(merchantId, windowFromReq(req), limit);
 
-    // Cache feedback for 2 minutes
     res.set('Cache-Control', 'private, max-age=120');
 
     res.json({ feedback });
@@ -40,11 +43,9 @@ router.get("/feedback", async (req: Request, res: Response, next: NextFunction) 
 router.get("/sentiment", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchantId = req.merchantId!;
-    const period = statsService.parsePeriod(req.query.period as string | undefined);
 
-    const sentiment = await statsService.getSentimentAnalysis(merchantId, period);
+    const sentiment = await statsService.getSentimentAnalysis(merchantId, windowFromReq(req));
 
-    // Cache sentiment for 5 minutes
     res.set('Cache-Control', 'private, max-age=300');
 
     res.json(sentiment);

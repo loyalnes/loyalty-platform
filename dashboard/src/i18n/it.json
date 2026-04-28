@@ -5,7 +5,10 @@
     "next": "Successivo",
     "page": "Pagina {{page}} di {{totalPages}}",
     "signOut": "Esci",
-    "na": "-"
+    "na": "-",
+    "apply": "Applica",
+    "cancel": "Annulla",
+    "close": "Chiudi"
   },
   "nav": {
     "today": "Oggi",
@@ -73,11 +76,24 @@
     "goodMorning": "Buongiorno",
     "goodAfternoon": "Buon pomeriggio",
     "goodEvening": "Buonasera",
-    "title": "Loyalty Hub",
+    "title": "Merchant Hub",
+    "greeting": "Buongiorno, {{name}}",
     "addPoints": "Aggiungi punti",
+    "addPointsHint": "Premia i tuoi clienti all'istante",
     "redeem": "Riscatta",
     "showQR": "Mostra QR",
     "reviews": "Recensioni",
+    "todayStrip": {
+      "heading": "Attività di oggi",
+      "live": "Live",
+      "newUsers": "Nuovi",
+      "returning": "Ritornati",
+      "reviews": "Recensioni",
+      "empty": "Nessuna attività oggi · invita un cliente"
+    },
+    "alertsStrip": {
+      "dismiss": "Nascondi"
+    },
     "activeProgram": "Programma Attivo",
     "stampCard": "Carta Timbri",
     "pointsProgram": "Programma Punti",
@@ -109,6 +125,10 @@
     "activeCommunity": "Comunità Attiva",
     "newUsers": "Nuovi Utenti"
   },
+  "notifications": {
+    "title": "Notifiche",
+    "empty": "Tutto in ordine · nessuna notifica"
+  },
   "insights": {
     "title": "Statistiche",
     "subtitle": "Salute del business e sentiment clienti in un'unica vista",
@@ -117,9 +137,12 @@
     "periods": {
       "24h": "24h",
       "7d": "7g",
-      "15d": "15g",
-      "30d": "30g"
+      "30d": "30g",
+      "custom": "Personalizza"
     },
+    "rangeFrom": "Dal",
+    "rangeTo": "Al",
+    "rangeHint": "I dati partono dalla data di creazione del tuo account ({{date}}).",
     "kpis": {
       "activeMembers": "Membri attivi",
       "newMembers": "Nuovi membri",

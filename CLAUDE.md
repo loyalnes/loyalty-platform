@@ -126,6 +126,15 @@ The marketing website (`marketing/`) is live at `https://loyali.online/`.
 - **Active Program** card lives at the top of the Menu page (PR #55).
 - **Language picker** is an expandable item inside Menu → Settings (PR #58). Tap it to switch UI language; persists to localStorage and to `Merchant.preferredLocale` via `PATCH /merchants/me`.
 - See `dashboard/src/pages/MenuPage.tsx` and `dashboard/src/AuthContext.tsx` for the wiring.
+- **Home (`LoyaltyHubPage`)** redesigned. Full plan & rationale in `HOME_REDESIGN.md`. Top→bottom layout:
+  1. **Header**: greeting "Buongiorno, {name}" (Inter sentence-case, no more italic serif on home) + bell with red-dot indicator (replaces numeric badge). Bell tap opens `NotificationsSheet`.
+  2. **Today's Activity card** (`HomeTodayStrip`): "TODAY'S ACTIVITY" + "Live" pulsing indicator + 3 stats (`+N New | N Returning | N Reviews`) with vertical dividers. Lavender gradient (matches `app-surface-card-muted` tokens). Tap → `/insights`.
+  3. **Secondary row** of 3 lavender-gradient tiles: Show QR (`qr_code_2`), Redeem (`confirmation_number`), Reviews (`star`). The gamepad icon for Reviews has been retired.
+  4. **Hero "Add points"**: full-width chartreuse card (`#EFFF74`), olive title + "Reward your customers instantly" sublabel, dark olive circular FAB with white `+` on the right. Tap → `/scan-qr`.
+  - The legacy `HomeQuickStats` "Estadísticas" card was removed in PR #69.
+- **`NotificationsSheet`** (`dashboard/src/components/NotificationsSheet.tsx`): bottom sheet opened by header bell. Lists operational alerts from `getInsightsNotifications()`. Each alert tappable (deep-link via `actionPath`) and dismissible with 7-day cooldown persisted in `localStorage` (`notifications_dismissed_v1`). Empty state when none.
+- **`InsightsKpis`** extended with `returningCustomers` (loyalty cards created before window with ≥1 transaction inside) and `reviewsCount` (count of `MerchantFeedback` in window). See `src/services/statsService.ts` and `dashboard/src/api.ts`.
+- **Insights time filter** (`dashboard/src/components/TimeFilter.tsx`) uses presets `24h / 7d / 30d` plus a **Custom** chip that opens a bottom-sheet date range picker (with shortcuts: last 90d, 6m, 1y). State is `InsightsRange = { kind: 'preset', preset } | { kind: 'custom', from, to }` (see `dashboard/src/api.ts`). The backend accepts either `?period=` or `?from=&to=` ISO timestamps via `statsService.parseWindow` (`src/services/statsService.ts`).
 
 ### Analytics (in progress)
 

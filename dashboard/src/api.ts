@@ -124,11 +124,27 @@ export interface Stats {
   newUsers: number;
 }
 
-export type InsightsPeriod = '24h' | '7d' | '15d' | '30d';
+export type InsightsPeriod = '24h' | '7d' | '30d';
+
+export type InsightsRange =
+  | { kind: 'preset'; preset: InsightsPeriod }
+  | { kind: 'custom'; from: string; to: string };
+
+export const DEFAULT_RANGE: InsightsRange = { kind: 'preset', preset: '7d' };
+
+function rangeToQuery(range: InsightsRange): string {
+  if (range.kind === 'custom') {
+    const params = new URLSearchParams({ from: range.from, to: range.to });
+    return params.toString();
+  }
+  return `period=${range.preset}`;
+}
 
 export interface InsightsKpis {
   activeMembers: number;
   newMembers: number;
+  returningCustomers: number;
+  reviewsCount: number;
   nearRewardCustomers: number;
   avgRating: number | null;
   retention: number | null;
@@ -178,13 +194,15 @@ function asNullableNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
-export async function getInsightsKpis(period: InsightsPeriod = '7d'): Promise<InsightsKpis> {
-  const raw = await request<Record<string, unknown>>(`/stats?period=${period}`);
+export async function getInsightsKpis(range: InsightsRange = DEFAULT_RANGE): Promise<InsightsKpis> {
+  const raw = await request<Record<string, unknown>>(`/stats?${rangeToQuery(range)}`);
   const rawTrends = (raw.trends ?? {}) as Record<string, unknown>;
 
   return {
     activeMembers: asNumber(raw.activeMembers ?? raw.activeCommunity),
     newMembers: asNumber(raw.newMembers ?? raw.newUsers),
+    returningCustomers: asNumber(raw.returningCustomers),
+    reviewsCount: asNumber(raw.reviewsCount),
     nearRewardCustomers: asNumber(raw.nearRewardCustomers),
     avgRating: asNullableNumber(raw.avgRating),
     retention: asNullableNumber(raw.retention),
@@ -198,21 +216,22 @@ export async function getInsightsKpis(period: InsightsPeriod = '7d'): Promise<In
   };
 }
 
-export function getStats(period: InsightsPeriod = '7d'): Promise<Stats> {
-  return getInsightsKpis(period).then((kpis) => ({
+export function getStats(range: InsightsRange = DEFAULT_RANGE): Promise<Stats> {
+  return getInsightsKpis(range).then((kpis) => ({
     activeCommunity: kpis.activeMembers,
     newUsers: kpis.newMembers,
   }));
 }
 
-export async function getInsightsFeedback(period: InsightsPeriod = '7d', limit = 6): Promise<FeedbackItem[]> {
-  const params = new URLSearchParams({ period, limit: String(limit) });
-  const response = await request<{ feedback: FeedbackItem[] }>(`/stats/feedback?${params.toString()}`);
+export async function getInsightsFeedback(range: InsightsRange = DEFAULT_RANGE, limit = 6): Promise<FeedbackItem[]> {
+  const response = await request<{ feedback: FeedbackItem[] }>(
+    `/stats/feedback?${rangeToQuery(range)}&limit=${limit}`,
+  );
   return response.feedback;
 }
 
-export function getInsightsSentiment(period: InsightsPeriod = '7d') {
-  return request<InsightsSentiment>(`/stats/sentiment?period=${period}`);
+export function getInsightsSentiment(range: InsightsRange = DEFAULT_RANGE) {
+  return request<InsightsSentiment>(`/stats/sentiment?${rangeToQuery(range)}`);
 }
 
 export function getInsightsNotifications() {

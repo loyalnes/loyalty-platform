@@ -1,100 +1,57 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getInsightsKpis, type InsightsKpis } from '../api';
-import HomeQuickStats from '../components/HomeQuickStats';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { PullToRefresh } from '../components/ui/PullToRefresh';
+import HomeTodayStrip from '../components/HomeTodayStrip';
 
 export default function LoyaltyHubPage() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const [weekKpis, setWeekKpis] = useState<InsightsKpis>({
-    activeMembers: 0,
-    newMembers: 0,
-    nearRewardCustomers: 0,
-    avgRating: null,
-    retention: null,
-    trends: {
-      activeMembers: null,
-      newMembers: null,
-      nearRewardCustomers: null,
-      avgRating: null,
-      retention: null,
-    },
-  });
-  const [todayKpis, setTodayKpis] = useState<InsightsKpis>({
-    activeMembers: 0,
-    newMembers: 0,
-    nearRewardCustomers: 0,
-    avgRating: null,
-    retention: null,
-    trends: {
-      activeMembers: null,
-      newMembers: null,
-      nearRewardCustomers: null,
-      avgRating: null,
-      retention: null,
-    },
-  });
-
-  const loadDashboardData = async () => {
-    try {
-      const [today, week] = await Promise.all([
-        getInsightsKpis('24h'),
-        getInsightsKpis('7d')
-      ]);
-      setTodayKpis(today);
-      setWeekKpis(week);
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-    }
-  };
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
+  const { t } = useTranslation();
 
   return (
-    <PullToRefresh onRefresh={loadDashboardData}>
-      <div className="hub-page stack-lg">
+    <PullToRefresh onRefresh={async () => {}}>
+      <div className="hub-page">
         <PWAInstallPrompt mode="home" />
 
-      {/* Quick Actions - Hybrid Design */}
-      <div className="quick-actions">
-        <div className="quick-action-wrapper">
-          <button className="quick-action-fab add-points fab-primary expressive" onClick={() => navigate('/scan-qr')}>
+        <HomeTodayStrip />
+
+        <div className="hub-secondary">
+          <button
+            type="button"
+            className="hub-secondary-tile"
+            onClick={() => navigate('/show-qr')}
+          >
+            <span className="hub-secondary-icon material-symbols-outlined">qr_code_2</span>
+            <span className="hub-secondary-label">{t('hub.showQR')}</span>
+          </button>
+          <button type="button" className="hub-secondary-tile">
+            <span className="hub-secondary-icon material-symbols-outlined">confirmation_number</span>
+            <span className="hub-secondary-label">{t('hub.redeem')}</span>
+          </button>
+          <button
+            type="button"
+            className="hub-secondary-tile"
+            onClick={() => navigate('/show-review-qr')}
+          >
+            <span className="hub-secondary-icon material-symbols-outlined">star</span>
+            <span className="hub-secondary-label">{t('hub.reviews')}</span>
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="hub-hero"
+          onClick={() => navigate('/scan-qr')}
+          aria-label={t('hub.addPoints')}
+        >
+          <span className="hub-hero-content">
+            <span className="hub-hero-label">{t('hub.addPoints')}</span>
+            <span className="hub-hero-sublabel">{t('hub.addPointsHint')}</span>
+          </span>
+          <span className="hub-hero-fab" aria-hidden="true">
             <span className="material-symbols-outlined">add</span>
-          </button>
-          <span className="quick-action-label">{t('hub.addPoints')}</span>
-        </div>
-        <div className="quick-action-wrapper">
-          <button className="quick-action-fab redeem expressive accent-purple-bg">
-            <span className="material-symbols-outlined">redeem</span>
-          </button>
-          <span className="quick-action-label">{t('hub.redeem')}</span>
-        </div>
-        <div className="quick-action-wrapper">
-          <button className="quick-action-fab show-qr expressive accent-purple-bg" onClick={() => navigate('/show-qr')}>
-            <span className="material-symbols-outlined">qr_code_2</span>
-          </button>
-          <span className="quick-action-label">{t('hub.showQR')}</span>
-        </div>
-        <div className="quick-action-wrapper">
-          <button className="quick-action-fab contest expressive" onClick={() => navigate('/show-review-qr')}>
-            <span className="material-symbols-outlined">sports_esports</span>
-          </button>
-          <span className="quick-action-label">{t('hub.reviews')}</span>
-        </div>
-      </div>
-
-      <HomeQuickStats
-        todayKpis={todayKpis}
-        weekKpis={weekKpis}
-        locale={i18n.language}
-        onOpenInsights={() => navigate('/insights')}
-      />
-
+          </span>
+        </button>
       </div>
     </PullToRefresh>
   );
