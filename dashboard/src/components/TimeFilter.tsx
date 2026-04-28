@@ -22,11 +22,6 @@ function toISO(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function fromISO(s: string): Date {
-  const [y, m, day] = s.split('-').map(Number);
-  return new Date(Date.UTC(y, (m || 1) - 1, day || 1));
-}
-
 function safeDate(value: string | Date | undefined, fallback: Date): Date {
   if (!value) return fallback;
   const d = typeof value === 'string' ? new Date(value) : value;
@@ -39,11 +34,6 @@ function addMonths(d: Date, n: number): Date {
 
 function sameDay(a: Date, b: Date): boolean {
   return a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate();
-}
-
-function inRange(d: Date, from: Date | null, to: Date | null): boolean {
-  if (!from || !to) return false;
-  return d >= from && d <= to;
 }
 
 interface CalendarProps {

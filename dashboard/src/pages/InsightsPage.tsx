@@ -23,6 +23,8 @@ import { formatNumber } from '../i18n';
 const DEFAULT_KPIS: InsightsKpis = {
   activeMembers: 0,
   newMembers: 0,
+  returningCustomers: 0,
+  reviewsCount: 0,
   nearRewardCustomers: 0,
   avgRating: null,
   retention: null,
