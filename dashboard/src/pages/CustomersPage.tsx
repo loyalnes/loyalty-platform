@@ -125,15 +125,6 @@ export default function CustomersPage() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="app-page stack-lg">
-        <header className="app-page-header">
-          <div className="app-page-header-row">
-            <p className="app-page-subtitle">{t('customers.searchPlaceholder')}</p>
-            <button type="button" className="app-action-icon" onClick={handleRefresh}>
-              <RefreshCw size={16} />
-            </button>
-          </div>
-        </header>
-
       <section className="app-surface-card app-surface-card-muted">
         <div className="app-surface-body app-form-stack">
           <div className="customers-search-wrap">
@@ -203,12 +194,6 @@ export default function CustomersPage() {
               <div className="customers-status-message">
                 <RefreshCw size={20} className="spin" />
                 <p>{t('common.loading')}</p>
-              </div>
-            )}
-
-            {!hasMore && customers.length > 0 && (
-              <div className="customers-status-message customers-status-message-muted">
-                {t('customers.endOfList') || 'End of list'}
               </div>
             )}
 
