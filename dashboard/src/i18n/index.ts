@@ -70,13 +70,13 @@ i18n
       it: { translation: it },
       es: { translation: es },
     },
-    fallbackLng: 'en',
+    fallbackLng: 'es',
     supportedLngs: SUPPORTED_LOCALES as unknown as string[],
     interpolation: {
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      order: ['localStorage'],
       lookupLocalStorage: 'preferredLocale',
       caches: ['localStorage'],
     },

@@ -59,6 +59,7 @@
     "configureStamps": "Configure stamps",
     "configurePoints": "Configure points",
     "stampsForReward": "How many stamps for a reward?",
+    "stampsHint": "Collect {{count}} stamps → free reward",
     "welcomeStamps": "Welcome Stamps (Stamps for new members)",
     "stamps": "Stamps",
     "pointsPerEuro": "Points per Euro spent",

@@ -83,15 +83,9 @@ export default function SetupWizardPage() {
               <ChevronLeft size={20} />
             </button>
             <div style={{ flex: 1 }}>
-              <span className="app-page-kicker">{t('setup.title')}</span>
               <h1 className="app-page-title">{t('setup.title')}</h1>
             </div>
           </div>
-          <p className="app-page-subtitle">
-            {step === 2
-              ? (type === 'STAMPS' ? t('setup.configureStamps') : t('setup.configurePoints'))
-              : t('setup.defineRewards')}
-          </p>
         </header>
       )}
 
@@ -144,13 +138,6 @@ export default function SetupWizardPage() {
       {/* Step 2: Configure */}
       {step === 2 && (
         <div className="app-form-card app-form-stack">
-          <div>
-            <span className="section-kicker">{t('setup.title')}</span>
-            <h2 className="app-section-title">
-            {type === 'STAMPS' ? t('setup.configureStamps') : t('setup.configurePoints')}
-            </h2>
-          </div>
-
           {type === 'STAMPS' ? (
             <>
               <div className="config-field">
@@ -164,6 +151,7 @@ export default function SetupWizardPage() {
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
                 </div>
+                <p className="config-hint">{t('setup.stampsHint', { count: Number(goalStamps) || 0 })}</p>
               </div>
               <div className="config-field">
                 <label>{t('setup.welcomeStamps')}</label>
@@ -216,7 +204,6 @@ export default function SetupWizardPage() {
       {step === 3 && (
         <div className="app-form-card app-form-stack">
           <div>
-            <span className="section-kicker">{t('setup.defineRewards')}</span>
             <h2 className="app-section-title">{t('setup.defineRewards')}</h2>
           </div>
 

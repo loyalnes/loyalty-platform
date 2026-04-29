@@ -59,6 +59,7 @@
     "configureStamps": "Configura timbri",
     "configurePoints": "Configura punti",
     "stampsForReward": "Quanti timbri per un premio?",
+    "stampsHint": "Raccogli {{count}} timbri → premio gratis",
     "welcomeStamps": "Timbri di Benvenuto (per nuovi membri)",
     "stamps": "Timbri",
     "pointsPerEuro": "Punti per Euro speso",
