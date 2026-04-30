@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { listCustomers, getCustomerCard, type MerchantCustomer, type CustomerCardDetail } from '../api';
@@ -21,6 +21,7 @@ export default function CustomersPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [totalAll, setTotalAll] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerCardDetail | null>(null);
   const [loadingCustomerDetail, setLoadingCustomerDetail] = useState(false);
@@ -48,6 +49,7 @@ export default function CustomersPage() {
       }
 
       setTotal(res.total);
+      if (!currentQuery) setTotalAll(res.total);
       // Calculate hasMore based on total
       setHasMore(targetPage * PAGE_SIZE < res.total);
     } catch {
@@ -66,11 +68,6 @@ export default function CustomersPage() {
     setCustomers([]);
     void loadCustomers(1, debouncedQuery, false);
   }, [debouncedQuery, loadCustomers]);
-
-  const summary = useMemo(() => {
-    const active = customers.filter((item) => item.status === 'ACTIVE').length;
-    return { total: customers.length, active };
-  }, [customers]);
 
   const handleRefresh = async () => {
     setPage(1);
@@ -138,16 +135,13 @@ export default function CustomersPage() {
             />
           </div>
 
-          <div className="app-stat-grid">
-            <div className="app-stat-card card-technical">
-              <div className="app-stat-label kpi-label">{t('customers.total')}</div>
-              <div className="app-stat-value kpi-value text-data">{formatNumber(total, i18n.language)}</div>
-            </div>
-            <div className="app-stat-card card-technical">
-              <div className="app-stat-label kpi-label">{t('customers.active')}</div>
-              <div className="app-stat-value kpi-value text-data">{formatNumber(summary.active, i18n.language)}</div>
-            </div>
-          </div>
+          <p className="customers-count">
+            {t('customers.countLabel', {
+              count: total,
+              total: formatNumber(total, i18n.language),
+              all: formatNumber(totalAll, i18n.language),
+            })}
+          </p>
         </div>
       </section>
 
