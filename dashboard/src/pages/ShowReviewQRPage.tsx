@@ -44,6 +44,9 @@ export default function ShowReviewQRPage() {
           <button className="app-page-back" onClick={() => navigate(-1)}>
             <X size={20} />
           </button>
+          <div className="app-page-header-copy">
+            <h1 className="app-page-title">{t('showReviewQR.headerTitle', { defaultValue: 'Reviews' })}</h1>
+          </div>
         </div>
       </header>
 
