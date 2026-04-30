@@ -61,6 +61,7 @@ model Customer {
   avatarUrl         String?   @map("avatar_url")
   acquisitionSource String?   @map("acquisition_source")
   preferredLocale   Locale    @default(en) @map("preferred_locale")
+  gdprConsentAt     DateTime? @map("gdpr_consent_at")
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 

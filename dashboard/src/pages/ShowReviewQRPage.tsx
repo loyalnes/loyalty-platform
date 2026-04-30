@@ -44,12 +44,7 @@ export default function ShowReviewQRPage() {
           <button className="app-page-back" onClick={() => navigate(-1)}>
             <X size={20} />
           </button>
-          <div className="app-page-header-copy">
-            <span className="app-page-kicker">{t('showReviewQR.title', 'Customer Reviews')}</span>
-            <h1 className="app-page-title">{t('showReviewQR.title', 'Customer Reviews')}</h1>
-          </div>
         </div>
-        <p className="app-page-subtitle">{t('showReviewQR.subtitle', 'Scan to leave a review')}</p>
       </header>
 
       <section className="app-surface-card app-surface-card-muted">

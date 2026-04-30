@@ -3,10 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { PullToRefresh } from '../components/ui/PullToRefresh';
 import HomeTodayStrip from '../components/HomeTodayStrip';
+import { useAuth } from '../AuthContext';
 
 export default function LoyaltyHubPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { program } = useAuth();
+  const hasProgram = Boolean(program);
 
   return (
     <PullToRefresh onRefresh={async () => {}}>
@@ -16,14 +19,16 @@ export default function LoyaltyHubPage() {
         <HomeTodayStrip />
 
         <div className="hub-secondary">
-          <button
-            type="button"
-            className="hub-secondary-tile"
-            onClick={() => navigate('/show-qr')}
-          >
-            <span className="hub-secondary-icon material-symbols-outlined">qr_code_2</span>
-            <span className="hub-secondary-label">{t('hub.showQR')}</span>
-          </button>
+          {hasProgram && (
+            <button
+              type="button"
+              className="hub-secondary-tile"
+              onClick={() => navigate('/show-qr')}
+            >
+              <span className="hub-secondary-icon material-symbols-outlined">qr_code_2</span>
+              <span className="hub-secondary-label">{t('hub.showQR')}</span>
+            </button>
+          )}
           <button type="button" className="hub-secondary-tile">
             <span className="hub-secondary-icon material-symbols-outlined">confirmation_number</span>
             <span className="hub-secondary-label">{t('hub.redeem')}</span>

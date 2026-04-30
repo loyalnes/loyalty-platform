@@ -465,6 +465,11 @@
     async function loadCampaign() {
       try {
         const res = await fetch(`/api/gamification/${merchantId}`);
+        if (res.status === 404) {
+          // No active campaign — fall back to plain join flow
+          window.location.replace(`/app/join/${merchantId}`);
+          return;
+        }
         if (!res.ok) throw new Error('Campaign not found');
 
         campaign = await res.json();

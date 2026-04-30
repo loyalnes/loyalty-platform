@@ -219,5 +219,41 @@
       "question": "¿Cuánto cuesta Loyali?",
       "answer": "Loyali ofrece dos planes: Core (9€/mes) con todo lo que necesitas para lanzar tu programa de fidelidad, y Grow (12€/mes) con campañas de notificaciones push y analytics avanzados. Todos los planes incluyen una prueba gratuita de 14 días sin tarjeta de crédito."
     }
+  },
+  "privacy": {
+    "title": "Política de privacidad",
+    "updated": "Última actualización: abril de 2026",
+    "intro": {
+      "title": "Introducción",
+      "body": "Esta política explica cómo Loyali y los comercios que utilizan Loyali (\"nosotros\") recopilan, usan y protegen tus datos personales cuando te unes a un programa de fidelidad a través de nuestra plataforma."
+    },
+    "controller": {
+      "title": "Responsable del tratamiento",
+      "body": "Cuando te unes al programa de fidelidad de un comercio, ese comercio es el responsable del tratamiento de tus datos. Loyali (operado por Loyalnes) actúa como encargado del tratamiento por cuenta del comercio, proporcionando la plataforma técnica.\n\nPara consultas sobre cómo un comercio específico usa tus datos, contacta directamente con el comercio."
+    },
+    "data": {
+      "title": "Datos que recopilamos",
+      "body": "Recopilamos solo la información que proporcionas al unirte: nombre, apellido (opcional), email y teléfono (opcional). También guardamos la actividad del programa (puntos, premios canjeados, historial de visitas) generada al usarlo."
+    },
+    "purposes": {
+      "title": "Cómo usamos tus datos",
+      "body": "Tus datos se usan para: (1) emitir y gestionar tu tarjeta digital, incluidos los pases de Apple Wallet y Google Pay; (2) registrar puntos, premios y actividad del programa; (3) enviarte notificaciones transaccionales relacionadas con tu tarjeta; (4) proporcionar al comercio analytics agregados y anónimos."
+    },
+    "legal": {
+      "title": "Base legal",
+      "body": "Tratamos tus datos sobre la base de tu consentimiento explícito (art. 6.1.a RGPD), prestado al marcar la casilla del formulario de alta. Puedes retirar el consentimiento en cualquier momento."
+    },
+    "retention": {
+      "title": "Conservación",
+      "body": "Tus datos se conservan mientras tu tarjeta esté activa y hasta 24 meses de inactividad, tras los cuales se anonimizan o eliminan salvo obligación legal."
+    },
+    "rights": {
+      "title": "Tus derechos",
+      "body": "Conforme al RGPD tienes derecho de acceso, rectificación, supresión, limitación, portabilidad y oposición al tratamiento. Para ejercerlos contacta con el comercio o escribe a privacy@loyali.online."
+    },
+    "contact": {
+      "title": "Contacto",
+      "body": "Loyalnes — privacy@loyali.online"
+    }
   }
 }
