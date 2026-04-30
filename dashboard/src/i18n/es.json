@@ -59,6 +59,7 @@
     "configureStamps": "Configurar sellos",
     "configurePoints": "Configurar puntos",
     "stampsForReward": "¿Cuántos sellos para un premio?",
+    "stampsHint": "Reúne {{count}} sellos → premio gratis",
     "welcomeStamps": "Sellos de Bienvenida (para nuevos miembros)",
     "stamps": "Sellos",
     "pointsPerEuro": "Puntos por Euro gastado",

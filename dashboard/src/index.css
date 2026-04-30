@@ -1045,6 +1045,12 @@ h3, .h3 {
   color: var(--text-secondary);
 }
 
+.config-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
 .setup-buttons {
   display: flex;
   gap: 0.75rem;
