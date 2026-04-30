@@ -69,8 +69,11 @@ export default function ShowQRPage() {
       <header className="app-page-header">
         <div className="app-page-header-row">
           <button className="app-page-back" onClick={() => navigate('/')}>
-          <X size={24} />
-        </button>
+            <X size={24} />
+          </button>
+          <div className="app-page-header-copy">
+            <h1 className="app-page-title">{t('showQR.headerTitle', { defaultValue: 'Show QR' })}</h1>
+          </div>
         </div>
       </header>
 
