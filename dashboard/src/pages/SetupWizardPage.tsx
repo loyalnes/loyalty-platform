@@ -164,6 +164,7 @@ export default function SetupWizardPage() {
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
                 </div>
+                <p className="config-hint">{t('setup.welcomeStampsHint', { count: Number(welcomeStamps) || 0 })}</p>
               </div>
             </>
           ) : (
@@ -261,7 +262,7 @@ export default function SetupWizardPage() {
             </button>
             <button
               className="btn btn-primary"
-              disabled={submitting || tiers.some((tier) => !tier.name || !tier.rewardName || !tier.threshold || tier.threshold === 0)}
+              disabled={submitting || tiers.some((tier) => !tier.rewardName || !tier.threshold || tier.threshold === 0)}
               onClick={handleFinish}
             >
               {submitting ? t('setup.finishing') : t('setup.finishSetup')}
