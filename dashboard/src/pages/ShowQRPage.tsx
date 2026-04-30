@@ -1,22 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { X, Copy, Share2, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
+import { listCampaigns } from '../api';
 
 export default function ShowQRPage() {
   const { t } = useTranslation();
   const { merchant } = useAuth();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [hasActiveCampaign, setHasActiveCampaign] = useState<boolean | null>(null);
 
-  // Customer acquisition through gamification
+  useEffect(() => {
+    let cancelled = false;
+    listCampaigns()
+      .then((campaigns) => {
+        if (cancelled) return;
+        setHasActiveCampaign(campaigns.some((c) => c.active));
+      })
+      .catch(() => !cancelled && setHasActiveCampaign(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // In development, Vite runs on different port than backend
   const apiOrigin = window.location.port === '5174' || window.location.port === '5173' || window.location.port === '5175'
     ? 'http://localhost:3000'
     : window.location.origin;
-  const signupUrl = `${apiOrigin}/app/play/${merchant?.id}`;
+  const route = hasActiveCampaign ? 'play' : 'join';
+  const signupUrl = `${apiOrigin}/app/${route}/${merchant?.id}`;
 
   async function handleCopy() {
     try {
@@ -32,8 +47,12 @@ export default function ShowQRPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t('showQR.shareTitle', { name: merchant?.name }),
-          text: t('showQR.shareText', { name: merchant?.name }),
+          title: hasActiveCampaign
+            ? t('showQR.shareTitle', { name: merchant?.name })
+            : t('showQR.shareTitleJoin', { name: merchant?.name, defaultValue: "Join {{name}}'s loyalty program" }),
+          text: hasActiveCampaign
+            ? t('showQR.shareText', { name: merchant?.name })
+            : t('showQR.shareTextJoin', { name: merchant?.name, defaultValue: 'Get your digital loyalty card from {{name}}.' }),
           url: signupUrl,
         });
       } catch (err) {
@@ -52,19 +71,18 @@ export default function ShowQRPage() {
           <button className="app-page-back" onClick={() => navigate('/')}>
           <X size={24} />
         </button>
-          <div className="app-page-header-copy">
-            <span className="app-page-kicker">{t('showQR.title')}</span>
-            <h1 className="app-page-title">{merchant?.name}</h1>
-          </div>
         </div>
-        <p className="app-page-subtitle">{t('showQR.subtitle', 'Scan to play & win prizes!')}</p>
       </header>
 
       <section className="app-surface-card app-surface-card-muted">
         <div className="app-surface-body show-qr-body">
           <div className="show-qr-merchant">
             <div className="show-qr-merchant-name">{merchant?.name}</div>
-            <div className="show-qr-merchant-subtitle">{t('showQR.subtitle', 'Scan to play & win prizes!')}</div>
+            <div className="show-qr-merchant-subtitle">
+              {hasActiveCampaign
+                ? t('showQR.subtitle', 'Scan to play & win prizes!')
+                : t('showQR.subtitleJoin', { defaultValue: 'Scan to join our loyalty program' })}
+            </div>
           </div>
 
           <div className="show-qr-code">
@@ -78,7 +96,11 @@ export default function ShowQRPage() {
             />
           </div>
 
-          <div className="show-qr-instruction">{t('showQR.instruction', 'Let customers scan this QR code to play the game and join your loyalty program')}</div>
+          <div className="show-qr-instruction">
+            {hasActiveCampaign
+              ? t('showQR.instruction', 'Let customers scan this QR code to play the game and join your loyalty program')
+              : t('showQR.instructionJoin', { defaultValue: 'Let customers scan this QR code to join your loyalty program and save their card to Apple/Google Wallet' })}
+          </div>
         </div>
       </section>
 

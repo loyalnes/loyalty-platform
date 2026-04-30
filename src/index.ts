@@ -16,6 +16,7 @@ import gamificationRoutes from "./routes/gamification";
 import campaignRoutes from "./routes/campaigns";
 import walletRoutes from "./routes/wallet";
 import feedbackRoutes from "./routes/feedback";
+import loyaltyRoutes from "./routes/loyalty";
 
 const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
@@ -43,6 +44,7 @@ app.use("/api/merchants", merchantRoutes);
 app.use("/api/gamification", gamificationRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/loyalty", loyaltyRoutes);
 
 // Authenticated routes
 app.use("/api/cards", authenticateMerchant, cardRoutes);
@@ -69,7 +71,7 @@ app.get("/app/play/:merchantId", (_req, res) => {
   res.sendFile(path.join(customerPath, "play.html"));
 });
 app.get("/app/join/:merchantId", (_req, res) => {
-  res.sendFile(path.join(customerPath, "play.html"));
+  res.sendFile(path.join(customerPath, "join.html"));
 });
 app.get("/app/loyalty/:token", (_req, res) => {
   res.sendFile(path.join(customerPath, "loyalty.html"));

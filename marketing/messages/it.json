@@ -219,5 +219,41 @@
       "question": "Quanto costa Loyali?",
       "answer": "Loyali offre due piani: Core (€9/mese) con tutto ciò che serve per lanciare il programma fedeltà, e Grow (€12/mese) con campagne di notifiche push e analytics avanzati. Tutti i piani includono una prova gratuita di 14 giorni, senza carta di credito."
     }
+  },
+  "privacy": {
+    "title": "Informativa sulla privacy",
+    "updated": "Ultimo aggiornamento: aprile 2026",
+    "intro": {
+      "title": "Introduzione",
+      "body": "Questa informativa spiega come Loyali e i merchant che utilizzano Loyali (\"noi\") raccolgono, usano e proteggono i tuoi dati personali quando ti iscrivi a un programma fedeltà tramite la nostra piattaforma."
+    },
+    "controller": {
+      "title": "Titolare del trattamento",
+      "body": "Quando ti iscrivi al programma fedeltà di un merchant, quel merchant è il titolare del trattamento dei tuoi dati. Loyali (gestito da Loyalnes) agisce come responsabile del trattamento per conto del merchant, fornendo la piattaforma tecnica.\n\nPer domande su come un merchant specifico usa i tuoi dati, contatta direttamente il merchant."
+    },
+    "data": {
+      "title": "Dati raccolti",
+      "body": "Raccogliamo solo le informazioni che fornisci all'iscrizione: nome, cognome (opzionale), indirizzo email e numero di telefono (opzionale). Conserviamo inoltre l'attività di fidelizzazione (punti, premi riscattati, storico visite) generata dall'uso del programma."
+    },
+    "purposes": {
+      "title": "Finalità del trattamento",
+      "body": "I tuoi dati vengono usati per: (1) emettere e gestire la tua tessera digitale, inclusi i pass Apple Wallet e Google Pay; (2) tracciare punti, premi e attività; (3) inviarti comunicazioni transazionali relative alla tua tessera; (4) fornire al merchant analytics aggregati e anonimizzati."
+    },
+    "legal": {
+      "title": "Base giuridica",
+      "body": "Trattiamo i tuoi dati sulla base del tuo consenso esplicito (art. 6, par. 1, lett. a GDPR), fornito spuntando la casella nel form di iscrizione. Puoi revocare il consenso in qualsiasi momento."
+    },
+    "retention": {
+      "title": "Conservazione",
+      "body": "I tuoi dati sono conservati finché la tessera è attiva e fino a 24 mesi di inattività, dopo i quali vengono anonimizzati o cancellati salvo obblighi di legge."
+    },
+    "rights": {
+      "title": "I tuoi diritti",
+      "body": "Ai sensi del GDPR hai diritto di accedere, rettificare, cancellare, limitare o portare i tuoi dati, e di opporti al trattamento. Per esercitare questi diritti contatta il merchant o scrivi a privacy@loyali.online."
+    },
+    "contact": {
+      "title": "Contatti",
+      "body": "Loyalnes — privacy@loyali.online"
+    }
   }
 }
