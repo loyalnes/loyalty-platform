@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Gift, Star, Settings, HelpCircle, LogOut, ChevronRight, Languages } from 'lucide-react';
+import { Gift, Star, Settings, HelpCircle, ChevronRight, Languages } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../i18n';
@@ -24,7 +24,7 @@ type MenuItem = {
 export default function MenuPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { logout, program } = useAuth();
+  const { program } = useAuth();
   const [savingLocale, setSavingLocale] = useState<SupportedLocale | null>(null);
   const [languageExpanded, setLanguageExpanded] = useState(false);
 
@@ -47,11 +47,6 @@ export default function MenuPage() {
     } finally {
       setSavingLocale(null);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
   };
 
   const acquisitionItems: MenuItem[] = [
@@ -246,13 +241,6 @@ export default function MenuPage() {
           {renderMenuItem(supportItem, 'help')}
         </div>
       </section>
-
-      <div>
-        <button onClick={handleLogout} className="app-danger-button">
-          <LogOut size={20} />
-          {t('menu.logout', 'Logout')}
-        </button>
-      </div>
     </div>
   );
 }

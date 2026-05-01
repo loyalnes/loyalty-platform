@@ -8,7 +8,32 @@
     "na": "-",
     "apply": "Applica",
     "cancel": "Annulla",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "edit": "Modifica",
+    "saving": "Salvataggio…",
+    "saved": "Salvato"
+  },
+  "reviews": {
+    "warningTitle": "Link Google non configurato",
+    "warningBody": "I feedback sono comunque raccolti privatamente. Aggiungi il link Google per inoltrare le valutazioni 5★ su Google.",
+    "configuredLabel": "Le recensioni vanno su",
+    "statusConnected": "Collegato a Google Maps",
+    "statusNotConnected": "Non collegato — feedback raccolti privatamente"
+  },
+  "reviewSettings": {
+    "headerTitle": "Impostazioni recensioni",
+    "howItWorks": "Come funziona",
+    "fiveStars": "Valutazioni 5★",
+    "fiveStarsDesc": "Inoltrate sulla tua pagina Google Business per migliorare la SEO locale.",
+    "lowStars": "Valutazioni 1–4★",
+    "lowStarsDesc": "Restano private come feedback per te — niente recensioni negative pubbliche.",
+    "statusActive": "Inoltro attivo",
+    "statusInactive": "Inoltro inattivo — collega Google per attivare",
+    "configuredLabel": "Le recensioni vanno su",
+    "lede": "Incolla il link della tua attività su Google Maps per attivare l'inoltro.",
+    "googleMapsUrl": "URL Google Maps",
+    "googleMapsHint": "Trova la tua attività su Google Maps, clicca Condividi e incolla qui.",
+    "saveActivate": "Salva e attiva"
   },
   "nav": {
     "today": "Oggi",
@@ -268,6 +293,11 @@
     }
   },
   "campaigns": {
+    "howItWorks": "Come funziona",
+    "step1": "I clienti giocano",
+    "step1Desc": "Scansionano il tuo QR e provano un gratta-e-vinci o una ruota della fortuna.",
+    "step2": "Vincono premi",
+    "step2Desc": "Tu imposti premi e probabilità — il resto è automatico.",
     "title": "Campagne",
     "subtitle": "Gestisci le campagne di gamification",
     "empty": "Nessuna campagna ancora",
@@ -287,6 +317,12 @@
     "deleteConfirm": "Eliminare questa campagna? L'azione non può essere annullata."
   },
   "settings": {
+    "comingSoon": "Prossimamente",
+    "profileSection": "Profilo attività",
+    "profileSectionDesc": "Modifica nome attività, indirizzo, contatti e orari di apertura.",
+    "planSection": "Piano e fatturazione",
+    "planSectionDesc": "Gestisci abbonamento, metodo di pagamento e fatture.",
+    "sessionTitle": "Sessione",
     "title": "Impostazioni",
     "subtitle": "Configura le impostazioni della tua attività",
     "reviewFlow": "Flusso Recensioni",
@@ -313,8 +349,8 @@
     "acquisition": "Acquisizione",
     "campaigns": "Campagne Gamification",
     "campaignsDesc": "Gratta e vinci, ruota della fortuna e premi",
-    "reviews": "Recensioni Clienti",
-    "reviewsDesc": "QR code e impostazioni recensioni",
+    "reviews": "Impostazioni recensioni",
+    "reviewsDesc": "Inoltra le valutazioni 5★ su Google",
     "settings": "Impostazioni",
     "account": "Impostazioni Account",
     "accountDesc": "Profilo, piano e preferenze",

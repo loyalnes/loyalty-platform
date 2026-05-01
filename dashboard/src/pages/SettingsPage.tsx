@@ -1,64 +1,17 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Check } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, LogOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
-import { updateMerchantMe } from '../api';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { merchant } = useAuth();
-  const [googleMapsUrl, setGoogleMapsUrl] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState('');
+  const { logout } = useAuth();
 
-  useEffect(() => {
-    if (merchant) {
-      try {
-        const settings = JSON.parse(merchant.settings || '{}');
-        setGoogleMapsUrl(settings.googleMapsUrl || '');
-      } catch {
-        setGoogleMapsUrl('');
-      }
-    }
-  }, [merchant]);
-
-  const isValidUrl = (url: string): boolean => {
-    if (!url.trim()) return true;
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-    } catch {
-      return false;
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
-
-  async function handleSave() {
-    if (!isValidUrl(googleMapsUrl)) {
-      setError(t('settings.invalidUrl', 'Please enter a valid URL'));
-      return;
-    }
-
-    setSaving(true);
-    setError('');
-    try {
-      const currentSettings = JSON.parse(merchant?.settings || '{}');
-      const newSettings = {
-        ...currentSettings,
-        googleMapsUrl: googleMapsUrl.trim() || null
-      };
-
-      await updateMerchantMe({ settings: JSON.stringify(newSettings) });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('settings.saveFailed', 'Failed to save'));
-    } finally {
-      setSaving(false);
-    }
-  }
 
   return (
     <div className="app-page stack-lg">
@@ -67,47 +20,47 @@ export default function SettingsPage() {
           <button className="app-page-back" onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
+          <div className="app-page-header-copy">
+            <h1 className="app-page-title">{t('menu.account', 'Account Settings')}</h1>
+          </div>
         </div>
       </header>
 
+      {/* Card 1 — what's coming */}
       <section className="app-surface-card">
         <div className="app-surface-body stack-md">
-        <h2 className="text-label-large">{t('settings.reviewFlow', 'Review Flow')}</h2>
-        <p className="settings-help-text">
-          {t('settings.reviewFlowDesc', 'When customers give 5 stars, they\'ll be redirected to leave a Google Maps review.')}
-        </p>
-
-        <div className="settings-info-box">
-          <p>
-            <strong>💡 {t('settings.autoExtractInfo', 'Automatic extraction')}:</strong>{' '}
-            {t('settings.autoExtractDesc', 'Just paste the Google Maps link. We\'ll automatically extract the Place ID to open the review dialog directly.')}
-          </p>
+          <span className="app-page-kicker">{t('settings.comingSoon', 'Coming soon')}</span>
+          <ul className="review-flow-steps">
+            <li>
+              <span className="review-flow-icon review-flow-icon-private" aria-hidden="true">
+                <User size={16} />
+              </span>
+              <div>
+                <strong>{t('settings.profileSection', 'Business profile')}</strong>
+                <p>{t('settings.profileSectionDesc', 'Edit your business name, address, contact details and opening hours.')}</p>
+              </div>
+            </li>
+            <li>
+              <span className="review-flow-icon review-flow-icon-private" aria-hidden="true">
+                <CreditCard size={16} />
+              </span>
+              <div>
+                <strong>{t('settings.planSection', 'Plan & billing')}</strong>
+                <p>{t('settings.planSectionDesc', 'Manage your subscription, payment method and invoices.')}</p>
+              </div>
+            </li>
+          </ul>
         </div>
+      </section>
 
-        <div className="form-group">
-          <label>
-            {t('settings.googleMapsUrl', 'Google Maps URL')}
-          </label>
-          <input
-            type="url"
-            value={googleMapsUrl}
-            onChange={(e) => { setGoogleMapsUrl(e.target.value); setSaved(false); }}
-            placeholder="https://maps.app.goo.gl/..."
-          />
-          <p className="settings-hint">
-            {t('settings.googleMapsHint', 'Find your business on Google Maps, click Share, and paste the link here.')}
-          </p>
-        </div>
-
-        {error && <div className="settings-error">{error}</div>}
-
-        <button
-          className="btn btn-primary"
-          onClick={handleSave}
-          disabled={saving || !isValidUrl(googleMapsUrl)}
-        >
-          {saved ? <><Check size={16} /> {t('settings.saved', 'Saved!')}</> : saving ? t('settings.saving', 'Saving...') : <><Save size={16} /> {t('settings.save', 'Save Settings')}</>}
-        </button>
+      {/* Card 2 — session */}
+      <section className="app-surface-card">
+        <div className="app-surface-body stack-md">
+          <span className="app-page-kicker">{t('settings.sessionTitle', 'Session')}</span>
+          <button onClick={handleLogout} className="app-danger-button">
+            <LogOut size={20} />
+            {t('menu.logout', 'Logout')}
+          </button>
         </div>
       </section>
     </div>

@@ -8,7 +8,32 @@
     "na": "-",
     "apply": "Apply",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "edit": "Edit",
+    "saving": "Saving…",
+    "saved": "Saved"
+  },
+  "reviews": {
+    "warningTitle": "Google link not configured",
+    "warningBody": "Feedback is still collected privately. Add your Google link to forward 5★ ratings to Google.",
+    "configuredLabel": "Reviews go to",
+    "statusConnected": "Connected to Google Maps",
+    "statusNotConnected": "Not connected — feedback collected privately"
+  },
+  "reviewSettings": {
+    "headerTitle": "Review settings",
+    "howItWorks": "How it works",
+    "fiveStars": "5★ ratings",
+    "fiveStarsDesc": "Forwarded to your Google Business page to grow your local SEO.",
+    "lowStars": "1–4★ ratings",
+    "lowStarsDesc": "Kept private as feedback for you — no public negative reviews.",
+    "statusActive": "Forwarding active",
+    "statusInactive": "Forwarding inactive — connect Google to activate",
+    "configuredLabel": "Reviews go to",
+    "lede": "Paste the link to your business on Google Maps to activate forwarding.",
+    "googleMapsUrl": "Google Maps URL",
+    "googleMapsHint": "Find your business on Google Maps, click Share, and paste the link here.",
+    "saveActivate": "Save & activate"
   },
   "nav": {
     "today": "Today",
@@ -313,8 +338,8 @@
     "acquisition": "Acquisition",
     "campaigns": "Gamification Campaigns",
     "campaignsDesc": "Scratch cards, spin wheels & prizes",
-    "reviews": "Customer Reviews",
-    "reviewsDesc": "QR code & review settings",
+    "reviews": "Review settings",
+    "reviewsDesc": "Forward 5★ ratings to Google",
     "settings": "Settings",
     "account": "Account Settings",
     "accountDesc": "Profile, plan & preferences",

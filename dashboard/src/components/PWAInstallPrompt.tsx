@@ -114,7 +114,7 @@ export function PWAInstallPrompt({ mode = 'home' }: PWAInstallPromptProps) {
           <div className="pwa-prompt-icon">
             <img src={iconSrc} alt="" aria-hidden="true" />
           </div>
-          <h3 id="pwa-prompt-title" className="title-expressive">Install Loyalty Platform</h3>
+          <h3 id="pwa-prompt-title" className="pwa-prompt-title">Install Loyalty Platform</h3>
         </div>
 
         <p id="pwa-prompt-description" className="pwa-prompt-description">
@@ -144,7 +144,7 @@ export function PWAInstallPrompt({ mode = 'home' }: PWAInstallPromptProps) {
         <div className="pwa-prompt-icon">
           <img src={iconSrc} alt="" aria-hidden="true" />
         </div>
-        <h3 id="pwa-prompt-title" className="title-expressive">Install Loyalty Platform</h3>
+        <h3 id="pwa-prompt-title" className="pwa-prompt-title">Install Loyalty Platform</h3>
       </div>
 
       <p id="pwa-prompt-description" className="pwa-prompt-description">

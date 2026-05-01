@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BarChart3, Play, Pause, Pencil, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, BarChart3, Play, Pause, Pencil, Trash2, Plus, Sparkles, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { deleteCampaign, listCampaigns, updateCampaign, type Campaign } from '../api';
 
@@ -62,6 +62,9 @@ export default function CampaignsPage() {
           <button className="app-page-back" onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
+          <div className="app-page-header-copy">
+            <h1 className="app-page-title">{t('campaigns.title', 'Campaigns')}</h1>
+          </div>
           {campaigns.length > 0 && (
             <button className="btn btn-primary btn-sm app-header-cta" onClick={() => navigate('/campaigns/new')}>
               <Plus size={16} />
@@ -69,8 +72,34 @@ export default function CampaignsPage() {
             </button>
           )}
         </div>
-        <p className="app-page-subtitle">{t('campaigns.subtitle', 'Manage gamification campaigns')}</p>
       </header>
+
+      {/* How-it-works educational card */}
+      <section className="app-surface-card">
+        <div className="app-surface-body stack-md">
+          <span className="app-page-kicker">{t('campaigns.howItWorks', 'How it works')}</span>
+          <ul className="review-flow-steps">
+            <li>
+              <span className="review-flow-icon review-flow-icon-success" aria-hidden="true">
+                <Sparkles size={16} />
+              </span>
+              <div>
+                <strong>{t('campaigns.step1', 'Customers play')}</strong>
+                <p>{t('campaigns.step1Desc', 'They scan your QR and try a scratch card or spin wheel.')}</p>
+              </div>
+            </li>
+            <li>
+              <span className="review-flow-icon review-flow-icon-private" aria-hidden="true">
+                <Trophy size={16} />
+              </span>
+              <div>
+                <strong>{t('campaigns.step2', 'They win prizes')}</strong>
+                <p>{t('campaigns.step2Desc', 'You set the prizes and probability — the rest is automatic.')}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
 
       {loading ? (
         <div className="empty-state">
@@ -150,7 +179,8 @@ export default function CampaignsPage() {
                 </div>
                 <div className="app-meta-row">
                   <span className="app-meta-label">{t('campaigns.status', 'Status')}</span>
-                  <span className={`badge ${campaign.active ? 'badge-success' : 'badge-secondary'}`}>
+                  <span className={`app-status-pill app-status-pill-${campaign.active ? 'ok' : 'warn'}`}>
+                    <span className="app-status-pill-dot" aria-hidden="true" />
                     {campaign.active
                       ? t('campaigns.active', 'Active')
                       : t('campaigns.inactive', 'Inactive')}
