@@ -62,10 +62,6 @@ export default function CampaignsPage() {
           <button className="app-page-back" onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
-          <div className="app-page-header-copy">
-            <span className="app-page-kicker">{t('menu.acquisition', 'Acquisition')}</span>
-            <h1 className="app-page-title">{t('campaigns.title', 'Campaigns')}</h1>
-          </div>
           {campaigns.length > 0 && (
             <button className="btn btn-primary btn-sm app-header-cta" onClick={() => navigate('/campaigns/new')}>
               <Plus size={16} />

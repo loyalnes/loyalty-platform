@@ -140,7 +140,6 @@ export default function EditCampaignPage() {
           <X size={24} />
         </button>
           <div className="app-page-header-copy">
-            <span className="app-page-kicker">{t('menu.acquisition', 'Acquisition')}</span>
             <h1 className="app-page-title">{t('campaigns.editCampaign', 'Edit Campaign')}</h1>
           </div>
         </div>
