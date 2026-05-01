@@ -15,12 +15,10 @@ export interface CustomerListItem {
 
 export interface CustomerListResult {
   data: CustomerListItem[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    hasMore: boolean;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
 }
 
 export async function getCustomers(
@@ -34,20 +32,44 @@ export async function getCustomers(
   const { page, limit, search } = options;
   const skip = (page - 1) * limit;
 
+  // Stricter multi-token search:
+  //   - 1 token  → startsWith across firstName/lastName/email/phone
+  //   - N tokens → first token must EQUAL firstName, the rest startsWith
+  //                lastName / email / phone
+  // Example: "el b" matches firstName="el" lastName="b" only — NOT "elio b".
+  const tokens = search ? search.split(/\s+/).filter(Boolean) : [];
+  const insensitive = "insensitive" as const;
+  let customerFilter: Record<string, unknown> | undefined;
+
+  if (tokens.length === 1) {
+    const token = tokens[0];
+    customerFilter = {
+      OR: [
+        { firstName: { startsWith: token, mode: insensitive } },
+        { lastName: { startsWith: token, mode: insensitive } },
+        { email: { startsWith: token, mode: insensitive } },
+        { phone: { startsWith: token, mode: insensitive } },
+      ],
+    };
+  } else if (tokens.length > 1) {
+    const [first, ...rest] = tokens;
+    customerFilter = {
+      AND: [
+        { firstName: { equals: first, mode: insensitive } },
+        ...rest.map((token) => ({
+          OR: [
+            { lastName: { startsWith: token, mode: insensitive } },
+            { email: { startsWith: token, mode: insensitive } },
+            { phone: { startsWith: token, mode: insensitive } },
+          ],
+        })),
+      ],
+    };
+  }
+
   const where = {
     merchantId,
-    ...(search
-      ? {
-          customer: {
-            OR: [
-              { firstName: { contains: search, mode: "insensitive" as const } },
-              { lastName: { contains: search, mode: "insensitive" as const } },
-              { email: { contains: search, mode: "insensitive" as const } },
-              { phone: { contains: search, mode: "insensitive" as const } },
-            ],
-          },
-        }
-      : {}),
+    ...(customerFilter ? { customer: customerFilter } : {}),
   };
 
   const [cards, total] = await Promise.all([
@@ -92,12 +114,10 @@ export async function getCustomers(
 
   return {
     data,
-    pagination: {
-      total,
-      page,
-      limit,
-      hasMore: page * limit < total,
-    },
+    total,
+    page,
+    limit,
+    hasMore: page * limit < total,
   };
 }
 

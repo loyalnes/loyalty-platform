@@ -80,7 +80,6 @@ function AppRoutes() {
           <Route path="/setup" element={<SetupWizardPage />} />
           <Route path="/insights" element={<InsightsPage />} />
           <Route path="/customers" element={<CustomersPage />} />
-          <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/menu" element={<MenuPage />} />
         </Route>
         <Route element={<FullPageLayout />}>
@@ -88,6 +87,7 @@ function AppRoutes() {
           <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
           <Route path="/scan-qr" element={<ScanQRPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/customers/:customerId" element={<CustomerDetailPage />} />
           <Route path="/campaigns/new" element={<CreateCampaignPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailPage />} />

@@ -8,7 +8,32 @@
     "na": "-",
     "apply": "Aplicar",
     "cancel": "Cancelar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "edit": "Editar",
+    "saving": "Guardando…",
+    "saved": "Guardado"
+  },
+  "reviews": {
+    "warningTitle": "Enlace de Google no configurado",
+    "warningBody": "Los comentarios se siguen recogiendo en privado. Añade tu enlace de Google para reenviar las valoraciones 5★ a Google.",
+    "configuredLabel": "Las reseñas van a",
+    "statusConnected": "Conectado a Google Maps",
+    "statusNotConnected": "No conectado — los comentarios se recogen en privado"
+  },
+  "reviewSettings": {
+    "headerTitle": "Configuración de reseñas",
+    "howItWorks": "Cómo funciona",
+    "fiveStars": "Valoraciones 5★",
+    "fiveStarsDesc": "Se reenvían a tu página de Google Business para mejorar tu SEO local.",
+    "lowStars": "Valoraciones 1–4★",
+    "lowStarsDesc": "Quedan privadas como feedback para ti — sin reseñas negativas públicas.",
+    "statusActive": "Reenvío activo",
+    "statusInactive": "Reenvío inactivo — conecta Google para activar",
+    "configuredLabel": "Las reseñas van a",
+    "lede": "Pega el enlace de tu negocio en Google Maps para activar el reenvío.",
+    "googleMapsUrl": "URL de Google Maps",
+    "googleMapsHint": "Encuentra tu negocio en Google Maps, haz clic en Compartir y pega el enlace aquí.",
+    "saveActivate": "Guardar y activar"
   },
   "nav": {
     "today": "Hoy",
@@ -268,6 +293,11 @@
     }
   },
   "campaigns": {
+    "howItWorks": "Cómo funciona",
+    "step1": "Los clientes juegan",
+    "step1Desc": "Escanean tu QR y prueban un rasca y gana o una ruleta.",
+    "step2": "Ganan premios",
+    "step2Desc": "Tú defines premios y probabilidades — el resto es automático.",
     "title": "Campañas",
     "subtitle": "Gestiona campañas de gamificación",
     "empty": "Aún no hay campañas",
@@ -287,6 +317,12 @@
     "deleteConfirm": "¿Eliminar esta campaña? Esta acción no se puede deshacer."
   },
   "settings": {
+    "comingSoon": "Próximamente",
+    "profileSection": "Perfil del negocio",
+    "profileSectionDesc": "Edita el nombre, la dirección, los contactos y el horario de tu negocio.",
+    "planSection": "Plan y facturación",
+    "planSectionDesc": "Gestiona tu suscripción, método de pago y facturas.",
+    "sessionTitle": "Sesión",
     "title": "Configuración",
     "subtitle": "Configura los ajustes de tu negocio",
     "reviewFlow": "Flujo de Reseñas",
@@ -313,8 +349,8 @@
     "acquisition": "Adquisición",
     "campaigns": "Campañas de Gamificación",
     "campaignsDesc": "Rasca y gana, ruleta y premios",
-    "reviews": "Reseñas de Clientes",
-    "reviewsDesc": "Código QR y configuración de reseñas",
+    "reviews": "Configuración de reseñas",
+    "reviewsDesc": "Reenviar valoraciones 5★ a Google",
     "settings": "Configuración",
     "account": "Configuración de Cuenta",
     "accountDesc": "Perfil, plan y preferencias",
