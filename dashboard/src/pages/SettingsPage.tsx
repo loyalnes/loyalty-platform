@@ -67,13 +67,6 @@ export default function SettingsPage() {
           <button className="app-page-back" onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
-          <div className="app-page-header-copy">
-            <span className="app-page-kicker">{t('menu.settings', 'Settings')}</span>
-            <h1 className="app-page-title">{t('settings.title', 'Settings')}</h1>
-          </div>
-        </div>
-        <div>
-          <p className="app-page-subtitle">{t('settings.subtitle', 'Configure your account')}</p>
         </div>
       </header>
 

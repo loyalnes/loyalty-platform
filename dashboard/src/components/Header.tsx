@@ -35,10 +35,10 @@ export default function Header() {
     // Home page (Today) - show greeting
     if (path === '/') return t('hub.greeting', { name: merchantName });
 
-    // Other pages - show page title
-    if (path === '/insights') return t('insights.title');
-    if (path === '/customers') return t('customers.title');
-    if (path === '/menu') return merchantName;
+    // Other pages - show bottom-bar tab label
+    if (path === '/insights') return t('nav.insights');
+    if (path === '/customers') return t('nav.customers');
+    if (path === '/menu') return t('nav.menu');
     if (path === '/campaigns') return t('campaigns.title');
     if (path === '/settings') return t('settings.title');
     if (path === '/setup') return t('setup.title', 'Setup');
@@ -58,7 +58,7 @@ export default function Header() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCELtpCMrvHzCLj2myRq5mAnXWoaAoKQduDoaVBWoDsQIRq92qccox6UrZtMWBOj0LdlAd4V_kp46ixzzKwk9TaXrWmpCjEvuXtwhZHNScJ3cE_Erz0Nic9-OuNHu1w2MneuQRP1FrQL6lFfEUAd8t8rRZy-n8eZiSUc1K3msZIaudXVtV2cLsGyxEDnMTExj1Ke5VgKggm1eZf92H36Ux3fphiI8BHeBbl7rW8rQt8E_3JRwGok1J2KR-MjoY64hdODt6hSS0i3q1r"
             />
           </div>
-          <h1 className={`app-header-title${location.pathname === '/' ? ' app-header-title-home' : ' title-expressive'}`}>
+          <h1 className="app-header-title app-header-title-home">
             {getPageTitle()}
           </h1>
         </div>

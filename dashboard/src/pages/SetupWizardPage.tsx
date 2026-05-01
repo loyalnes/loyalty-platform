@@ -82,9 +82,6 @@ export default function SetupWizardPage() {
             >
               <ChevronLeft size={20} />
             </button>
-            <div style={{ flex: 1 }}>
-              <h1 className="app-page-title">{t('setup.title')}</h1>
-            </div>
           </div>
         </header>
       )}
