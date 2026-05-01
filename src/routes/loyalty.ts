@@ -40,7 +40,7 @@ router.get("/:merchantId/public-summary", async (req: Request, res: Response, ne
 router.post("/:merchantId/join", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { merchantId } = req.params;
-    const { firstName, lastName, email, phone, gdprConsent } = req.body ?? {};
+    const { firstName, lastName, email, phone, gdprConsent, marketingConsent } = req.body ?? {};
 
     if (!firstName || !email) {
       throw new ApiError(400, "firstName and email are required");
@@ -64,6 +64,9 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
     let customer = await prisma.customer.findUnique({ where: { email: normalizedEmail } });
     const isNewCustomer = !customer;
 
+    const now = new Date();
+    const marketingDate = marketingConsent === true ? now : null;
+
     if (!customer) {
       customer = await prisma.customer.create({
         data: {
@@ -72,14 +75,18 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
           lastName: lastName ? String(lastName).trim() : "",
           phone: phone ? String(phone).trim() : null,
           acquisitionSource: "qr_join",
-          gdprConsentAt: new Date(),
+          gdprConsentAt: now,
+          marketingConsentAt: marketingDate,
         },
       });
-    } else if (!customer.gdprConsentAt) {
-      customer = await prisma.customer.update({
-        where: { id: customer.id },
-        data: { gdprConsentAt: new Date() },
-      });
+    } else {
+      const update: { gdprConsentAt?: Date; marketingConsentAt?: Date | null } = {};
+      if (!customer.gdprConsentAt) update.gdprConsentAt = now;
+      if (marketingConsent === true && !customer.marketingConsentAt) update.marketingConsentAt = now;
+      if (marketingConsent === false && customer.marketingConsentAt) update.marketingConsentAt = null;
+      if (Object.keys(update).length > 0) {
+        customer = await prisma.customer.update({ where: { id: customer.id }, data: update });
+      }
     }
 
     let loyaltyCard = await prisma.loyaltyCard.findUnique({
