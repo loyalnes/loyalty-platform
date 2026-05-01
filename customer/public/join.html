@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -81,6 +82,20 @@
       flex-direction: column;
       gap: 6px;
       margin-bottom: 14px;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 360px) {
+      .field-row { grid-template-columns: 1fr; gap: 0; }
+    }
+    .field-hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      margin-top: 2px;
     }
     .field label {
       font-size: 13px;
@@ -238,25 +253,28 @@
       <h2>Join now</h2>
       <p class="lede">Add your details to get your digital loyalty card.</p>
       <form id="joinForm" novalidate>
-        <div class="field">
-          <label for="firstName">First name *</label>
-          <input id="firstName" type="text" autocomplete="given-name" required>
-        </div>
-        <div class="field">
-          <label for="lastName">Last name</label>
-          <input id="lastName" type="text" autocomplete="family-name">
+        <div class="field-row">
+          <div class="field">
+            <label for="firstName">First name *</label>
+            <input id="firstName" type="text" autocomplete="given-name" required>
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input id="lastName" type="text" autocomplete="family-name">
+          </div>
         </div>
         <div class="field">
           <label for="email">Email *</label>
           <input id="email" type="email" autocomplete="email" inputmode="email" required>
-        </div>
-        <div class="field">
-          <label for="phone">Phone</label>
-          <input id="phone" type="tel" autocomplete="tel" inputmode="tel">
+          <p class="field-hint" id="emailHint">We'll email you a copy of your card.</p>
         </div>
         <label class="consent">
           <input id="gdpr" type="checkbox" required>
-          <span id="consentText">I agree to join <strong id="consentMerchant">this</strong>'s loyalty program and to the processing of my data per the <a id="privacyLink" href="https://loyali.online/en/privacy" target="_blank" rel="noopener">privacy policy</a>.</span>
+          <span id="consentText">I agree to the <a id="termsLink" href="https://loyali.online/en/terms" target="_blank" rel="noopener">Terms</a> and <a id="privacyLink" href="https://loyali.online/en/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+        </label>
+        <label class="consent">
+          <input id="marketing" type="checkbox">
+          <span id="marketingText">I want to receive exclusive discounts and promotions (Marketing).</span>
         </label>
         <button id="submitBtn" type="submit" class="btn btn-primary" style="margin-top: 18px;">Get my card</button>
         <div id="formError" class="err hidden"></div>
@@ -303,8 +321,9 @@
         firstName: 'First name *',
         lastName: 'Last name',
         email: 'Email *',
-        phone: 'Phone',
-        consent: (m) => `I agree to join <strong>${m}</strong>'s loyalty program and to the processing of my data per the <a href="https://loyali.online/en/privacy" target="_blank" rel="noopener">privacy policy</a>.`,
+        emailHint: "We'll email you a copy of your card.",
+        consent: () => `I agree to the <a href="https://loyali.online/en/terms" target="_blank" rel="noopener">Terms</a> and <a href="https://loyali.online/en/privacy" target="_blank" rel="noopener">Privacy Policy</a>.`,
+        marketing: 'I want to receive exclusive discounts and promotions.',
         submit: 'Get my card',
         submitting: 'Working…',
         successTitle: "You're in!",
@@ -314,7 +333,7 @@
         addApple: 'Add to Apple Wallet',
         saveGoogle: 'Save to Google Pay',
         viewCard: 'View my card →',
-        errMissing: 'Please fill in your name and email.',
+        errMissing: 'Please fill in name and email.',
         errConsent: 'Please accept the privacy policy to continue.',
         errEmail: 'Please enter a valid email address.',
         errGeneric: 'Something went wrong. Please try again.',
@@ -328,8 +347,9 @@
         firstName: 'Nome *',
         lastName: 'Cognome',
         email: 'Email *',
-        phone: 'Telefono',
-        consent: (m) => `Accetto di iscrivermi al programma fedeltà di <strong>${m}</strong> e il trattamento dei miei dati secondo la <a href="https://loyali.online/it/privacy" target="_blank" rel="noopener">privacy policy</a>.`,
+        emailHint: 'Ti invieremo via email una copia della tua tessera.',
+        consent: () => `Accetto il <a href="https://loyali.online/it/terms" target="_blank" rel="noopener">Regolamento</a> e la <a href="https://loyali.online/it/privacy" target="_blank" rel="noopener">Privacy Policy</a>.`,
+        marketing: 'Voglio ricevere sconti e promozioni esclusive.',
         submit: 'Ottieni la tessera',
         submitting: 'Un attimo…',
         successTitle: 'Sei dentro!',
@@ -353,8 +373,9 @@
         firstName: 'Nombre *',
         lastName: 'Apellido',
         email: 'Email *',
-        phone: 'Teléfono',
-        consent: (m) => `Acepto unirme al programa de fidelidad de <strong>${m}</strong> y el tratamiento de mis datos según la <a href="https://loyali.online/es/privacy" target="_blank" rel="noopener">política de privacidad</a>.`,
+        emailHint: 'Te enviaremos por email una copia de tu tarjeta.',
+        consent: () => `Acepto el <a href="https://loyali.online/es/terms" target="_blank" rel="noopener">Reglamento</a> y la <a href="https://loyali.online/es/privacy" target="_blank" rel="noopener">Política de Privacidad</a>.`,
+        marketing: 'Quiero recibir descuentos y promociones exclusivas.',
         submit: 'Obtener mi tarjeta',
         submitting: 'Un momento…',
         successTitle: '¡Listo!',
@@ -387,11 +408,13 @@
       const formCard = $('state-form');
       formCard.querySelector('h2').textContent = t.joinTitle;
       formCard.querySelector('.lede').textContent = t.joinLede;
-      formCard.querySelectorAll('label')[0].childNodes[0]?.replaceWith(document.createTextNode(''));
-      formCard.querySelectorAll('.field label')[0].textContent = t.firstName;
-      formCard.querySelectorAll('.field label')[1].textContent = t.lastName;
-      formCard.querySelectorAll('.field label')[2].textContent = t.email;
-      formCard.querySelectorAll('.field label')[3].textContent = t.phone;
+      const labels = formCard.querySelectorAll('.field label');
+      labels[0].textContent = t.firstName;
+      labels[1].textContent = t.lastName;
+      labels[2].textContent = t.email;
+      $('emailHint').textContent = t.emailHint;
+      $('consentText').innerHTML = t.consent();
+      $('marketingText').textContent = t.marketing;
       $('submitBtn').textContent = t.submit;
     }
 
@@ -403,7 +426,6 @@
         const data = await res.json();
         if (!data.hasLoyaltyProgram) throw new Error('no_program');
         $('merchantName').textContent = data.name;
-        $('consentText').innerHTML = t.consent(data.name);
         showState('form');
       } catch {
         $('errorMessage').textContent = t.merchantNotFound;
@@ -415,13 +437,34 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     }
 
+    function miniConfetti(el) {
+      if (typeof confetti !== 'function') return;
+      const rect = el.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+      confetti({
+        particleCount: 24,
+        spread: 55,
+        startVelocity: 22,
+        scalar: 0.7,
+        ticks: 80,
+        origin: { x, y },
+        colors: ['#EFFF74', '#0a0a0a', '#7750e7'],
+      });
+    }
+    ['gdpr', 'marketing'].forEach((id) => {
+      $(id).addEventListener('change', (e) => {
+        if (e.target.checked) miniConfetti(e.target);
+      });
+    });
+
     $('joinForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const firstName = $('firstName').value.trim();
       const lastName = $('lastName').value.trim();
       const email = $('email').value.trim();
-      const phone = $('phone').value.trim();
       const gdpr = $('gdpr').checked;
+      const marketing = $('marketing').checked;
       const errEl = $('formError');
 
       const showErr = (msg) => {
@@ -442,7 +485,7 @@
         const res = await fetch(`/api/loyalty/${merchantId}/join`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ firstName, lastName, email, phone, gdprConsent: true }),
+          body: JSON.stringify({ firstName, lastName, email, gdprConsent: true, marketingConsent: marketing }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'failed');
@@ -481,6 +524,12 @@
         $('loyaltyBtn').textContent = t.viewCard;
 
         showState('success');
+        if (typeof confetti === 'function') {
+          const colors = ['#EFFF74', '#0a0a0a', '#f7f4ee', '#7750e7'];
+          confetti({ particleCount: 80, spread: 70, startVelocity: 45, origin: { y: 0.35 }, colors });
+          setTimeout(() => confetti({ particleCount: 60, spread: 100, angle: 60, origin: { x: 0, y: 0.6 }, colors }), 200);
+          setTimeout(() => confetti({ particleCount: 60, spread: 100, angle: 120, origin: { x: 1, y: 0.6 }, colors }), 350);
+        }
       } catch (err) {
         btn.disabled = false;
         btn.textContent = t.submit;

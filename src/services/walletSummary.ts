@@ -42,6 +42,13 @@ export interface WalletSummary {
   nearestPrizeExpiration: string | null;
   merchantScanToken: string;
   customerAccessToken: string;
+  nextReward: {
+    name: string;
+    rewardName: string;
+    threshold: number;
+    pointsToGo: number;
+    progress: number;
+  } | null;
 }
 
 export async function buildWalletSummary(loyaltyCardId: string, provider: "APPLE_WALLET" | "GOOGLE_WALLET" = "APPLE_WALLET"): Promise<WalletSummary | null> {
@@ -95,6 +102,22 @@ export async function buildWalletSummary(loyaltyCardId: string, provider: "APPLE
   const currentTier = (program?.rewardTiers ?? [])
     .filter((tier) => loyaltyCard.pointsBalance >= tier.threshold)
     .sort((a, b) => b.threshold - a.threshold)[0] ?? null;
+
+  const nextTier = (program?.rewardTiers ?? [])
+    .filter((tier) => loyaltyCard.pointsBalance < tier.threshold)
+    .sort((a, b) => a.threshold - b.threshold)[0] ?? null;
+
+  const nextReward = nextTier
+    ? {
+        name: nextTier.name,
+        rewardName: nextTier.rewardName,
+        threshold: nextTier.threshold,
+        pointsToGo: Math.max(0, nextTier.threshold - loyaltyCard.pointsBalance),
+        progress: nextTier.threshold > 0
+          ? Math.min(1, loyaltyCard.pointsBalance / nextTier.threshold)
+          : 0,
+      }
+    : null;
 
   const walletPass = await getOrCreateWalletPass(loyaltyCard.id, provider);
   const [scanToken, accessToken] = await Promise.all([
@@ -165,5 +188,6 @@ export async function buildWalletSummary(loyaltyCardId: string, provider: "APPLE
     nearestPrizeExpiration: activePrizes[0]?.expiresAt ?? null,
     merchantScanToken: scanToken.token,
     customerAccessToken: accessToken.token,
+    nextReward,
   };
 }
