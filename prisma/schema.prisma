@@ -61,8 +61,6 @@ model Customer {
   avatarUrl         String?   @map("avatar_url")
   acquisitionSource String?   @map("acquisition_source")
   preferredLocale   Locale    @default(en) @map("preferred_locale")
-  gdprConsentAt     DateTime? @map("gdpr_consent_at")
-  marketingConsentAt DateTime? @map("marketing_consent_at")
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
@@ -87,6 +85,9 @@ model LoyaltyCard {
   totalRedeemed  Int               @default(0) @map("total_redeemed")
   issuedAt       DateTime          @default(now()) @map("issued_at")
   expiresAt      DateTime?         @map("expires_at")
+  gdprConsentAt        DateTime? @map("gdpr_consent_at")
+  marketingConsentAt   DateTime? @map("marketing_consent_at")
+  marketingRevokedAt   DateTime? @map("marketing_revoked_at")
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
 

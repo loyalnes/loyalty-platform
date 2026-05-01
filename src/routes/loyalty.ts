@@ -40,14 +40,14 @@ router.get("/:merchantId/public-summary", async (req: Request, res: Response, ne
 router.post("/:merchantId/join", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { merchantId } = req.params;
-    const { firstName, lastName, email, phone, gdprConsent, marketingConsent } = req.body ?? {};
+    const { firstName, lastName, email, phone, marketingConsent } = req.body ?? {};
 
     if (!firstName || !email) {
       throw new ApiError(400, "firstName and email are required");
     }
-    if (gdprConsent !== true) {
-      throw new ApiError(400, "GDPR consent is required");
-    }
+    // Submitting the form is itself the acceptance of Terms + Privacy
+    // (Art. 6(1)(b) GDPR — necessary for the contract). We log it implicitly
+    // by setting gdprConsentAt when the card is created.
 
     const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
     if (!merchant || !merchant.active) {
@@ -60,12 +60,10 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
+    const now = new Date();
 
     let customer = await prisma.customer.findUnique({ where: { email: normalizedEmail } });
     const isNewCustomer = !customer;
-
-    const now = new Date();
-    const marketingDate = marketingConsent === true ? now : null;
 
     if (!customer) {
       customer = await prisma.customer.create({
@@ -75,20 +73,12 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
           lastName: lastName ? String(lastName).trim() : "",
           phone: phone ? String(phone).trim() : null,
           acquisitionSource: "qr_join",
-          gdprConsentAt: now,
-          marketingConsentAt: marketingDate,
         },
       });
-    } else {
-      const update: { gdprConsentAt?: Date; marketingConsentAt?: Date | null } = {};
-      if (!customer.gdprConsentAt) update.gdprConsentAt = now;
-      if (marketingConsent === true && !customer.marketingConsentAt) update.marketingConsentAt = now;
-      if (marketingConsent === false && customer.marketingConsentAt) update.marketingConsentAt = null;
-      if (Object.keys(update).length > 0) {
-        customer = await prisma.customer.update({ where: { id: customer.id }, data: update });
-      }
     }
 
+    // Consents are PER-MERCHANT (live on LoyaltyCard) because the merchant is
+    // the data controller; Loyali is processor and never sends marketing.
     let loyaltyCard = await prisma.loyaltyCard.findUnique({
       where: {
         merchantId_customerId: { merchantId, customerId: customer.id },
@@ -99,8 +89,30 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
     if (!loyaltyCard) {
       const cardNumber = `LC-${uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
       loyaltyCard = await prisma.loyaltyCard.create({
-        data: { cardNumber, merchantId, customerId: customer.id },
+        data: {
+          cardNumber,
+          merchantId,
+          customerId: customer.id,
+          gdprConsentAt: now,
+          marketingConsentAt: marketingConsent === true ? now : null,
+        },
       });
+    } else {
+      const update: { gdprConsentAt?: Date; marketingConsentAt?: Date | null; marketingRevokedAt?: Date | null } = {};
+      if (!loyaltyCard.gdprConsentAt) update.gdprConsentAt = now;
+      if (marketingConsent === true && !loyaltyCard.marketingConsentAt) {
+        update.marketingConsentAt = now;
+        update.marketingRevokedAt = null;
+      }
+      if (marketingConsent === false && loyaltyCard.marketingConsentAt && !loyaltyCard.marketingRevokedAt) {
+        update.marketingRevokedAt = now;
+      }
+      if (Object.keys(update).length > 0) {
+        loyaltyCard = await prisma.loyaltyCard.update({
+          where: { id: loyaltyCard.id },
+          data: update,
+        });
+      }
     }
 
     const applePass = await getOrCreateWalletPass(loyaltyCard.id, "APPLE_WALLET");
@@ -118,6 +130,7 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
       merchant: { id: merchant.id, name: merchant.name },
     });
   } catch (err) {
+    console.error("loyalty/join failed:", err);
     next(err);
   }
 });
