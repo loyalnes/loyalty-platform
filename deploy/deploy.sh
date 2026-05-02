@@ -137,7 +137,7 @@ docker compose run --rm app npx prisma migrate deploy 2>/dev/null || \
 
 # Restart services
 echo "==> Starting services..."
-docker compose up -d --remove-orphans
+docker compose up -d --remove-orphans --force-recreate
 
 # Wait for health check
 echo "==> Waiting for health check..."
@@ -160,7 +160,7 @@ if [ "$HEALTH_PASSED" = false ]; then
   if [ -n "$ROLLBACK_TAG" ]; then
     echo "==> Rolling back to previous image: $ROLLBACK_TAG"
     export IMAGE_TAG="$ROLLBACK_TAG"
-    docker compose up -d --remove-orphans
+    docker compose up -d --remove-orphans --force-recreate
     echo "==> Rollback initiated. Check service status manually."
   fi
 
