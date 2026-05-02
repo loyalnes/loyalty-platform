@@ -60,23 +60,31 @@ export async function extractPlaceIdFromUrl(url: string): Promise<string | null>
     // The writereview endpoint rejects hex placeids, so we need the modern
     // ChIJ. Requires GOOGLE_MAPS_API_KEY.
     const hexMatch = finalUrl.match(/(?:!1s|ftid=)0x[0-9a-f]+:0x([0-9a-f]+)/i);
-    if (hexMatch && process.env.GOOGLE_MAPS_API_KEY) {
-      try {
-        const decimalCid = BigInt('0x' + hexMatch[1]).toString();
-        const apiUrl = `https://maps.googleapis.com/maps/api/place/details/json?cid=${decimalCid}&fields=place_id&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-        const res = await fetch(apiUrl);
-        const data = await res.json() as {
-          status: string;
-          result?: { place_id?: string };
-          error_message?: string;
-        };
-        if (data.status === 'OK' && data.result?.place_id) {
-          return data.result.place_id;
+    if (hexMatch) {
+      if (!process.env.GOOGLE_MAPS_API_KEY) {
+        console.warn('[placeId] hex CID found but GOOGLE_MAPS_API_KEY is not set — skipping Places API resolution');
+      } else {
+        try {
+          const decimalCid = BigInt('0x' + hexMatch[1]).toString();
+          const apiUrl = `https://maps.googleapis.com/maps/api/place/details/json?cid=${decimalCid}&fields=place_id&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+          console.info(`[placeId] resolving hex CID ${hexMatch[1]} via Places API`);
+          const res = await fetch(apiUrl);
+          const data = await res.json() as {
+            status: string;
+            result?: { place_id?: string };
+            error_message?: string;
+          };
+          if (data.status === 'OK' && data.result?.place_id) {
+            console.info(`[placeId] resolved to ${data.result.place_id}`);
+            return data.result.place_id;
+          }
+          console.warn(`[placeId] Places API status=${data.status} error=${data.error_message || 'none'}`);
+        } catch (apiErr) {
+          console.error('[placeId] Places API call failed:', apiErr);
         }
-        console.warn(`Places API returned ${data.status}: ${data.error_message || 'no place_id'}`);
-      } catch (apiErr) {
-        console.error('Places API call failed:', apiErr);
       }
+    } else {
+      console.warn('[placeId] no hex CID match in URL:', finalUrl);
     }
 
     console.warn('Could not extract a usable ChIJ Place ID from URL:', finalUrl);
