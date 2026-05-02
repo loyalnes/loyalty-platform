@@ -53,11 +53,13 @@ export async function extractPlaceIdFromUrl(url: string): Promise<string | null>
       return match4[1];
     }
 
-    // Pattern 5: legacy hex CID (!1s0xHEX:0xHEX) → resolve to ChIJ via
-    // Google Places API. The maps.app.goo.gl share link typically expands
-    // to this format for older listings; the writereview endpoint rejects
-    // hex placeids, so we need the modern ChIJ. Requires GOOGLE_MAPS_API_KEY.
-    const hexMatch = finalUrl.match(/!1s0x[0-9a-f]+:0x([0-9a-f]+)/i);
+    // Pattern 5: legacy hex CID → resolve to ChIJ via Google Places API.
+    // The maps.app.goo.gl share link typically expands to one of:
+    //   !1s0xHEX:0xHEX   (when a !1s segment is present)
+    //   ftid=0xHEX:0xHEX (when the URL uses the ftid query param)
+    // The writereview endpoint rejects hex placeids, so we need the modern
+    // ChIJ. Requires GOOGLE_MAPS_API_KEY.
+    const hexMatch = finalUrl.match(/(?:!1s|ftid=)0x[0-9a-f]+:0x([0-9a-f]+)/i);
     if (hexMatch && process.env.GOOGLE_MAPS_API_KEY) {
       try {
         const decimalCid = BigInt('0x' + hexMatch[1]).toString();
