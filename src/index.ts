@@ -17,6 +17,7 @@ import campaignRoutes from "./routes/campaigns";
 import walletRoutes from "./routes/wallet";
 import feedbackRoutes from "./routes/feedback";
 import loyaltyRoutes from "./routes/loyalty";
+import debugRoutes from "./routes/debug";
 
 const app = express();
 const port = parseInt(process.env.PORT || "3000", 10);
@@ -45,6 +46,7 @@ app.use("/api/gamification", gamificationRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/loyalty", loyaltyRoutes);
+app.use("/api/_debug", debugRoutes);
 
 // Authenticated routes
 app.use("/api/cards", authenticateMerchant, cardRoutes);
