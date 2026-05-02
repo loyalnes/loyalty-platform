@@ -119,21 +119,23 @@ router.patch("/me", authenticateMerchant, async (req: Request, res: Response, ne
       }
     }
 
-    // If settings are being updated, process Google Maps URL to extract Place ID
+    // If settings are being updated, re-derive googlePlaceId from googleMapsUrl.
+    // Always clear the old placeId first so a stale value can't survive a URL
+    // change that fails extraction (otherwise customers would still be sent to
+    // the previous Google place).
     if (data.settings && typeof data.settings === 'string') {
       try {
         const settings = JSON.parse(data.settings);
+        delete settings.googlePlaceId;
 
-        // If googleMapsUrl is provided, try to extract Place ID automatically
         if (settings.googleMapsUrl && typeof settings.googleMapsUrl === 'string') {
           const extractedPlaceId = await extractPlaceIdFromUrl(settings.googleMapsUrl);
           if (extractedPlaceId) {
             settings.googlePlaceId = extractedPlaceId;
-            data.settings = JSON.stringify(settings);
           }
         }
+        data.settings = JSON.stringify(settings);
       } catch (parseError) {
-        // If settings parsing fails, continue with original value
         console.error('Failed to parse settings for Place ID extraction:', parseError);
       }
     }
