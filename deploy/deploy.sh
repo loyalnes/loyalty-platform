@@ -135,7 +135,15 @@ docker compose run --rm app npx prisma migrate deploy 2>/dev/null || \
   docker compose run --rm app npx prisma db push --accept-data-loss 2>/dev/null || \
   echo "==> Warning: schema apply failed (check Prisma config)"
 
-# Restart services
+# Verify docker-compose.yml is the one we expect (helps catch stale checkouts).
+echo "==> docker-compose.yml head (env block):"
+sed -n '/^services:/,/^volumes:/p' docker-compose.yml | grep -E "GOOGLE_|MAPS_" || echo "(no GOOGLE_/MAPS_ lines found — file may be stale!)"
+
+# Restart services. We tear down the app container first so docker-compose
+# is forced to re-read every compose file from scratch on the way back up.
+echo "==> Tearing down app container..."
+docker compose stop app && docker compose rm -f app || true
+
 echo "==> Starting services..."
 docker compose up -d --remove-orphans --force-recreate
 
