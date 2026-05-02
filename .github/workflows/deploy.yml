@@ -188,6 +188,9 @@ jobs:
     if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      contents: read
+      packages: read
 
     steps:
       - uses: actions/checkout@v4
@@ -202,22 +205,27 @@ jobs:
           GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
           GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           PUBLIC_URL: https://loyali.online
         with:
           host: ${{ secrets.HETZNER_PROD_HOST }}
           username: ${{ secrets.HETZNER_SSH_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,GOOGLE_MAPS_API_KEY,PUBLIC_URL
+          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,GOOGLE_MAPS_API_KEY,GITHUB_REPOSITORY,PUBLIC_URL
           script: |
+            # Fail fast on any error so silent failures (especially in the
+            # git fetch below) become visible instead of leaving the server
+            # running stale config.
+            set -euo pipefail
             # Re-auth GHCR (token may have changed)
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
             cd /opt/loyalty-platform
             git config --global --add safe.directory /opt/loyalty-platform
-            # Authenticate the git fetch with GH_TOKEN — the on-disk repo
-            # may not have credentials cached, and silent fetch failures
-            # would leave deploy.sh / docker-compose.yml stale.
-            git -c http.extraHeader="AUTHORIZATION: bearer ${GH_TOKEN}" fetch origin main
-            git reset --hard origin/main
+            # Fetch with token embedded in the URL — the on-disk repo's
+            # cached credentials had expired and silently broke this for
+            # months, freezing deploy.sh and docker-compose.yml on the VPS.
+            git fetch "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" main
+            git reset --hard FETCH_HEAD
             export IMAGE_TAG=latest
             export DOCKER_REGISTRY=ghcr.io
             export DOCKER_IMAGE=${{ github.repository }}
