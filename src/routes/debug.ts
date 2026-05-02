@@ -25,6 +25,7 @@ router.get("/places-resolution", async (req: Request, res: Response, next: NextF
     out.envGoogleKeys = Object.keys(process.env)
       .filter((k) => k.startsWith("GOOGLE"))
       .map((k) => ({ name: k, length: (process.env[k] || "").length }));
+    out.composeMarker = process.env.MAPS_DEBUG_MARKER || null;
 
     // Step 2: redirect resolve
     let finalUrl = url;
