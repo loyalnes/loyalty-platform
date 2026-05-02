@@ -213,7 +213,11 @@ jobs:
             echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
             cd /opt/loyalty-platform
             git config --global --add safe.directory /opt/loyalty-platform
-            git fetch origin && git reset --hard origin/main
+            # Authenticate the git fetch with GH_TOKEN — the on-disk repo
+            # may not have credentials cached, and silent fetch failures
+            # would leave deploy.sh / docker-compose.yml stale.
+            git -c http.extraHeader="AUTHORIZATION: bearer ${GH_TOKEN}" fetch origin main
+            git reset --hard origin/main
             export IMAGE_TAG=latest
             export DOCKER_REGISTRY=ghcr.io
             export DOCKER_IMAGE=${{ github.repository }}
