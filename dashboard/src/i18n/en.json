@@ -32,7 +32,7 @@
     "configuredLabel": "Reviews go to",
     "lede": "Paste the link to your business on Google Maps to activate forwarding.",
     "googleMapsUrl": "Google Maps URL",
-    "googleMapsHint": "Find your business on Google Maps, click Share, and paste the link here.",
+    "googleMapsHint": "Tip: copy the URL from the Google Maps address bar — it gives the smoothest review experience for your customers.",
     "saveActivate": "Save & activate"
   },
   "nav": {
@@ -319,7 +319,7 @@
     "autoExtractInfo": "Automatic extraction",
     "autoExtractDesc": "Just paste the Google Maps link. We'll automatically extract the Place ID to open the review dialog directly.",
     "googleMapsUrl": "Google Maps URL",
-    "googleMapsHint": "Find your business on Google Maps, click Share, and paste the link here.",
+    "googleMapsHint": "Tip: copy the URL from the Google Maps address bar — it gives the smoothest review experience for your customers.",
     "invalidUrl": "Please enter a valid URL",
     "save": "Save Settings",
     "saving": "Saving...",

@@ -36,7 +36,7 @@ export default function LoyaltyHubPage() {
           <button
             type="button"
             className="hub-secondary-tile"
-            onClick={() => navigate('/show-review-qr')}
+            onClick={() => navigate('/review-qr')}
           >
             <span className="hub-secondary-icon material-symbols-outlined">star</span>
             <span className="hub-secondary-label">{t('hub.reviews')}</span>

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
 import { updateMerchantMe } from '../api';
 
-export default function ShowReviewQRPage() {
+export default function ReviewSettingsPage() {
   const { t } = useTranslation();
   const { merchant, refreshProgram } = useAuth();
   const navigate = useNavigate();

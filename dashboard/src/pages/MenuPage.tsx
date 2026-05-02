@@ -61,7 +61,7 @@ export default function MenuPage() {
       icon: Star,
       label: t('menu.reviews', 'Customer Reviews'),
       description: t('menu.reviewsDesc', 'QR code & review settings'),
-      path: '/show-review-qr',
+      path: '/review-settings',
       color: '#667eea',
     },
   ];
