@@ -20,6 +20,11 @@ router.get("/places-resolution", async (req: Request, res: Response, next: NextF
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     out.envApiKeyPresent = Boolean(apiKey);
     out.envApiKeyLength = apiKey ? apiKey.length : 0;
+    // List all process.env keys starting with GOOGLE so we can spot
+    // misnamed secrets without leaking values.
+    out.envGoogleKeys = Object.keys(process.env)
+      .filter((k) => k.startsWith("GOOGLE"))
+      .map((k) => ({ name: k, length: (process.env[k] || "").length }));
 
     // Step 2: redirect resolve
     let finalUrl = url;
