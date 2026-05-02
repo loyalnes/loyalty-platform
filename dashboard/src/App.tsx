@@ -11,7 +11,8 @@ import LoyaltyHubPage from './pages/LoyaltyHubPage';
 import SetupWizardPage from './pages/SetupWizardPage';
 import InsightsPage from './pages/InsightsPage';
 import ShowQRPage from './pages/ShowQRPage';
-import ShowReviewQRPage from './pages/ShowReviewQRPage';
+import ReviewSettingsPage from './pages/ReviewSettingsPage';
+import ReviewQRPage from './pages/ReviewQRPage';
 import ScanQRPage from './pages/ScanQRPage';
 import CustomersPage from './pages/CustomersPage';
 import CustomerDetailPage from './pages/CustomerDetailPage';
@@ -84,7 +85,8 @@ function AppRoutes() {
         </Route>
         <Route element={<FullPageLayout />}>
           <Route path="/show-qr" element={<ShowQRPage />} />
-          <Route path="/show-review-qr" element={<ShowReviewQRPage />} />
+          <Route path="/review-settings" element={<ReviewSettingsPage />} />
+          <Route path="/review-qr" element={<ReviewQRPage />} />
           <Route path="/scan-qr" element={<ScanQRPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />

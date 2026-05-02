@@ -53,7 +53,12 @@ export async function extractPlaceIdFromUrl(url: string): Promise<string | null>
       return match4[1];
     }
 
-    console.warn('Could not extract Place ID from URL:', finalUrl);
+    // NOTE: the legacy hex format (!1s0xHEX:0xHEX) is NOT accepted by
+    // Google's writereview endpoint — only the modern ChIJ format works.
+    // For URLs that only expose the hex CID (typical of maps.app.goo.gl
+    // share links for older listings), we return null so feedback.ts
+    // falls back to redirecting the customer to the maps URL itself.
+    console.warn('Could not extract a usable ChIJ Place ID from URL:', finalUrl);
     return null;
   } catch (error) {
     console.error('Error extracting Place ID:', error);
