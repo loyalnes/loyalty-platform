@@ -54,12 +54,31 @@ if [ -f "$NGINX_CONF" ]; then
   fi
 fi
 
+# Save env vars passed from CI before sourcing the on-disk env file,
+# because that file may contain stale empty assignments that would
+# otherwise blow away values we received via the GitHub Actions secret
+# pipeline. After sourcing we restore CI values so they win.
+_CI_GOOGLE_MAPS_API_KEY="${GOOGLE_MAPS_API_KEY:-}"
+_CI_WALLETWALLET_API_KEY="${WALLETWALLET_API_KEY:-}"
+_CI_GOOGLE_WALLET_ISSUER_ID="${GOOGLE_WALLET_ISSUER_ID:-}"
+_CI_GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL="${GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL:-}"
+_CI_GOOGLE_WALLET_SERVICE_ACCOUNT_KEY="${GOOGLE_WALLET_SERVICE_ACCOUNT_KEY:-}"
+_CI_PUBLIC_URL="${PUBLIC_URL:-}"
+
 # Load env file if present
 if [ -f "$ENV_FILE" ]; then
   set -a
   source "$ENV_FILE"
   set +a
 fi
+
+# Restore CI-passed values (they take precedence over the on-disk file).
+[ -n "$_CI_GOOGLE_MAPS_API_KEY" ] && export GOOGLE_MAPS_API_KEY="$_CI_GOOGLE_MAPS_API_KEY"
+[ -n "$_CI_WALLETWALLET_API_KEY" ] && export WALLETWALLET_API_KEY="$_CI_WALLETWALLET_API_KEY"
+[ -n "$_CI_GOOGLE_WALLET_ISSUER_ID" ] && export GOOGLE_WALLET_ISSUER_ID="$_CI_GOOGLE_WALLET_ISSUER_ID"
+[ -n "$_CI_GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL" ] && export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL="$_CI_GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL"
+[ -n "$_CI_GOOGLE_WALLET_SERVICE_ACCOUNT_KEY" ] && export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY="$_CI_GOOGLE_WALLET_SERVICE_ACCOUNT_KEY"
+[ -n "$_CI_PUBLIC_URL" ] && export PUBLIC_URL="$_CI_PUBLIC_URL"
 
 # Generate Umami secrets on first run if missing (production only).
 # Stored in .env.prod so subsequent deploys reuse the same values.
