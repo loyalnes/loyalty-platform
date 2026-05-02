@@ -53,11 +53,30 @@ export async function extractPlaceIdFromUrl(url: string): Promise<string | null>
       return match4[1];
     }
 
-    // NOTE: the legacy hex format (!1s0xHEX:0xHEX) is NOT accepted by
-    // Google's writereview endpoint — only the modern ChIJ format works.
-    // For URLs that only expose the hex CID (typical of maps.app.goo.gl
-    // share links for older listings), we return null so feedback.ts
-    // falls back to redirecting the customer to the maps URL itself.
+    // Pattern 5: legacy hex CID (!1s0xHEX:0xHEX) → resolve to ChIJ via
+    // Google Places API. The maps.app.goo.gl share link typically expands
+    // to this format for older listings; the writereview endpoint rejects
+    // hex placeids, so we need the modern ChIJ. Requires GOOGLE_MAPS_API_KEY.
+    const hexMatch = finalUrl.match(/!1s0x[0-9a-f]+:0x([0-9a-f]+)/i);
+    if (hexMatch && process.env.GOOGLE_MAPS_API_KEY) {
+      try {
+        const decimalCid = BigInt('0x' + hexMatch[1]).toString();
+        const apiUrl = `https://maps.googleapis.com/maps/api/place/details/json?cid=${decimalCid}&fields=place_id&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json() as {
+          status: string;
+          result?: { place_id?: string };
+          error_message?: string;
+        };
+        if (data.status === 'OK' && data.result?.place_id) {
+          return data.result.place_id;
+        }
+        console.warn(`Places API returned ${data.status}: ${data.error_message || 'no place_id'}`);
+      } catch (apiErr) {
+        console.error('Places API call failed:', apiErr);
+      }
+    }
+
     console.warn('Could not extract a usable ChIJ Place ID from URL:', finalUrl);
     return null;
   } catch (error) {
