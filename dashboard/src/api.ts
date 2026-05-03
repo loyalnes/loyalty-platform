@@ -11,7 +11,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     ...(options.headers as Record<string, string> || {}),
   };
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
@@ -375,8 +383,22 @@ export interface CustomerCardDetail {
   pointsBalance: number;
   totalEarned: number;
   totalRedeemed: number;
+  redemptionsCount: number;
   status: string;
   recentTransactions: PointsTransaction[];
+  enrolledAt: string;
+  program: {
+    type: 'POINTS' | 'STAMPS';
+    goalStamps: number | null;
+    pointsPerCurrency: number | null;
+    rewardTiers: Array<{
+      id: string;
+      name: string;
+      rewardName: string;
+      threshold: number;
+      sortOrder: number;
+    }>;
+  } | null;
 }
 
 export function getCustomerCard(customerId: string) {

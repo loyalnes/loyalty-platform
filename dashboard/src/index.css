@@ -5581,3 +5581,655 @@ textarea.form-input,
 .lang-picker-name {
   font-size: 0.75rem;
 }
+
+/* ===== Add Points Modal (redesigned) ===== */
+.add-points-modal {
+  padding: clamp(1.25rem, 4vw, 1.75rem);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.apm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.apm-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.apm-name {
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 0.25rem;
+  color: var(--text);
+}
+
+.apm-meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.add-points-modal .modal-close-btn {
+  flex-shrink: 0;
+}
+
+/* Progress bar */
+.apm-progress {
+  background: var(--surface-container-low, #F5F1FA);
+  border-radius: 18px;
+  padding: 18px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.apm-progress-track {
+  position: relative;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.apm-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--quick-add-points, #EFFF74), #84CC16);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.apm-progress-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.apm-progress-marker.is-reward {
+  width: 14px;
+  height: 14px;
+  border-color: var(--text);
+}
+
+.apm-progress-marker.is-reached {
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.apm-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.apm-progress-current {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-feature-settings: "tnum";
+}
+
+.apm-progress-tiers {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.7rem;
+}
+
+.apm-progress-tiers span.reached {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Alerts */
+.apm-alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.apm-alert-success {
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+  color: var(--success);
+}
+
+.apm-alert-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Points pattern */
+.apm-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.apm-input-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.apm-amount-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0;
+}
+
+.apm-currency {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+.apm-input-amount {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  border: none;
+  background: transparent;
+  width: 5ch;
+  max-width: 100%;
+  text-align: left;
+  padding: 0;
+  color: var(--text);
+  font-feature-settings: "tnum";
+  outline: none;
+  font-family: var(--font-body);
+}
+
+.apm-input-amount:focus {
+  outline: none;
+}
+
+.apm-input-amount::placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.apm-conversion {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary, #4F46E5);
+  min-height: 1.5rem;
+}
+
+/* Stamps pattern */
+.apm-stamps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.apm-input-stamp {
+  font-size: 3rem;
+  font-weight: 800;
+  text-align: center;
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  padding: 1rem;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  font-family: var(--font-body);
+  font-feature-settings: "tnum";
+}
+
+.apm-input-stamp:focus {
+  border-color: var(--primary);
+}
+
+/* Hero & secondary buttons */
+.apm-hero-btn {
+  width: 100%;
+  min-height: 64px;
+  border: none;
+  border-radius: 22px;
+  background: var(--quick-add-points, #EFFF74);
+  color: #0a0a0a;
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow:
+    0 4px 12px rgba(28, 27, 31, 0.10),
+    0 16px 32px -8px rgba(28, 27, 31, 0.18),
+    0 24px 48px -16px rgba(239, 255, 116, 0.55);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.apm-hero-btn:hover:not(:disabled) {
+  filter: brightness(1.03);
+}
+
+.apm-hero-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.apm-hero-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: 0 2px 8px rgba(28, 27, 31, 0.08);
+}
+
+.apm-secondary-btn {
+  width: 100%;
+  min-height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.apm-secondary-btn:hover:not(:disabled) {
+  background: var(--surface-container-low, #F5F1FA);
+}
+
+.apm-btn-ghost {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.apm-btn-ghost:hover:not(:disabled) {
+  color: var(--text);
+}
+
+/* Redeem entry-point banner */
+.apm-redeem-banner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px dashed var(--border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.apm-redeem-banner:hover:not(:disabled) {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.apm-redeem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.apm-redeem h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.apm-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+/* ===== /Add Points Modal ===== */
+
+.apm-meta + .apm-meta-rewards {
+  margin-top: 2px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Success overlay (covers modal body after add) */
+.apm-success-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 2rem;
+  z-index: 5;
+  animation: apm-overlay-in 0.2s ease-out;
+}
+
+@keyframes apm-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.apm-success-check {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--quick-add-points, #EFFF74);
+  color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 12px rgba(28, 27, 31, 0.10),
+    0 16px 32px -8px rgba(239, 255, 116, 0.55);
+  animation: apm-check-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes apm-check-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.apm-success-check svg {
+  animation: apm-check-draw 0.3s ease-out 0.2s both;
+}
+
+@keyframes apm-check-draw {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.apm-success-title {
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-align: center;
+}
+
+.apm-success-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.add-points-modal {
+  position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apm-success-check,
+  .apm-success-check svg { animation: none; }
+}
+
+/* Customer search modal */
+.customer-search-modal {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 460px;
+}
+
+.customer-search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.customer-search-header h3 {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+}
+
+.customer-search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.customer-search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.customer-search-input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.customer-search-input:focus {
+  border-color: var(--primary);
+}
+
+.customer-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.customer-search-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  padding: 1.5rem 0;
+  margin: 0;
+}
+
+.customer-search-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+
+.customer-search-result:hover {
+  background: var(--surface-container-low, #F5F1FA);
+}
+
+.customer-search-avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customer-search-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-search-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-search-meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-search-points {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--text);
+  font-feature-settings: "tnum";
+  background: var(--surface-container-low, #F5F1FA);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+}
+
+/* Redeem confirm modal (DS-aligned) */
+.redeem-modal {
+  padding: clamp(1.25rem, 4vw, 1.75rem);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.redeem-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface-container-low, #F5F1FA);
+}
+
+.redeem-hero-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--quick-add-points, #EFFF74);
+  color: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px -4px rgba(239, 255, 116, 0.55);
+}
+
+.redeem-hero-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.redeem-hero-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.redeem-hero-name {
+  font-family: var(--font-body);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.redeem-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.redeem-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  font-size: 0.9375rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.redeem-row:last-child {
+  border-bottom: none;
+}
+
+.redeem-row-label {
+  color: var(--text-secondary);
+}
+
+.redeem-row-value {
+  font-weight: 700;
+  color: var(--text);
+  font-feature-settings: "tnum";
+}
+
+.redeem-row-deduct {
+  color: #b91c1c;
+}
+
+.redeem-row-total {
+  background: var(--surface-container-low, #F5F1FA);
+  font-size: 1rem;
+}
+
+.redeem-row-total .redeem-row-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+}

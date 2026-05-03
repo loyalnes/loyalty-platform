@@ -133,6 +133,7 @@ export interface CustomerCard {
   pointsBalance: number;
   totalEarned: number;
   totalRedeemed: number;
+  redemptionsCount: number;
   status: string;
   recentTransactions: Array<{
     id: string;
@@ -142,6 +143,19 @@ export interface CustomerCard {
     description: string | null;
     createdAt: Date;
   }>;
+  enrolledAt: Date;
+  program: {
+    type: "POINTS" | "STAMPS";
+    goalStamps: number | null;
+    pointsPerCurrency: number | null;
+    rewardTiers: Array<{
+      id: string;
+      name: string;
+      rewardName: string;
+      threshold: number;
+      sortOrder: number;
+    }>;
+  } | null;
 }
 
 export async function getCustomerCard(merchantId: string, customerId: string): Promise<CustomerCard | null> {
@@ -178,6 +192,17 @@ export async function getCustomerCard(merchantId: string, customerId: string): P
 
   if (!card) return null;
 
+  const program = await prisma.loyaltyProgram.findUnique({
+    where: { merchantId },
+    include: {
+      rewardTiers: { orderBy: { sortOrder: "asc" } },
+    },
+  });
+
+  const redemptionsCount = await prisma.pointsTransaction.count({
+    where: { loyaltyCardId: card.id, type: "REDEEM" },
+  });
+
   return {
     id: card.id,
     cardNumber: card.cardNumber,
@@ -190,8 +215,24 @@ export async function getCustomerCard(merchantId: string, customerId: string): P
     pointsBalance: card.pointsBalance,
     totalEarned: card.totalEarned,
     totalRedeemed: card.totalRedeemed,
+    redemptionsCount,
     status: card.status,
     recentTransactions: card.transactions,
+    enrolledAt: card.createdAt,
+    program: program
+      ? {
+          type: program.type,
+          goalStamps: program.goalStamps,
+          pointsPerCurrency: program.pointsPerCurrency ? Number(program.pointsPerCurrency) : null,
+          rewardTiers: program.rewardTiers.map((t) => ({
+            id: t.id,
+            name: t.name,
+            rewardName: t.rewardName,
+            threshold: t.threshold,
+            sortOrder: t.sortOrder,
+          })),
+        }
+      : null,
   };
 }
 

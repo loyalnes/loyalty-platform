@@ -17,9 +17,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
       search: search || undefined,
     });
 
-    // Add caching headers for mobile PWA
-    res.set('Cache-Control', 'private, max-age=180'); // 3 minutes
-
+    res.set('Cache-Control', 'no-store');
     res.json(result);
   } catch (err) {
     next(err);

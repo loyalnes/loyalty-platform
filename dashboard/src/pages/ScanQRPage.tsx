@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Camera, KeyboardIcon } from 'lucide-react';
+import { X, Camera, Search, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Html5Qrcode } from 'html5-qrcode';
-import { getCustomerCard, resolveWalletScan, type CustomerCardDetail } from '../api';
+import { getCustomerCard, listCustomers, resolveWalletScan, type CustomerCardDetail, type MerchantCustomer } from '../api';
 import CustomerProfileModal from '../components/CustomerProfileModal';
 import { useOnline } from '../contexts/OnlineContext';
 import { addToPendingSync } from '../db/operations';
@@ -15,7 +15,9 @@ export default function ScanQRPage() {
   const [scanning, setScanning] = useState(false);
   const [cameraError, setCameraError] = useState(false);
   const [showManualInput, setShowManualInput] = useState(false);
-  const [manualId, setManualId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<MerchantCustomer[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [customer, setCustomer] = useState<CustomerCardDetail | null>(null);
   const [error, setError] = useState('');
   const [offlineQueued, setOfflineQueued] = useState(false);
@@ -80,23 +82,8 @@ export default function ScanQRPage() {
       try {
         setError('');
         const walletResult = await resolveWalletScan(decodedText);
-        // Convert wallet result to CustomerCardDetail format
-        const customerDetail: CustomerCardDetail = {
-          id: walletResult.loyaltyCardId,
-          cardNumber: walletResult.cardNumber,
-          customerId: walletResult.customerId,
-          firstName: walletResult.customerName.split(' ')[0] || '',
-          lastName: walletResult.customerName.split(' ').slice(1).join(' ') || '',
-          email: '',
-          phone: null,
-          avatarUrl: null,
-          pointsBalance: walletResult.pointsBalance,
-          totalEarned: 0,
-          totalRedeemed: 0,
-          status: 'ACTIVE',
-          recentTransactions: [],
-        };
-        setCustomer(customerDetail);
+        const detail = await getCustomerCard(walletResult.customerId);
+        setCustomer(detail);
         return;
       } catch {
         // Fall through to try customer ID format
@@ -172,9 +159,33 @@ export default function ScanQRPage() {
     };
   }, [startCamera]);
 
-  const handleManualLookup = async () => {
-    if (!manualId.trim()) return;
-    await fetchCustomer(manualId.trim());
+  useEffect(() => {
+    if (!showManualInput) return;
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    const handle = setTimeout(async () => {
+      try {
+        const res = await listCustomers(1, 8, q);
+        setSearchResults(res.data);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 250);
+    return () => clearTimeout(handle);
+  }, [searchQuery, showManualInput]);
+
+  const handlePickResult = async (c: MerchantCustomer) => {
+    setShowManualInput(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    await fetchCustomer(c.customerId);
   };
 
   const handleCloseModal = () => {
@@ -228,7 +239,7 @@ export default function ScanQRPage() {
                 {t('scanQR.retryCamera', 'Retry Camera')}
               </button>
               <button className="btn-primary scan-qr-secondary-btn" onClick={() => setShowManualInput(true)}>
-                <KeyboardIcon size={20} />
+                <Search size={20} />
                 {t('scanQR.manualEntry')}
               </button>
             </div>
@@ -253,7 +264,7 @@ export default function ScanQRPage() {
               className="scan-qr-manual-btn"
               onClick={() => setShowManualInput(true)}
             >
-              <KeyboardIcon size={18} />
+              <Search size={18} />
               {t('scanQR.manualEntry')}
             </button>
           </>
@@ -261,26 +272,52 @@ export default function ScanQRPage() {
         </div>
       </div>
 
-      {/* Manual Input Modal */}
+      {/* Customer Search Modal */}
       {showManualInput && (
-        <div className="modal-overlay" onClick={() => setShowManualInput(false)}>
-          <div className="modal-content manual-input-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{t('scanQR.enterCustomerId')}</h3>
-            <input
-              type="text"
-              value={manualId}
-              onChange={(e) => setManualId(e.target.value)}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-              autoFocus
-              onKeyDown={(e) => e.key === 'Enter' && handleManualLookup()}
-            />
-            <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setShowManualInput(false)}>
-                {t('scanQR.cancel')}
+        <div className="modal-overlay" onClick={() => { setShowManualInput(false); setSearchQuery(''); setSearchResults([]); }}>
+          <div className="modal-content customer-search-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="customer-search-header">
+              <h3>{t('scanQR.searchCustomerTitle')}</h3>
+              <button className="modal-close-btn" onClick={() => { setShowManualInput(false); setSearchQuery(''); setSearchResults([]); }} aria-label={t('scanQR.cancel')}>
+                <X size={20} />
               </button>
-              <button className="btn-primary" onClick={handleManualLookup}>
-                {t('scanQR.lookup')}
-              </button>
+            </div>
+            <div className="customer-search-input-wrap">
+              <Search size={18} className="customer-search-icon" />
+              <input
+                type="text"
+                className="customer-search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('scanQR.searchPlaceholder')}
+                autoFocus
+              />
+            </div>
+            <div className="customer-search-results">
+              {searchQuery.trim().length < 2 ? (
+                <p className="customer-search-empty">{t('scanQR.searchHint')}</p>
+              ) : searchLoading ? (
+                <p className="customer-search-empty">{t('common.loading')}</p>
+              ) : searchResults.length === 0 ? (
+                <p className="customer-search-empty">{t('scanQR.searchNoResults')}</p>
+              ) : (
+                searchResults.map((c) => (
+                  <button
+                    key={c.customerId}
+                    className="customer-search-result"
+                    onClick={() => handlePickResult(c)}
+                  >
+                    <div className="customer-search-avatar">
+                      <User size={20} />
+                    </div>
+                    <div className="customer-search-info">
+                      <div className="customer-search-name">{c.firstName} {c.lastName}</div>
+                      <div className="customer-search-meta">{c.email}{c.phone ? ` · ${c.phone}` : ''}</div>
+                    </div>
+                    <div className="customer-search-points">{c.pointsBalance}</div>
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </div>
