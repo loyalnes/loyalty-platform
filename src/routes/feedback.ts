@@ -29,9 +29,6 @@ router.get("/:merchantId/config", async (req: Request, res: Response, next: Next
       googlePlaceId: (settings.googlePlaceId as string) || null,
       reviewFlowEnabled: settings.reviewFlowEnabled !== false,
       locale: merchant.preferredLocale,
-      // Diagnostic flag: tells us whether the server has the Places API key
-      // configured. No key value is exposed. Remove once integration verified.
-      placesApiConfigured: Boolean(process.env.GOOGLE_MAPS_API_KEY),
     });
   } catch (err) {
     next(err);
