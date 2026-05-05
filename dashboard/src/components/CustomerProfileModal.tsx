@@ -135,6 +135,7 @@ export default function CustomerProfileModal({ customer, onClose, initialView = 
       overlayTimerRef.current = setTimeout(() => {
         overlayTimerRef.current = null;
         setSuccessOverlay(null);
+        onClose();
       }, 1500);
     } catch {
       setRedeemError(t('scanQR.customerProfile.redeemError'));
@@ -252,7 +253,10 @@ export default function CustomerProfileModal({ customer, onClose, initialView = 
                           : t('scanQR.customerProfile.pointsToReward', { count: toGo, reward: nextTier.rewardName })}
                       </p>
                     )}
-                    <button className="apm-hero-btn" onClick={() => setShowRedeem(false)}>
+                    <button className="apm-hero-btn" onClick={onClose}>
+                      {t('scanQR.customerProfile.close')}
+                    </button>
+                    <button className="apm-btn-ghost" onClick={() => setShowRedeem(false)}>
                       {isStamps ? t('scanQR.customerProfile.addStamp') : t('scanQR.customerProfile.addPoints')}
                     </button>
                   </div>

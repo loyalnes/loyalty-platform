@@ -26,7 +26,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const merchantId = req.merchantId!;
     const { type, goalStamps, welcomeStamps, welcomePoints, pointsPerCurrency, rewardTiers } = req.body;
 
-    if (!type || !["POINTS", "STAMPS"].includes(type)) {
+    if (typeof type !== "string" || !["POINTS", "STAMPS"].includes(type)) {
       throw new ApiError(400, "type must be POINTS or STAMPS");
     }
 
@@ -35,18 +35,32 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       throw new ApiError(409, "You already have a loyalty program");
     }
 
-    if (type === "STAMPS" && (!goalStamps || goalStamps < 1)) {
-      throw new ApiError(400, "goalStamps is required for STAMPS programs");
+    if (type === "STAMPS" && (typeof goalStamps !== "number" || goalStamps < 1)) {
+      throw new ApiError(400, "goalStamps must be a positive number for STAMPS programs");
     }
 
-    if (!rewardTiers || !Array.isArray(rewardTiers) || rewardTiers.length === 0) {
+    if (type === "POINTS" && pointsPerCurrency !== undefined && (typeof pointsPerCurrency !== "number" || pointsPerCurrency <= 0)) {
+      throw new ApiError(400, "pointsPerCurrency must be a positive number");
+    }
+
+    if (!Array.isArray(rewardTiers) || rewardTiers.length === 0) {
       throw new ApiError(400, "At least one reward tier is required");
+    }
+
+    for (const tier of rewardTiers) {
+      if (
+        typeof tier !== "object" || tier === null
+        || typeof tier.threshold !== "number" || tier.threshold <= 0
+        || typeof tier.rewardName !== "string" || tier.rewardName.trim().length === 0
+      ) {
+        throw new ApiError(400, "Each reward tier needs a positive threshold and a non-empty rewardName");
+      }
     }
 
     const program = await prisma.loyaltyProgram.create({
       data: {
         merchantId,
-        type,
+        type: type as "POINTS" | "STAMPS",
         goalStamps: type === "STAMPS" ? goalStamps : null,
         welcomeStamps: type === "STAMPS" ? (welcomeStamps || 0) : null,
         welcomePoints: type === "POINTS" ? (welcomePoints || 0) : null,

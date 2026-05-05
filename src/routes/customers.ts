@@ -1,10 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { v4 as uuidv4 } from "uuid";
 import prisma from "../prisma";
 import * as customerService from "../services/customerService";
-import { getOrCreateWalletPass, getOrCreateWalletAccessToken } from "../services/walletTokens";
 import { sendWalletLinkEmail } from "../services/mailer";
 import { ApiError } from "../middleware/errorHandler";
+import { enrollCustomer } from "../services/enrollmentService";
 
 const router = Router();
 
@@ -14,81 +13,35 @@ router.post("/manual-add", async (req: Request, res: Response, next: NextFunctio
     const merchantId = req.merchantId!;
     const { firstName, lastName, email } = req.body ?? {};
 
-    if (!firstName || !email) {
-      throw new ApiError(400, "firstName and email are required");
+    if (typeof firstName !== "string" || typeof email !== "string") {
+      throw new ApiError(400, "firstName and email are required strings");
     }
 
     const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
     if (!merchant) throw new ApiError(404, "Merchant not found");
 
-    const program = await prisma.loyaltyProgram.findUnique({ where: { merchantId } });
-    if (!program || !program.active) {
-      throw new ApiError(400, "No active loyalty program");
-    }
-
-    const normalizedEmail = String(email).trim().toLowerCase();
-
-    const { customer, card, alreadyEnrolled } = await prisma.$transaction(async (tx) => {
-      let cust = await tx.customer.findUnique({ where: { email: normalizedEmail } });
-      if (!cust) {
-        cust = await tx.customer.create({
-          data: {
-            email: normalizedEmail,
-            firstName: String(firstName).trim(),
-            lastName: lastName ? String(lastName).trim() : "",
-            acquisitionSource: "merchant_manual",
-          },
-        });
-      }
-
-      let crd = await tx.loyaltyCard.findUnique({
-        where: { merchantId_customerId: { merchantId, customerId: cust.id } },
-      });
-      const enrolled = Boolean(crd);
-
-      if (!crd) {
-        const cardNumber = `LC-${uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
-        crd = await tx.loyaltyCard.create({
-          data: {
-            cardNumber,
-            merchantId,
-            customerId: cust.id,
-            // No consents recorded here: enrolment by merchant is grounded on
-            // Art. 6(1)(f) legitimate interest. The customer activates marketing
-            // himself via the wallet email opt-in (Art. 4(11)/Art. 7 GDPR).
-            enrollmentSource: "MERCHANT_MANUAL",
-          },
-        });
-      }
-
-      return { customer: cust, card: crd, alreadyEnrolled: enrolled };
-    });
-
-    const applePass = await getOrCreateWalletPass(card.id, "APPLE_WALLET");
-    await getOrCreateWalletPass(card.id, "GOOGLE_WALLET");
-    const accessToken = await getOrCreateWalletAccessToken(applePass.id);
+    const result = await enrollCustomer(
+      merchantId,
+      { firstName, lastName: typeof lastName === "string" ? lastName : undefined, email },
+      "MERCHANT_MANUAL",
+    );
 
     const origin = process.env.PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
-    const loyaltyUrl = `${origin}/app/loyalty/${accessToken.token}`;
+    const loyaltyUrl = `${origin}/app/loyalty/${result.accessToken}`;
 
     const emailSent = await sendWalletLinkEmail({
-      to: customer.email,
+      to: result.customer.email,
       merchantName: merchant.name,
       merchantEmail: merchant.email,
-      customerFirstName: customer.firstName,
+      customerFirstName: result.customer.firstName,
       loyaltyUrl,
     });
 
-    res.status(alreadyEnrolled ? 200 : 201).json({
-      alreadyEnrolled,
+    res.status(result.alreadyEnrolled ? 200 : 201).json({
+      alreadyEnrolled: result.alreadyEnrolled,
       loyaltyUrl,
       emailSent,
-      customer: {
-        id: customer.id,
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        email: customer.email,
-      },
+      customer: result.customer,
     });
   } catch (err) {
     next(err);

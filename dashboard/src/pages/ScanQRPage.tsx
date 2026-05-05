@@ -158,6 +158,7 @@ export default function ScanQRPage() {
           })
           .catch((err) => console.error('Failed to stop scanner:', err));
       }
+      hasStartedRef.current = false;
     };
   }, [startCamera]);
 
@@ -170,17 +171,21 @@ export default function ScanQRPage() {
       return;
     }
     setSearchLoading(true);
+    let cancelled = false;
     const handle = setTimeout(async () => {
       try {
         const res = await listCustomers(1, 8, q);
-        setSearchResults(res.data);
+        if (!cancelled) setSearchResults(res.data);
       } catch {
-        setSearchResults([]);
+        if (!cancelled) setSearchResults([]);
       } finally {
-        setSearchLoading(false);
+        if (!cancelled) setSearchLoading(false);
       }
     }, 250);
-    return () => clearTimeout(handle);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
   }, [searchQuery, showManualInput]);
 
   const handlePickResult = async (c: MerchantCustomer) => {

@@ -15,10 +15,15 @@ interface TierDraft {
   rewardName: string;
 }
 
-let tierId = 0;
 function newTier(): TierDraft {
-  tierId++;
-  return { id: `t${tierId}`, name: '', threshold: '', rewardName: '' };
+  return { id: crypto.randomUUID(), name: '', threshold: '', rewardName: '' };
+}
+
+// Parse the input as int, preserving 0; empty string stays empty.
+function parseIntInput(raw: string): number | string {
+  if (raw === '') return '';
+  const n = parseInt(raw, 10);
+  return Number.isNaN(n) ? '' : n;
 }
 
 export default function SetupWizardPage() {
@@ -203,7 +208,7 @@ export default function SetupWizardPage() {
                   <input
                     type="number"
                     value={goalStamps}
-                    onChange={(e) => setGoalStamps(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+                    onChange={(e) => setGoalStamps(parseIntInput(e.target.value))}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
@@ -216,7 +221,7 @@ export default function SetupWizardPage() {
                   <input
                     type="number"
                     value={pointsPerCurrency}
-                    onChange={(e) => setPointsPerCurrency(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+                    onChange={(e) => setPointsPerCurrency(parseIntInput(e.target.value))}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.points')}</span>
@@ -235,7 +240,7 @@ export default function SetupWizardPage() {
                   <input
                     type="number"
                     value={welcomeStamps}
-                    onChange={(e) => setWelcomeStamps(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
+                    onChange={(e) => setWelcomeStamps(parseIntInput(e.target.value))}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
@@ -248,7 +253,7 @@ export default function SetupWizardPage() {
                   <input
                     type="number"
                     value={welcomePoints}
-                    onChange={(e) => setWelcomePoints(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
+                    onChange={(e) => setWelcomePoints(parseIntInput(e.target.value))}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.points')}</span>
@@ -287,7 +292,7 @@ export default function SetupWizardPage() {
                       value={tier.threshold}
                       max={type === 'STAMPS' ? goalStampsNum : undefined}
                       onChange={(e) =>
-                        updateTier(tier.id, 'threshold', e.target.value === '' ? '' : parseInt(e.target.value) || '')
+                        updateTier(tier.id, 'threshold', parseIntInput(e.target.value))
                       }
                       className={`tier-threshold${thresholdMissing(tier) || tierErr ? ' is-invalid' : ''}`}
                     />

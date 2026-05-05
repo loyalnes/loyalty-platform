@@ -1095,8 +1095,11 @@ h3, .h3 {
   border: none;
   color: var(--danger);
   cursor: pointer;
-  padding: 4px;
-  display: flex;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tier-input,
@@ -4213,7 +4216,8 @@ textarea.form-input,
 .modal-close-btn {
   background: var(--bg);
   border: none;
-  padding: 0.5rem;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   color: var(--text-secondary);
   display: flex;
@@ -6299,8 +6303,8 @@ textarea.form-input,
 
 .customers-add-btn {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--quick-add-points, #EFFF74);
   color: #0a0a0a;
@@ -6520,4 +6524,21 @@ textarea.form-input,
   border-radius: 12px;
   line-height: 1.4;
   margin: 0;
+}
+
+/* Global focus-visible ring (WCAG 2.4.7) */
+.apm-hero-btn:focus-visible,
+.apm-secondary-btn:focus-visible,
+.apm-btn-ghost:focus-visible,
+.apm-redeem-banner:focus-visible,
+.reward-item:focus-visible,
+.customer-search-result:focus-visible,
+.customers-add-btn:focus-visible,
+.app-choice-card:focus-visible,
+.tier-delete:focus-visible,
+.modal-close-btn:focus-visible,
+.add-tier-btn:focus-visible,
+.btn-edit:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  outline-offset: 2px;
 }
