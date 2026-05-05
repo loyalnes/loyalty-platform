@@ -93,6 +93,11 @@
   /* Colors - Quick Actions (Hybrid: most purple, yellow SOLO per success) */
   --quick-add-points: #EFFF74;        /* SUCCESS: giallo acido (unico caso) */
   --quick-add-points-text: #6B7600;
+  --quick-add-points-deep: #84CC16;   /* lime-500 — gradient end of progress fill */
+  --on-quick-add: #0a0a0a;            /* text-on-chartreuse (apm-hero-btn etc.) */
+  --danger-bg: #fef2f2;
+  --danger-text: #b91c1c;
+  --danger-border: #dc2626;
   --quick-redeem: #725BF3;            /* INTERACTIVE: viola */
   --quick-redeem-text: #FFFFFF;
   --quick-show-qr: #725BF3;           /* INTERACTIVE: viola (era giallo) */
@@ -1174,7 +1179,7 @@ h3, .h3 {
   border: none;
   border-radius: 25px;
   background: var(--quick-add-points, #EFFF74);
-  color: #0a0a0a;
+  color: var(--on-quick-add);
   cursor: pointer;
   text-align: left;
   box-shadow:
@@ -1240,14 +1245,14 @@ h3, .h3 {
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
-  color: #0a0a0a;
+  color: var(--on-quick-add);
 }
 
 .hub-hero-sublabel {
   font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.3;
-  color: #0a0a0a;
+  color: var(--on-quick-add);
   opacity: 0.75;
 }
 
@@ -1256,7 +1261,7 @@ h3, .h3 {
   width: 53px;
   height: 53px;
   border-radius: 999px;
-  background: #0a0a0a;
+  background: var(--on-quick-add);
   color: #EFFF74;
   display: inline-flex;
   align-items: center;
@@ -1457,7 +1462,7 @@ h3, .h3 {
 
 .notification-high .notification-icon {
   background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
+  color: var(--danger-border);
 }
 
 .notification-text {
@@ -4532,7 +4537,7 @@ textarea.form-input,
   box-shadow:
     0 4px 12px rgba(28, 27, 31, 0.10),
     0 12px 24px -8px rgba(239, 255, 116, 0.55);
-  color: #0a0a0a;
+  color: var(--on-quick-add);
 }
 
 .reward-item:hover:not(:disabled) {
@@ -4553,7 +4558,7 @@ textarea.form-input,
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #0a0a0a;
+  background: var(--on-quick-add);
   color: var(--quick-add-points, #EFFF74);
   display: flex;
   align-items: center;
@@ -4571,7 +4576,7 @@ textarea.form-input,
   font-weight: 800;
   letter-spacing: -0.01em;
   margin-bottom: 2px;
-  color: #0a0a0a;
+  color: var(--on-quick-add);
 }
 
 .reward-item-tier {
@@ -4587,7 +4592,7 @@ textarea.form-input,
   gap: 4px;
   font-weight: 700;
   font-size: 0.875rem;
-  color: #0a0a0a;
+  color: var(--on-quick-add);
 }
 
 /* ─── Redeem Confirm Modal ────────────────── */
@@ -5662,7 +5667,7 @@ textarea.form-input,
 
 .apm-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--quick-add-points, #EFFF74), #84CC16);
+  background: linear-gradient(90deg, var(--quick-add-points, #EFFF74), var(--quick-add-points-deep));
   border-radius: 999px;
   transition: width 0.4s ease;
 }
@@ -5733,8 +5738,8 @@ textarea.form-input,
 }
 
 .apm-alert-error {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--danger-bg);
+  color: var(--danger-text);
 }
 
 /* Points pattern */
@@ -5834,7 +5839,7 @@ textarea.form-input,
   border: none;
   border-radius: 22px;
   background: var(--quick-add-points, #EFFF74);
-  color: #0a0a0a;
+  color: var(--on-quick-add);
   font-family: var(--font-body);
   font-size: 1.25rem;
   font-weight: 800;
@@ -5967,7 +5972,7 @@ textarea.form-input,
   height: 96px;
   border-radius: 50%;
   background: var(--quick-add-points, #EFFF74);
-  color: #0a0a0a;
+  color: var(--on-quick-add);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6174,7 +6179,7 @@ textarea.form-input,
   height: 56px;
   border-radius: 50%;
   background: var(--quick-add-points, #EFFF74);
-  color: #0a0a0a;
+  color: var(--on-quick-add);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6239,7 +6244,7 @@ textarea.form-input,
 }
 
 .redeem-row-deduct {
-  color: #b91c1c;
+  color: var(--danger-text);
 }
 
 .redeem-row-total {
@@ -6307,7 +6312,7 @@ textarea.form-input,
   height: 44px;
   border-radius: 50%;
   background: var(--quick-add-points, #EFFF74);
-  color: #0a0a0a;
+  color: var(--on-quick-add);
   border: none;
   display: inline-flex;
   align-items: center;
@@ -6451,7 +6456,7 @@ textarea.form-input,
 
 .tier-error {
   font-size: 0.8125rem;
-  color: #b91c1c;
+  color: var(--danger-text);
   margin: 6px 0 0;
   font-weight: 500;
 }
@@ -6459,7 +6464,7 @@ textarea.form-input,
 .tier-input.is-invalid,
 .tier-threshold.is-invalid,
 .tier-reward-name.is-invalid {
-  border-color: #dc2626;
+  border-color: var(--danger-border);
   box-shadow: 0 0 0 1px #dc2626;
 }
 
@@ -6541,4 +6546,55 @@ textarea.form-input,
 .btn-edit:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--primary) 55%, transparent);
   outline-offset: 2px;
+}
+
+/* Wizard: collapsed tier summary (read-only row, tap to expand) */
+.tier-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-container-low, #F5F1FA);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.tier-summary:hover {
+  border-color: var(--primary);
+}
+
+.tier-summary-index {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tier-summary-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tier-summary-threshold {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-feature-settings: "tnum";
 }

@@ -60,6 +60,51 @@ router.post("/scan/resolve", authenticateMerchant, async (req: Request, res: Res
 });
 
 /**
+ * POST /wallet/access/:token/marketing-consent
+ * Customer-side opt-in / opt-out for marketing communications.
+ * Body: { accept: boolean }
+ *
+ * Flow: the token identifies the LoyaltyCard. The customer is acting on
+ * their own card (no merchant API key) — this is the lawful path for
+ * marketing consent (Art. 4(11) GDPR / EDPB 05/2020): merchant-side
+ * "consent by proxy" is not allowed.
+ */
+router.post("/access/:token/marketing-consent", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const accessTokenValue = req.params.token;
+    const { accept } = req.body ?? {};
+
+    if (typeof accept !== "boolean") {
+      throw new ApiError(400, "accept must be boolean");
+    }
+
+    const accessToken = await resolveWalletAccessToken(accessTokenValue);
+    if (!accessToken || !accessToken.active || accessToken.revokedAt) {
+      throw new ApiError(404, "Wallet access not found");
+    }
+
+    const cardId = accessToken.walletPass.loyaltyCardId;
+    const now = new Date();
+
+    if (accept) {
+      await prisma.loyaltyCard.update({
+        where: { id: cardId },
+        data: { marketingConsentAt: now, marketingRevokedAt: null },
+      });
+    } else {
+      await prisma.loyaltyCard.update({
+        where: { id: cardId },
+        data: { marketingRevokedAt: now },
+      });
+    }
+
+    res.json({ success: true, marketingOptedIn: accept });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * GET /wallet/access/:token
  * Resolve a stable customer wallet access token to a private loyalty summary
  */

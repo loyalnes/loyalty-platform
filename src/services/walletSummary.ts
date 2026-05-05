@@ -49,6 +49,7 @@ export interface WalletSummary {
     pointsToGo: number;
     progress: number;
   } | null;
+  marketingOptedIn: boolean;
 }
 
 export async function buildWalletSummary(loyaltyCardId: string, provider: "APPLE_WALLET" | "GOOGLE_WALLET" = "APPLE_WALLET"): Promise<WalletSummary | null> {
@@ -189,5 +190,6 @@ export async function buildWalletSummary(loyaltyCardId: string, provider: "APPLE
     merchantScanToken: scanToken.token,
     customerAccessToken: accessToken.token,
     nextReward,
+    marketingOptedIn: Boolean(loyaltyCard.marketingConsentAt && !loyaltyCard.marketingRevokedAt),
   };
 }

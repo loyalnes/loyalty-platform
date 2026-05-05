@@ -5,8 +5,7 @@ import confetti from 'canvas-confetti';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext';
 import { createLoyaltyProgram } from '../api';
-
-type ProgramType = 'POINTS' | 'STAMPS';
+import { parseIntInput, tierPreview, validateTiers, type ProgramType } from '../lib/setupValidation';
 
 interface TierDraft {
   id: string;
@@ -17,13 +16,6 @@ interface TierDraft {
 
 function newTier(): TierDraft {
   return { id: crypto.randomUUID(), name: '', threshold: '', rewardName: '' };
-}
-
-// Parse the input as int, preserving 0; empty string stays empty.
-function parseIntInput(raw: string): number | string {
-  if (raw === '') return '';
-  const n = parseInt(raw, 10);
-  return Number.isNaN(n) ? '' : n;
 }
 
 export default function SetupWizardPage() {
@@ -37,7 +29,9 @@ export default function SetupWizardPage() {
   const [welcomeStamps, setWelcomeStamps] = useState<number | string>(0);
   const [pointsPerCurrency, setPointsPerCurrency] = useState<number | string>(1);
   const [welcomePoints, setWelcomePoints] = useState<number | string>(0);
-  const [tiers, setTiers] = useState<TierDraft[]>([newTier()]);
+  const initialTier = useMemo(() => newTier(), []);
+  const [tiers, setTiers] = useState<TierDraft[]>([initialTier]);
+  const [editingTierId, setEditingTierId] = useState<string>(initialTier.id);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -59,23 +53,13 @@ export default function SetupWizardPage() {
 
   // Inline (visible under threshold input). Only threshold/order errors.
   const tierErrors = useMemo<Record<string, string>>(() => {
-    const errs: Record<string, string> = {};
-    tiers.forEach((tier, idx) => {
-      const v = Number(tier.threshold);
-      if (v > 0 && idx > 0) {
-        const prev = Number(tiers[idx - 1].threshold);
-        if (prev && v <= prev) errs[tier.id] = t('setup.errorAscending');
-      }
-      if (type === 'STAMPS' && v > 0) {
-        if (v > goalStampsNum) errs[tier.id] = t('setup.errorMaxStamps', { goal: goalStampsNum });
-        else if (tiers.length === 1 && v !== goalStampsNum) {
-          errs[tier.id] = t('setup.errorSingleTierStamps', { goal: goalStampsNum });
-        } else if (tiers.length > 1 && idx === tiers.length - 1 && v !== goalStampsNum) {
-          errs[tier.id] = t('setup.errorLastTierStamps', { goal: goalStampsNum });
-        }
-      }
+    if (!type) return {};
+    return validateTiers(tiers, type, goalStampsNum, {
+      ascending: t('setup.errorAscending'),
+      maxStamps: ({ goal }) => t('setup.errorMaxStamps', { goal }),
+      singleTierStamps: ({ goal }) => t('setup.errorSingleTierStamps', { goal }),
+      lastTierStamps: ({ goal }) => t('setup.errorLastTierStamps', { goal }),
     });
-    return errs;
   }, [tiers, type, goalStampsNum, t]);
 
   // Per-field invalid flags (drive red border on inputs, also block Finish)
@@ -97,17 +81,12 @@ export default function SetupWizardPage() {
 
   // ---- Per-tier live computation ----
   function tierComputation(threshold: number): string {
-    if (!threshold || threshold <= 0) return '';
-    if (type === 'POINTS') {
-      const remaining = Math.max(0, threshold - welcomePointsNum);
-      if (remaining === 0) return t('setup.tierUnlocked');
-      const euros = pointsPerCurrencyNum > 0 ? Math.ceil(remaining / pointsPerCurrencyNum) : 0;
-      return t('setup.tierSpend', { euros });
-    } else {
-      const remaining = Math.max(0, threshold - welcomeStampsNum);
-      if (remaining === 0) return t('setup.tierUnlocked');
-      return t('setup.tierVisits', { count: remaining });
-    }
+    if (!type) return '';
+    return tierPreview(threshold, type, pointsPerCurrencyNum, welcomePointsNum, welcomeStampsNum, {
+      spend: ({ euros }) => t('setup.tierSpend', { euros }),
+      visits: ({ count }) => t('setup.tierVisits', { count }),
+      unlocked: t('setup.tierUnlocked'),
+    });
   }
 
   async function handleFinish() {
@@ -269,6 +248,36 @@ export default function SetupWizardPage() {
             {tiers.map((tier, index) => {
               const tierErr = tierErrors[tier.id];
               const compHint = tierComputation(Number(tier.threshold));
+              const isEditing = tier.id === editingTierId;
+              const hasInvalid = thresholdMissing(tier) || rewardMissing(tier) || Boolean(tierErr);
+
+              if (!isEditing && !hasInvalid) {
+                return (
+                  <button
+                    key={tier.id}
+                    type="button"
+                    className="tier-summary"
+                    onClick={() => setEditingTierId(tier.id)}
+                  >
+                    <span className="tier-summary-index">{index + 1}</span>
+                    <span className="tier-summary-name">{tier.rewardName || tier.name}</span>
+                    <span className="tier-summary-threshold">
+                      {tier.threshold} {type === 'STAMPS' ? t('setup.stamps') : t('setup.points')}
+                    </span>
+                    {tiers.length > 1 && (
+                      <button
+                        type="button"
+                        className="tier-delete"
+                        onClick={(e) => { e.stopPropagation(); removeTier(tier.id); }}
+                        aria-label={t('setup.tier')}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </button>
+                );
+              }
+
               return (
                 <div key={tier.id} className="tier-card">
                   <div className="tier-header">
@@ -313,7 +322,14 @@ export default function SetupWizardPage() {
               );
             })}
 
-            <button className="add-tier-btn" onClick={() => setTiers([...tiers, newTier()])}>
+            <button
+              className="add-tier-btn"
+              onClick={() => {
+                const t = newTier();
+                setTiers((prev) => [...prev, t]);
+                setEditingTierId(t.id);
+              }}
+            >
               + {t('setup.addTier')}
             </button>
           </div>

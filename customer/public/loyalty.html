@@ -438,6 +438,19 @@
       cursor: pointer;
     }
     .hidden { display: none !important; }
+    .marketing-card { padding: 16px; }
+    .marketing-row { display: flex; align-items: center; gap: 14px; }
+    .marketing-text { flex: 1; min-width: 0; }
+    .marketing-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+    .marketing-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; cursor: pointer; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-track { position: absolute; inset: 0; background: var(--line-strong); border-radius: 999px; transition: background 0.2s ease; }
+    .switch-thumb { position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s ease; }
+    .switch input:checked + .switch-track { background: var(--primary); }
+    .switch input:checked + .switch-track .switch-thumb { transform: translateX(20px); }
+    .switch input:disabled + .switch-track { opacity: 0.6; cursor: wait; }
+    .marketing-status { margin-top: 10px; font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -488,6 +501,20 @@
     <section class="card">
       <div class="section-title" id="activityTitle">Recent activity</div>
       <div id="recentHistory"></div>
+    </section>
+
+    <section class="card marketing-card">
+      <div class="marketing-row">
+        <div class="marketing-text">
+          <div class="marketing-title" id="marketingTitle">Receive offers from this merchant</div>
+          <div class="marketing-desc" id="marketingDesc">Choose if you want this merchant to send you news and promotions.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="marketingToggle">
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+      </div>
+      <div class="marketing-status" id="marketingStatus" hidden></div>
     </section>
   </div>
 
@@ -631,6 +658,38 @@
         $('merchantName').textContent = data.merchantName;
         $('customerName').textContent = data.customerName;
         $('pointsBalance').textContent = String(data.pointsBalance ?? 0);
+
+        // Marketing opt-in toggle
+        const marketingToggle = $('marketingToggle');
+        marketingToggle.checked = Boolean(data.marketingOptedIn);
+        $('marketingTitle').textContent = (lang === 'it')
+          ? `Ricevi offerte da ${data.merchantName}`
+          : (lang === 'es' ? `Recibe ofertas de ${data.merchantName}` : `Receive offers from ${data.merchantName}`);
+        $('marketingDesc').textContent = (lang === 'it')
+          ? "Puoi cambiare idea quando vuoi."
+          : (lang === 'es' ? "Puedes cambiar de opinión cuando quieras." : "You can change your mind anytime.");
+        marketingToggle.onchange = async (e) => {
+          const accept = e.target.checked;
+          marketingToggle.disabled = true;
+          try {
+            const r = await fetch(`/api/wallet/access/${token}/marketing-consent`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ accept }),
+            });
+            if (!r.ok) throw new Error('failed');
+            const status = $('marketingStatus');
+            status.hidden = false;
+            status.textContent = accept
+              ? (lang === 'it' ? 'Iscritto alle offerte' : (lang === 'es' ? 'Suscrito a las ofertas' : 'Subscribed to offers'))
+              : (lang === 'it' ? 'Disiscritto' : (lang === 'es' ? 'Cancelado' : 'Unsubscribed'));
+            setTimeout(() => { status.hidden = true; }, 2500);
+          } catch {
+            marketingToggle.checked = !accept; // rollback
+          } finally {
+            marketingToggle.disabled = false;
+          }
+        };
 
         // Progress to next reward
         if (data.nextReward) {
