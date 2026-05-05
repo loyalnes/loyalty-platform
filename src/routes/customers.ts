@@ -68,7 +68,7 @@ router.post("/manual-add", async (req: Request, res: Response, next: NextFunctio
     await getOrCreateWalletPass(card.id, "GOOGLE_WALLET");
     const accessToken = await getOrCreateWalletAccessToken(applePass.id);
 
-    const origin = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
+    const origin = process.env.PUBLIC_URL || `${req.protocol}://${req.get("host")}`;
     const loyaltyUrl = `${origin}/app/loyalty/${accessToken.token}`;
 
     const emailSent = await sendWalletLinkEmail({

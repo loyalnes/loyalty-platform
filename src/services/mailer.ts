@@ -26,8 +26,8 @@ function safeHeader(s: string): string {
 export async function sendWalletLinkEmail({ to, merchantName, merchantEmail, customerFirstName, loyaltyUrl }: WalletLinkEmail): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.MAIL_FROM || "Loyali <noreply@loyali.online>";
-  const loyaliPrivacyUrl = process.env.PUBLIC_BASE_URL
-    ? `${process.env.PUBLIC_BASE_URL}/privacy`
+  const loyaliPrivacyUrl = process.env.PUBLIC_URL
+    ? `${process.env.PUBLIC_URL}/privacy`
     : "https://loyali.online/privacy";
 
   const subject = safeHeader(`${merchantName}: la tua tessera fedeltà`);
