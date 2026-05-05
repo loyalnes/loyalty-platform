@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { X, Gift, Check, Lock } from 'lucide-react';
+import { X, Gift, Check, Lock, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import {
@@ -259,10 +259,13 @@ export default function CustomerProfileModal({ customer, onClose, initialView = 
                     <div className="reward-item-icon"><Gift size={20} /></div>
                     <div className="reward-item-info">
                       <div className="reward-item-name">{reward.rewardName}</div>
-                      <div className="reward-item-tier">{reward.name}</div>
+                      <div className="reward-item-tier">
+                        {t('scanQR.customerProfile.pointsCost', { points: reward.threshold })}
+                      </div>
                     </div>
-                    <div className="reward-item-cost">
-                      {t('scanQR.customerProfile.pointsCost', { points: reward.threshold })}
+                    <div className="reward-item-cta">
+                      <span>{t('scanQR.customerProfile.redeemReward')}</span>
+                      <ChevronRight size={18} />
                     </div>
                   </button>
                 ))}

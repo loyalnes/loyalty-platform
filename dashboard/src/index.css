@@ -4516,20 +4516,28 @@ textarea.form-input,
 .reward-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  gap: 0.875rem;
+  padding: 14px 16px;
+  background: var(--quick-add-points, #EFFF74);
+  border: none;
+  border-radius: 18px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
   text-align: left;
+  width: 100%;
+  box-shadow:
+    0 4px 12px rgba(28, 27, 31, 0.10),
+    0 12px 24px -8px rgba(239, 255, 116, 0.55);
+  color: #0a0a0a;
 }
 
 .reward-item:hover:not(:disabled) {
-  border-color: var(--primary);
-  background: var(--primary-light);
+  filter: brightness(1.04);
   transform: translateY(-1px);
+}
+
+.reward-item:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .reward-item:disabled {
@@ -4538,11 +4546,11 @@ textarea.form-input,
 }
 
 .reward-item-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--success);
-  color: white;
+  background: #0a0a0a;
+  color: var(--quick-add-points, #EFFF74);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4555,21 +4563,27 @@ textarea.form-input,
 }
 
 .reward-item-name {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  margin-bottom: 0.125rem;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
+  color: #0a0a0a;
 }
 
 .reward-item-tier {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(10, 10, 10, 0.65);
 }
 
-.reward-item-cost {
-  font-size: 0.875rem;
+.reward-item-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-weight: 700;
-  color: var(--primary);
-  white-space: nowrap;
+  font-size: 0.875rem;
+  color: #0a0a0a;
 }
 
 /* ─── Redeem Confirm Modal ────────────────── */
