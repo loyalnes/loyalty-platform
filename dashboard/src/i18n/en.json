@@ -242,7 +242,7 @@
       "firstName": "First name",
       "lastName": "Last name",
       "email": "Email",
-      "marketingConsent": "Customer accepts marketing communications",
+      "disclosure": "The customer will receive an email with their digital card. They can opt in to marketing communications directly from the card when they wish.",
       "submit": "Add and send card",
       "requiredFields": "First name and email are required",
       "error": "Could not add customer. Try again.",

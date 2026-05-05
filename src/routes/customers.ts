@@ -12,7 +12,7 @@ const router = Router();
 router.post("/manual-add", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchantId = req.merchantId!;
-    const { firstName, lastName, email, marketingConsent } = req.body ?? {};
+    const { firstName, lastName, email } = req.body ?? {};
 
     if (!firstName || !email) {
       throw new ApiError(400, "firstName and email are required");
@@ -27,48 +27,54 @@ router.post("/manual-add", async (req: Request, res: Response, next: NextFunctio
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const now = new Date();
 
-    let customer = await prisma.customer.findUnique({ where: { email: normalizedEmail } });
-    if (!customer) {
-      customer = await prisma.customer.create({
-        data: {
-          email: normalizedEmail,
-          firstName: String(firstName).trim(),
-          lastName: lastName ? String(lastName).trim() : "",
-          acquisitionSource: "merchant_manual",
-        },
+    const { customer, card, alreadyEnrolled } = await prisma.$transaction(async (tx) => {
+      let cust = await tx.customer.findUnique({ where: { email: normalizedEmail } });
+      if (!cust) {
+        cust = await tx.customer.create({
+          data: {
+            email: normalizedEmail,
+            firstName: String(firstName).trim(),
+            lastName: lastName ? String(lastName).trim() : "",
+            acquisitionSource: "merchant_manual",
+          },
+        });
+      }
+
+      let crd = await tx.loyaltyCard.findUnique({
+        where: { merchantId_customerId: { merchantId, customerId: cust.id } },
       });
-    }
+      const enrolled = Boolean(crd);
 
-    let card = await prisma.loyaltyCard.findUnique({
-      where: { merchantId_customerId: { merchantId, customerId: customer.id } },
+      if (!crd) {
+        const cardNumber = `LC-${uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
+        crd = await tx.loyaltyCard.create({
+          data: {
+            cardNumber,
+            merchantId,
+            customerId: cust.id,
+            // No consents recorded here: enrolment by merchant is grounded on
+            // Art. 6(1)(f) legitimate interest. The customer activates marketing
+            // himself via the wallet email opt-in (Art. 4(11)/Art. 7 GDPR).
+            enrollmentSource: "MERCHANT_MANUAL",
+          },
+        });
+      }
+
+      return { customer: cust, card: crd, alreadyEnrolled: enrolled };
     });
-    const alreadyEnrolled = Boolean(card);
-
-    if (!card) {
-      const cardNumber = `LC-${uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
-      card = await prisma.loyaltyCard.create({
-        data: {
-          cardNumber,
-          merchantId,
-          customerId: customer.id,
-          gdprConsentAt: now,
-          marketingConsentAt: marketingConsent === true ? now : null,
-        },
-      });
-    }
 
     const applePass = await getOrCreateWalletPass(card.id, "APPLE_WALLET");
     await getOrCreateWalletPass(card.id, "GOOGLE_WALLET");
     const accessToken = await getOrCreateWalletAccessToken(applePass.id);
 
-    const origin = `${req.protocol}://${req.get("host")}`;
+    const origin = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
     const loyaltyUrl = `${origin}/app/loyalty/${accessToken.token}`;
 
     const emailSent = await sendWalletLinkEmail({
       to: customer.email,
       merchantName: merchant.name,
+      merchantEmail: merchant.email,
       customerFirstName: customer.firstName,
       loyaltyUrl,
     });

@@ -119,7 +119,7 @@ router.post("/:merchantId/join", async (req: Request, res: Response, next: NextF
     await getOrCreateWalletPass(loyaltyCard.id, "GOOGLE_WALLET");
     const accessToken = await getOrCreateWalletAccessToken(applePass.id);
 
-    const origin = `${req.protocol}://${req.get("host")}`;
+    const origin = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
 
     res.status(isNewCustomer ? 201 : 200).json({
       alreadyEnrolled,

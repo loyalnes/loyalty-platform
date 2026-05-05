@@ -13,7 +13,6 @@ export default function AddCustomerModal({ onClose, onAdded }: AddCustomerModalP
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [marketingConsent, setMarketingConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<ManualAddResult | null>(null);
@@ -31,7 +30,6 @@ export default function AddCustomerModal({ onClose, onAdded }: AddCustomerModalP
         firstName: firstName.trim(),
         lastName: lastName.trim() || undefined,
         email: email.trim(),
-        marketingConsent,
       });
       setResult(res);
       onAdded();
@@ -98,15 +96,9 @@ export default function AddCustomerModal({ onClose, onAdded }: AddCustomerModalP
                   disabled={loading}
                 />
               </label>
-              <label className="add-customer-checkbox">
-                <input
-                  type="checkbox"
-                  checked={marketingConsent}
-                  onChange={(e) => setMarketingConsent(e.target.checked)}
-                  disabled={loading}
-                />
-                <span>{t('customers.add.marketingConsent')}</span>
-              </label>
+              <p className="add-customer-disclosure">
+                {t('customers.add.disclosure')}
+              </p>
             </div>
 
             {error && <div className="apm-alert apm-alert-error">{error}</div>}

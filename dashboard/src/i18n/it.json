@@ -223,7 +223,7 @@
       "firstName": "Nome",
       "lastName": "Cognome",
       "email": "Email",
-      "marketingConsent": "Cliente accetta comunicazioni marketing",
+      "disclosure": "Il cliente riceverà un'email con la sua tessera digitale. Potrà attivare le comunicazioni marketing direttamente dalla tessera quando lo desidera.",
       "submit": "Aggiungi e invia tessera",
       "requiredFields": "Nome ed email sono obbligatori",
       "error": "Impossibile aggiungere il cliente. Riprova.",

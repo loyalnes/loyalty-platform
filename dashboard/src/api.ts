@@ -11,12 +11,19 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     ...(options.headers as Record<string, string> || {}),
   };
 
+  const isMutation = options.method !== undefined && options.method.toUpperCase() !== 'GET';
+  const timeoutMs = isMutation ? 20000 : 8000;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   let res: Response;
   try {
     res = await fetch(`${API_BASE}${path}`, { ...options, headers, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw err;
   } finally {
     clearTimeout(timeout);
   }
@@ -316,7 +323,7 @@ export interface ManualAddResult {
   customer: { id: string; firstName: string; lastName: string; email: string };
 }
 
-export function manualAddCustomer(payload: { firstName: string; lastName?: string; email: string; marketingConsent: boolean }) {
+export function manualAddCustomer(payload: { firstName: string; lastName?: string; email: string }) {
   return request<ManualAddResult>('/customers/manual-add', {
     method: 'POST',
     body: JSON.stringify(payload),

@@ -6511,3 +6511,13 @@ textarea.form-input,
   color: var(--text-secondary);
   font-weight: 600;
 }
+
+.add-customer-disclosure {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  background: var(--surface-container-low, #F5F1FA);
+  padding: 12px;
+  border-radius: 12px;
+  line-height: 1.4;
+  margin: 0;
+}

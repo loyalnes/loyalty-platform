@@ -223,7 +223,7 @@
       "firstName": "Nombre",
       "lastName": "Apellido",
       "email": "Email",
-      "marketingConsent": "El cliente acepta comunicaciones marketing",
+      "disclosure": "El cliente recibirá un email con su tarjeta digital. Podrá activar las comunicaciones marketing directamente desde la tarjeta cuando lo desee.",
       "submit": "Añadir y enviar tarjeta",
       "requiredFields": "Nombre y email son obligatorios",
       "error": "No se pudo añadir el cliente. Inténtalo.",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { X, Gift, Check, Lock, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
@@ -30,8 +30,14 @@ export default function CustomerProfileModal({ customer, onClose, initialView = 
   const [successOverlay, setSuccessOverlay] = useState<{ title: string; subtitle?: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [currentBalance, setCurrentBalance] = useState(customer.pointsBalance);
-  const [, setCurrentTotalRedeemed] = useState(customer.totalRedeemed);
   const [redemptionsCount, setRedemptionsCount] = useState(customer.redemptionsCount);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+    };
+  }, []);
 
   const [amountInput, setAmountInput] = useState(''); // for points pattern (in EUR)
   const [stampInput, setStampInput] = useState(''); // for stamps pattern (custom N)
@@ -100,7 +106,9 @@ export default function CustomerProfileModal({ customer, onClose, initialView = 
       setSuccessOverlay({ title, subtitle });
 
       const closeAfter = isCompletion ? 2500 : 1500;
-      setTimeout(() => {
+      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+      overlayTimerRef.current = setTimeout(() => {
+        overlayTimerRef.current = null;
         setSuccessOverlay(null);
         onClose();
       }, closeAfter);
@@ -119,12 +127,15 @@ export default function CustomerProfileModal({ customer, onClose, initialView = 
     try {
       const response = await redeemReward(customer.customerId, selectedReward.id);
       setCurrentBalance(response.card.pointsBalance);
-      setCurrentTotalRedeemed(response.card.totalRedeemed);
       setRedemptionsCount((c) => c + 1);
       setSelectedReward(null);
       fireConfetti(['#10B981', '#34D399', '#6EE7B7']);
       setSuccessOverlay({ title: t('scanQR.customerProfile.redeemSuccess') });
-      setTimeout(() => setSuccessOverlay(null), 1500);
+      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
+      overlayTimerRef.current = setTimeout(() => {
+        overlayTimerRef.current = null;
+        setSuccessOverlay(null);
+      }, 1500);
     } catch {
       setRedeemError(t('scanQR.customerProfile.redeemError'));
       setSelectedReward(null);

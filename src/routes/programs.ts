@@ -4,6 +4,22 @@ import { ApiError } from "../middleware/errorHandler";
 
 const router = Router();
 
+/**
+ * Assert the merchant has no card with earned/redeemed activity.
+ * Use this on ANY future endpoint that mutates a `LoyaltyProgram` (PATCH/PUT/DELETE).
+ * Today the program is create-only (POST blocks with 409 on existing) so the lock
+ * is implicit; this helper exists so the rule survives future edit endpoints.
+ */
+export async function assertProgramEditable(merchantId: string): Promise<void> {
+  const dirty = await prisma.loyaltyCard.findFirst({
+    where: { merchantId, OR: [{ totalEarned: { gt: 0 } }, { totalRedeemed: { gt: 0 } }] },
+    select: { id: true },
+  });
+  if (dirty) {
+    throw new ApiError(409, "Program is locked because customers already earned or redeemed");
+  }
+}
+
 // POST /programs — Create a loyalty program with reward tiers
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
