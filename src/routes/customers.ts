@@ -1,7 +1,93 @@
 import { Router, Request, Response, NextFunction } from "express";
+import { v4 as uuidv4 } from "uuid";
+import prisma from "../prisma";
 import * as customerService from "../services/customerService";
+import { getOrCreateWalletPass, getOrCreateWalletAccessToken } from "../services/walletTokens";
+import { sendWalletLinkEmail } from "../services/mailer";
+import { ApiError } from "../middleware/errorHandler";
 
 const router = Router();
+
+// POST /customers/manual-add — Merchant manually enrolls a customer + emails wallet link
+router.post("/manual-add", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const merchantId = req.merchantId!;
+    const { firstName, lastName, email, marketingConsent } = req.body ?? {};
+
+    if (!firstName || !email) {
+      throw new ApiError(400, "firstName and email are required");
+    }
+
+    const merchant = await prisma.merchant.findUnique({ where: { id: merchantId } });
+    if (!merchant) throw new ApiError(404, "Merchant not found");
+
+    const program = await prisma.loyaltyProgram.findUnique({ where: { merchantId } });
+    if (!program || !program.active) {
+      throw new ApiError(400, "No active loyalty program");
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const now = new Date();
+
+    let customer = await prisma.customer.findUnique({ where: { email: normalizedEmail } });
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          email: normalizedEmail,
+          firstName: String(firstName).trim(),
+          lastName: lastName ? String(lastName).trim() : "",
+          acquisitionSource: "merchant_manual",
+        },
+      });
+    }
+
+    let card = await prisma.loyaltyCard.findUnique({
+      where: { merchantId_customerId: { merchantId, customerId: customer.id } },
+    });
+    const alreadyEnrolled = Boolean(card);
+
+    if (!card) {
+      const cardNumber = `LC-${uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
+      card = await prisma.loyaltyCard.create({
+        data: {
+          cardNumber,
+          merchantId,
+          customerId: customer.id,
+          gdprConsentAt: now,
+          marketingConsentAt: marketingConsent === true ? now : null,
+        },
+      });
+    }
+
+    const applePass = await getOrCreateWalletPass(card.id, "APPLE_WALLET");
+    await getOrCreateWalletPass(card.id, "GOOGLE_WALLET");
+    const accessToken = await getOrCreateWalletAccessToken(applePass.id);
+
+    const origin = `${req.protocol}://${req.get("host")}`;
+    const loyaltyUrl = `${origin}/app/loyalty/${accessToken.token}`;
+
+    const emailSent = await sendWalletLinkEmail({
+      to: customer.email,
+      merchantName: merchant.name,
+      customerFirstName: customer.firstName,
+      loyaltyUrl,
+    });
+
+    res.status(alreadyEnrolled ? 200 : 201).json({
+      alreadyEnrolled,
+      loyaltyUrl,
+      emailSent,
+      customer: {
+        id: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // GET /customers?search=&page=1&limit=20
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {

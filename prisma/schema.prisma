@@ -178,7 +178,8 @@ model LoyaltyProgram {
   type              LoyaltyProgramType
   goalStamps        Int?               @map("goal_stamps")
   welcomeStamps     Int?               @map("welcome_stamps")
-  pointsPerCurrency Decimal?           @map("points_per_currency") 
+  welcomePoints     Int?               @map("welcome_points")
+  pointsPerCurrency Decimal?           @map("points_per_currency")
   active            Boolean            @default(true)
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")

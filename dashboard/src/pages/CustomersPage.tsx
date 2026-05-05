@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { listCustomers, getCustomerCard, type MerchantCustomer, type CustomerCardDetail } from '../api';
 import { formatDate, formatNumber } from '../i18n';
 import { PullToRefresh } from '../components/ui/PullToRefresh';
 import CustomerProfileModal from '../components/CustomerProfileModal';
+import AddCustomerModal from '../components/AddCustomerModal';
 
 const PAGE_SIZE = 20;
 
@@ -25,6 +26,7 @@ export default function CustomersPage() {
   const [hasMore, setHasMore] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerCardDetail | null>(null);
   const [loadingCustomerDetail, setLoadingCustomerDetail] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -120,6 +122,7 @@ export default function CustomersPage() {
   };
 
   return (
+    <>
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="app-page stack-lg">
       <section className="app-surface-card app-surface-card-muted">
@@ -135,13 +138,23 @@ export default function CustomersPage() {
             />
           </div>
 
-          <p className="customers-count">
-            {t('customers.countLabel', {
-              count: total,
-              total: formatNumber(total, i18n.language),
-              all: formatNumber(totalAll, i18n.language),
-            })}
-          </p>
+          <div className="customers-toolbar">
+            <p className="customers-count">
+              {t('customers.countLabel', {
+                count: total,
+                total: formatNumber(total, i18n.language),
+                all: formatNumber(totalAll, i18n.language),
+              })}
+            </p>
+            <button
+              type="button"
+              className="customers-add-btn"
+              onClick={() => setShowAddModal(true)}
+              aria-label={t('customers.add.title')}
+            >
+              <Plus size={20} />
+            </button>
+          </div>
         </div>
       </section>
 
@@ -196,13 +209,20 @@ export default function CustomersPage() {
         )}
 
         {/* Bottom Sheet for Customer Details */}
-        {selectedCustomer && !loadingCustomerDetail && (
-          <CustomerProfileModal
-            customer={selectedCustomer}
-            onClose={() => setSelectedCustomer(null)}
-          />
-        )}
       </div>
     </PullToRefresh>
+    {selectedCustomer && !loadingCustomerDetail && (
+      <CustomerProfileModal
+        customer={selectedCustomer}
+        onClose={() => setSelectedCustomer(null)}
+      />
+    )}
+    {showAddModal && (
+      <AddCustomerModal
+        onClose={() => setShowAddModal(false)}
+        onAdded={() => loadCustomers(1, debouncedQuery, false)}
+      />
+    )}
+    </>
   );
 }

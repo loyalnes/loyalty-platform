@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { X, Gift, Check } from 'lucide-react';
+import { X, Gift, Check, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import {
@@ -14,6 +14,7 @@ import RedeemConfirmModal from './RedeemConfirmModal';
 interface CustomerProfileModalProps {
   customer: CustomerCardDetail;
   onClose: () => void;
+  initialView?: 'add' | 'redeem';
 }
 
 const CHARTREUSE_PALETTE = ['#D9F99D', '#BEF264', '#84CC16'];
@@ -22,7 +23,7 @@ function fireConfetti(colors = CHARTREUSE_PALETTE) {
   confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors });
 }
 
-export default function CustomerProfileModal({ customer, onClose }: CustomerProfileModalProps) {
+export default function CustomerProfileModal({ customer, onClose, initialView = 'add' }: CustomerProfileModalProps) {
   const { t, i18n } = useTranslation();
 
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ export default function CustomerProfileModal({ customer, onClose }: CustomerProf
   const [stampInput, setStampInput] = useState(''); // for stamps pattern (custom N)
   const [showStampMore, setShowStampMore] = useState(false);
 
-  const [showRedeem, setShowRedeem] = useState(false);
+  const [showRedeem, setShowRedeem] = useState(initialView === 'redeem');
   const [availableRewards, setAvailableRewards] = useState<RewardTier[]>([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
   const [selectedReward, setSelectedReward] = useState<RewardTier | null>(null);
@@ -226,11 +227,26 @@ export default function CustomerProfileModal({ customer, onClose }: CustomerProf
             {loadingRewards ? (
               <div className="rewards-loading">{t('common.loading')}</div>
             ) : availableRewards.length === 0 ? (
-              <div className="rewards-empty">
-                <Gift size={32} strokeWidth={1.5} />
-                <p className="rewards-empty-title">{t('scanQR.customerProfile.noRewardsAvailable')}</p>
-                <p className="rewards-empty-desc">{t('scanQR.customerProfile.noRewardsDesc')}</p>
-              </div>
+              (() => {
+                const nextTier = tiers.find((tt) => tt.threshold > currentBalance) ?? tiers[0];
+                const toGo = nextTier ? Math.max(nextTier.threshold - currentBalance, 0) : 0;
+                return (
+                  <div className="apm-redeem-empty">
+                    <div className="apm-redeem-empty-icon"><Lock size={28} strokeWidth={2} /></div>
+                    <p className="apm-redeem-empty-title">{t('scanQR.customerProfile.notEligibleTitle')}</p>
+                    {nextTier && (
+                      <p className="apm-redeem-empty-desc">
+                        {isStamps
+                          ? t('scanQR.customerProfile.stampsToReward', { count: toGo, reward: nextTier.rewardName })
+                          : t('scanQR.customerProfile.pointsToReward', { count: toGo, reward: nextTier.rewardName })}
+                      </p>
+                    )}
+                    <button className="apm-hero-btn" onClick={() => setShowRedeem(false)}>
+                      {isStamps ? t('scanQR.customerProfile.addStamp') : t('scanQR.customerProfile.addPoints')}
+                    </button>
+                  </div>
+                );
+              })()
             ) : (
               <div className="rewards-list">
                 {availableRewards.map((reward) => (

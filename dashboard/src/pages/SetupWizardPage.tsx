@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, PlusCircle, Grid3X3, Trash2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -18,7 +18,7 @@ interface TierDraft {
 let tierId = 0;
 function newTier(): TierDraft {
   tierId++;
-  return { id: `t${tierId}`, name: '', threshold: 10, rewardName: '' };
+  return { id: `t${tierId}`, name: '', threshold: '', rewardName: '' };
 }
 
 export default function SetupWizardPage() {
@@ -31,6 +31,7 @@ export default function SetupWizardPage() {
   const [goalStamps, setGoalStamps] = useState<number | string>(10);
   const [welcomeStamps, setWelcomeStamps] = useState<number | string>(0);
   const [pointsPerCurrency, setPointsPerCurrency] = useState<number | string>(1);
+  const [welcomePoints, setWelcomePoints] = useState<number | string>(0);
   const [tiers, setTiers] = useState<TierDraft[]>([newTier()]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -45,15 +46,76 @@ export default function SetupWizardPage() {
     setTiers((prev) => prev.filter((tier) => tier.id !== id));
   }
 
+  // ---- Validation ----
+  const goalStampsNum = Number(goalStamps) || 0;
+  const welcomeStampsNum = Number(welcomeStamps) || 0;
+  const pointsPerCurrencyNum = Number(pointsPerCurrency) || 0;
+  const welcomePointsNum = Number(welcomePoints) || 0;
+
+  // Inline (visible under threshold input). Only threshold/order errors.
+  const tierErrors = useMemo<Record<string, string>>(() => {
+    const errs: Record<string, string> = {};
+    tiers.forEach((tier, idx) => {
+      const v = Number(tier.threshold);
+      if (v > 0 && idx > 0) {
+        const prev = Number(tiers[idx - 1].threshold);
+        if (prev && v <= prev) errs[tier.id] = t('setup.errorAscending');
+      }
+      if (type === 'STAMPS' && v > 0) {
+        if (v > goalStampsNum) errs[tier.id] = t('setup.errorMaxStamps', { goal: goalStampsNum });
+        else if (tiers.length === 1 && v !== goalStampsNum) {
+          errs[tier.id] = t('setup.errorSingleTierStamps', { goal: goalStampsNum });
+        } else if (tiers.length > 1 && idx === tiers.length - 1 && v !== goalStampsNum) {
+          errs[tier.id] = t('setup.errorLastTierStamps', { goal: goalStampsNum });
+        }
+      }
+    });
+    return errs;
+  }, [tiers, type, goalStampsNum, t]);
+
+  // Per-field invalid flags (drive red border on inputs, also block Finish)
+  const rewardMissing = (tier: TierDraft) => !tier.rewardName.trim();
+  const thresholdMissing = (tier: TierDraft) => {
+    const v = Number(tier.threshold);
+    return !v || v <= 0;
+  };
+
+  const baseRuleValid = type === 'STAMPS'
+    ? goalStampsNum > 0
+    : pointsPerCurrencyNum > 0;
+
+  const allTiersValid = tiers.every(
+    (tier) => !rewardMissing(tier) && !thresholdMissing(tier) && !tierErrors[tier.id],
+  );
+
+  const canFinish = baseRuleValid && tiers.length > 0 && allTiersValid;
+
+  // ---- Per-tier live computation ----
+  function tierComputation(threshold: number): string {
+    if (!threshold || threshold <= 0) return '';
+    if (type === 'POINTS') {
+      const remaining = Math.max(0, threshold - welcomePointsNum);
+      if (remaining === 0) return t('setup.tierUnlocked');
+      const euros = pointsPerCurrencyNum > 0 ? Math.ceil(remaining / pointsPerCurrencyNum) : 0;
+      return t('setup.tierSpend', { euros });
+    } else {
+      const remaining = Math.max(0, threshold - welcomeStampsNum);
+      if (remaining === 0) return t('setup.tierUnlocked');
+      return t('setup.tierVisits', { count: remaining });
+    }
+  }
+
   async function handleFinish() {
+    if (!canFinish) return;
     setError('');
     setSubmitting(true);
     try {
       await createLoyaltyProgram({
         type: type!,
-        goalStamps: type === 'STAMPS' ? Number(goalStamps) : undefined,
-        welcomeStamps: type === 'STAMPS' ? Number(welcomeStamps) : undefined,
-        pointsPerCurrency: type === 'POINTS' ? Number(pointsPerCurrency) : undefined,
+        goalStamps: type === 'STAMPS' ? goalStampsNum : undefined,
+        welcomeStamps: type === 'STAMPS' ? welcomeStampsNum : undefined,
+        pointsPerCurrency: type === 'POINTS' ? pointsPerCurrencyNum : undefined,
+        welcomePoints: type === 'POINTS' ? welcomePointsNum : undefined,
         rewardTiers: tiers.map((tier) => ({
           name: tier.name,
           threshold: Number(tier.threshold),
@@ -61,7 +123,6 @@ export default function SetupWizardPage() {
         })),
       });
       await refreshProgram();
-      // Celebration confetti
       confetti({ particleCount: 200, spread: 100, origin: { y: 0.3 } });
       navigate('/');
     } catch (err: unknown) {
@@ -76,10 +137,7 @@ export default function SetupWizardPage() {
       {step > 1 && (
         <header className="app-page-header">
           <div className="app-page-header-row">
-            <button
-              className="app-page-back"
-              onClick={() => setStep(step - 1)}
-            >
+            <button className="app-page-back" onClick={() => setStep(step - 1)}>
               <ChevronLeft size={20} />
             </button>
           </div>
@@ -132,11 +190,13 @@ export default function SetupWizardPage() {
         </div>
       )}
 
-      {/* Step 2: Configure */}
+      {/* Step 2: Configure + Rewards (merged) */}
       {step === 2 && (
         <div className="app-form-card app-form-stack">
-          {type === 'STAMPS' ? (
-            <>
+          {/* SECTION: Base rule */}
+          <div className="setup-section">
+            <span className="setup-section-kicker">{t('setup.sectionRules')}</span>
+            {type === 'STAMPS' ? (
               <div className="config-field">
                 <label>{t('setup.stampsForReward')}</label>
                 <div className="config-input-row">
@@ -148,36 +208,112 @@ export default function SetupWizardPage() {
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
                 </div>
-                <p className="config-hint">{t('setup.stampsHint', { count: Number(goalStamps) || 0 })}</p>
               </div>
+            ) : (
+              <div className="config-field">
+                <label>{t('setup.pointsPerEuro')}</label>
+                <div className="config-input-row">
+                  <input
+                    type="number"
+                    value={pointsPerCurrency}
+                    onChange={(e) => setPointsPerCurrency(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
+                    className="config-number"
+                  />
+                  <span className="config-unit">{t('setup.points')}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SECTION: Welcome bonus */}
+          <div className="setup-section">
+            <span className="setup-section-kicker">{t('setup.sectionWelcome')}</span>
+            {type === 'STAMPS' ? (
               <div className="config-field">
                 <label>{t('setup.welcomeStamps')}</label>
                 <div className="config-input-row">
                   <input
                     type="number"
                     value={welcomeStamps}
-                    onChange={(e) => setWelcomeStamps(e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
+                    onChange={(e) => setWelcomeStamps(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
                     className="config-number"
                   />
                   <span className="config-unit">{t('setup.stamps')}</span>
                 </div>
-                <p className="config-hint">{t('setup.welcomeStampsHint', { count: Number(welcomeStamps) || 0 })}</p>
               </div>
-            </>
-          ) : (
-            <div className="config-field">
-              <label>{t('setup.pointsPerEuro')}</label>
-              <div className="config-input-row">
-                <input
-                  type="number"
-                  value={pointsPerCurrency}
-                  onChange={(e) => setPointsPerCurrency(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
-                  className="config-number"
-                />
-                <span className="config-unit">{t('setup.points')}</span>
+            ) : (
+              <div className="config-field">
+                <label>{t('setup.welcomePoints')}</label>
+                <div className="config-input-row">
+                  <input
+                    type="number"
+                    value={welcomePoints}
+                    onChange={(e) => setWelcomePoints(e.target.value === '' ? '' : parseInt(e.target.value) || 0)}
+                    className="config-number"
+                  />
+                  <span className="config-unit">{t('setup.points')}</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* SECTION: Rewards / tiers */}
+          <div className="setup-section">
+            <span className="setup-section-kicker">{t('setup.sectionRewards')}</span>
+
+            {tiers.map((tier, index) => {
+              const tierErr = tierErrors[tier.id];
+              const compHint = tierComputation(Number(tier.threshold));
+              return (
+                <div key={tier.id} className="tier-card">
+                  <div className="tier-header">
+                    <span className="tier-label">{t('setup.tier')} {index + 1}</span>
+                    {tiers.length > 1 && (
+                      <button className="tier-delete" onClick={() => removeTier(tier.id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder={t('setup.tierNamePlaceholder')}
+                    value={tier.name}
+                    onChange={(e) => updateTier(tier.id, 'name', e.target.value)}
+                    className="tier-input"
+                  />
+                  <div className="tier-reward-row">
+                    <input
+                      type="number"
+                      value={tier.threshold}
+                      max={type === 'STAMPS' ? goalStampsNum : undefined}
+                      onChange={(e) =>
+                        updateTier(tier.id, 'threshold', e.target.value === '' ? '' : parseInt(e.target.value) || '')
+                      }
+                      className={`tier-threshold${thresholdMissing(tier) || tierErr ? ' is-invalid' : ''}`}
+                    />
+                    <input
+                      type="text"
+                      placeholder={t('setup.rewardNamePlaceholder')}
+                      value={tier.rewardName}
+                      onChange={(e) => updateTier(tier.id, 'rewardName', e.target.value)}
+                      className={`tier-reward-name${rewardMissing(tier) ? ' is-invalid' : ''}`}
+                    />
+                  </div>
+                  {tierErr ? (
+                    <p className="tier-error">{tierErr}</p>
+                  ) : compHint ? (
+                    <p className="tier-hint">{compHint}</p>
+                  ) : null}
+                </div>
+              );
+            })}
+
+            <button className="add-tier-btn" onClick={() => setTiers([...tiers, newTier()])}>
+              + {t('setup.addTier')}
+            </button>
+          </div>
+
+          {error && <div className="error-msg">{error}</div>}
 
           <div className="setup-buttons">
             <button className="btn" onClick={() => setStep(1)}>
@@ -185,81 +321,7 @@ export default function SetupWizardPage() {
             </button>
             <button
               className="btn btn-primary"
-              onClick={() => setStep(3)}
-              disabled={
-                type === 'STAMPS'
-                  ? !goalStamps || goalStamps === 0
-                  : !pointsPerCurrency || pointsPerCurrency === 0
-              }
-            >
-              {t('setup.nextStep')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 3: Define Rewards */}
-      {step === 3 && (
-        <div className="app-form-card app-form-stack">
-          <div>
-            <h2 className="app-section-title">{t('setup.defineRewards')}</h2>
-          </div>
-
-          {error && <div className="error-msg">{error}</div>}
-
-          {tiers.map((tier, index) => (
-            <div key={tier.id} className="tier-card">
-              <div className="tier-header">
-                <span className="tier-label">
-                  {t('setup.tier')} {index + 1}
-                </span>
-                {tiers.length > 1 && (
-                  <button className="tier-delete" onClick={() => removeTier(tier.id)}>
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-              <input
-                type="text"
-                placeholder={t('setup.tierNamePlaceholder')}
-                value={tier.name}
-                onChange={(e) => updateTier(tier.id, 'name', e.target.value)}
-                className="tier-input"
-              />
-              <div className="tier-reward-row">
-                <input
-                  type="number"
-                  value={tier.threshold}
-                  onChange={(e) =>
-                    updateTier(tier.id, 'threshold', e.target.value === '' ? '' : parseInt(e.target.value) || '')
-                  }
-                  className="tier-threshold"
-                />
-                <input
-                  type="text"
-                  placeholder={t('setup.rewardNamePlaceholder')}
-                  value={tier.rewardName}
-                  onChange={(e) => updateTier(tier.id, 'rewardName', e.target.value)}
-                  className="tier-reward-name"
-                />
-              </div>
-            </div>
-          ))}
-
-          <button
-            className="add-tier-btn"
-            onClick={() => setTiers([...tiers, newTier()])}
-          >
-            + {t('setup.addTier')}
-          </button>
-
-          <div className="setup-buttons">
-            <button className="btn" onClick={() => setStep(2)}>
-              {t('setup.back')}
-            </button>
-            <button
-              className="btn btn-primary"
-              disabled={submitting || tiers.some((tier) => !tier.rewardName || !tier.threshold || tier.threshold === 0)}
+              disabled={submitting || !canFinish}
               onClick={handleFinish}
             >
               {submitting ? t('setup.finishing') : t('setup.finishSetup')}

@@ -8,7 +8,7 @@ const router = Router();
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchantId = req.merchantId!;
-    const { type, goalStamps, welcomeStamps, pointsPerCurrency, rewardTiers } = req.body;
+    const { type, goalStamps, welcomeStamps, welcomePoints, pointsPerCurrency, rewardTiers } = req.body;
 
     if (!type || !["POINTS", "STAMPS"].includes(type)) {
       throw new ApiError(400, "type must be POINTS or STAMPS");
@@ -33,6 +33,7 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
         type,
         goalStamps: type === "STAMPS" ? goalStamps : null,
         welcomeStamps: type === "STAMPS" ? (welcomeStamps || 0) : null,
+        welcomePoints: type === "POINTS" ? (welcomePoints || 0) : null,
         pointsPerCurrency: type === "POINTS" ? (pointsPerCurrency || 1) : null,
         rewardTiers: {
           create: rewardTiers.map((tier: { name: string; threshold: number; rewardName: string }, i: number) => ({
@@ -67,7 +68,12 @@ router.get("/mine", async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    res.json(program);
+    const cardWithActivity = await prisma.loyaltyCard.findFirst({
+      where: { merchantId, OR: [{ totalEarned: { gt: 0 } }, { totalRedeemed: { gt: 0 } }] },
+      select: { id: true },
+    });
+
+    res.json({ ...program, hasTransactions: Boolean(cardWithActivity) });
   } catch (err) {
     next(err);
   }

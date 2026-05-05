@@ -109,9 +109,11 @@ export default function MenuPage() {
           any tab via the always-visible Menu in the bottom nav. */}
       {program ? (
         <div className="program-card-minimal aviator-shadow">
-          <button className="btn-edit" onClick={() => navigate('/setup')}>
-            {t('hub.edit')}
-          </button>
+          {!program.hasTransactions && (
+            <button className="btn-edit" onClick={() => navigate('/setup')}>
+              {t('hub.edit')}
+            </button>
+          )}
           <div className="program-card-info">
             <h2 className="program-card-name">{t('hub.activeProgram')}</h2>
             <p className="program-card-type">
@@ -137,12 +139,26 @@ export default function MenuPage() {
                     <p className="program-stat-value">{program.pointsPerCurrency}</p>
                   </div>
                   <div className="program-stat">
-                    <p className="program-stat-label">{t('hub.tiers')}</p>
-                    <p className="program-stat-value">{program.rewardTiers.length}</p>
+                    <p className="program-stat-label">{t('hub.welcomeBonus')}</p>
+                    <p className="program-stat-value">{program.welcomePoints || 0} {t('hub.pointsUnit')}</p>
                   </div>
                 </>
               )}
             </div>
+
+            {program.rewardTiers.length > 0 && (
+              <ul className="program-card-tiers">
+                {program.rewardTiers.map((tier, idx) => (
+                  <li key={tier.id} className="program-card-tier">
+                    <span className="program-card-tier-index">{idx + 1}</span>
+                    <span className="program-card-tier-name">{tier.rewardName || tier.name}</span>
+                    <span className="program-card-tier-threshold">
+                      {tier.threshold} {program.type === 'STAMPS' ? t('hub.stampsUnit') : t('hub.pointsUnit')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       ) : (

@@ -101,15 +101,18 @@ export interface LoyaltyProgram {
   type: 'POINTS' | 'STAMPS';
   goalStamps: number | null;
   welcomeStamps: number | null;
+  welcomePoints: number | null;
   pointsPerCurrency: string | null;
   active: boolean;
   rewardTiers: RewardTier[];
+  hasTransactions?: boolean;
 }
 
 export interface CreateProgramPayload {
   type: 'POINTS' | 'STAMPS';
   goalStamps?: number;
   welcomeStamps?: number;
+  welcomePoints?: number;
   pointsPerCurrency?: number;
   rewardTiers: { name: string; threshold: number; rewardName: string }[];
 }
@@ -304,6 +307,20 @@ export function listCards(page = 1, limit = 20, status?: string) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (status) params.set('status', status);
   return request<PaginatedResponse<LoyaltyCard>>(`/cards?${params}`);
+}
+
+export interface ManualAddResult {
+  alreadyEnrolled: boolean;
+  loyaltyUrl: string;
+  emailSent: boolean;
+  customer: { id: string; firstName: string; lastName: string; email: string };
+}
+
+export function manualAddCustomer(payload: { firstName: string; lastName?: string; email: string; marketingConsent: boolean }) {
+  return request<ManualAddResult>('/customers/manual-add', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }
 
 export function listCustomers(page = 1, limit = 20, search?: string) {

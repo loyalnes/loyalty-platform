@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { X, Camera, Search, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Html5Qrcode } from 'html5-qrcode';
@@ -10,6 +10,8 @@ import { addToPendingSync } from '../db/operations';
 
 export default function ScanQRPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get('mode') === 'redeem' ? 'redeem' : 'add';
   const { t } = useTranslation();
   const { isOnline } = useOnline();
   const [scanning, setScanning] = useState(false);
@@ -324,7 +326,7 @@ export default function ScanQRPage() {
       )}
 
       {/* Customer Profile Modal */}
-      {customer && <CustomerProfileModal customer={customer} onClose={handleCloseModal} />}
+      {customer && <CustomerProfileModal customer={customer} onClose={handleCloseModal} initialView={mode} />}
     </div>
   );
 }

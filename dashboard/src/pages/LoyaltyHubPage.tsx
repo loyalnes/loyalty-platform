@@ -29,7 +29,11 @@ export default function LoyaltyHubPage() {
               <span className="hub-secondary-label">{t('hub.showQR')}</span>
             </button>
           )}
-          <button type="button" className="hub-secondary-tile">
+          <button
+            type="button"
+            className="hub-secondary-tile"
+            onClick={() => navigate('/scan-qr?mode=redeem')}
+          >
             <span className="hub-secondary-icon material-symbols-outlined">confirmation_number</span>
             <span className="hub-secondary-label">{t('hub.redeem')}</span>
           </button>
