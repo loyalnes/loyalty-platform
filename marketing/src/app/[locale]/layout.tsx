@@ -51,7 +51,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       apple: '/favicon.svg',
       shortcut: '/favicon.svg',
     },
-    manifest: '/manifest.json',
+    // No PWA manifest on the marketing site — only the dashboard is a PWA.
+    // Pointing this anywhere without a real manifest yields a console error
+    // because Next's locale-redirect HTML is returned for missing files.
     openGraph: {
       type: 'website',
       locale: ogLocaleMap[locale] ?? 'en_US',

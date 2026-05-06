@@ -662,12 +662,12 @@
         // Marketing opt-in toggle
         const marketingToggle = $('marketingToggle');
         marketingToggle.checked = Boolean(data.marketingOptedIn);
-        $('marketingTitle').textContent = (lang === 'it')
+        $('marketingTitle').textContent = (supportedLocale === 'it')
           ? `Ricevi offerte da ${data.merchantName}`
-          : (lang === 'es' ? `Recibe ofertas de ${data.merchantName}` : `Receive offers from ${data.merchantName}`);
-        $('marketingDesc').textContent = (lang === 'it')
+          : (supportedLocale === 'es' ? `Recibe ofertas de ${data.merchantName}` : `Receive offers from ${data.merchantName}`);
+        $('marketingDesc').textContent = (supportedLocale === 'it')
           ? "Puoi cambiare idea quando vuoi."
-          : (lang === 'es' ? "Puedes cambiar de opinión cuando quieras." : "You can change your mind anytime.");
+          : (supportedLocale === 'es' ? "Puedes cambiar de opinión cuando quieras." : "You can change your mind anytime.");
         marketingToggle.onchange = async (e) => {
           const accept = e.target.checked;
           marketingToggle.disabled = true;
@@ -681,8 +681,8 @@
             const status = $('marketingStatus');
             status.hidden = false;
             status.textContent = accept
-              ? (lang === 'it' ? 'Iscritto alle offerte' : (lang === 'es' ? 'Suscrito a las ofertas' : 'Subscribed to offers'))
-              : (lang === 'it' ? 'Disiscritto' : (lang === 'es' ? 'Cancelado' : 'Unsubscribed'));
+              ? (supportedLocale === 'it' ? 'Iscritto alle offerte' : (supportedLocale === 'es' ? 'Suscrito a las ofertas' : 'Subscribed to offers'))
+              : (supportedLocale === 'it' ? 'Disiscritto' : (supportedLocale === 'es' ? 'Cancelado' : 'Unsubscribed'));
             setTimeout(() => { status.hidden = true; }, 2500);
           } catch {
             marketingToggle.checked = !accept; // rollback
