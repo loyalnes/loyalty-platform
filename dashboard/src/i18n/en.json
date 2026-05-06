@@ -335,6 +335,9 @@
     "lookup": "Lookup",
     "cameraError": "Camera not available",
     "cameraErrorDesc": "Please allow camera access or use manual entry",
+    "cameraDeniedTitle": "Camera access blocked",
+    "cameraDeniedDesc": "You denied camera permission. To try again, re-enable it in your browser settings (lock icon near the URL) and reload the page.",
+    "reloadPage": "Reload page",
     "invalidQR": "Invalid QR code",
     "customerNotFound": "Customer not found",
     "customerProfile": {

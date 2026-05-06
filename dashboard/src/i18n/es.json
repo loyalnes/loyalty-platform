@@ -311,6 +311,9 @@
     "lookup": "Buscar",
     "cameraError": "Cámara no disponible",
     "cameraErrorDesc": "Por favor permite el acceso a la cámara o usa la entrada manual",
+    "cameraDeniedTitle": "Acceso a la cámara bloqueado",
+    "cameraDeniedDesc": "Has denegado el permiso. Para volver a intentarlo, actívalo desde la configuración del navegador (icono del candado al lado de la URL) y recarga la página.",
+    "reloadPage": "Recargar página",
     "invalidQR": "Código QR inválido",
     "customerNotFound": "Cliente no encontrado",
     "customerProfile": {

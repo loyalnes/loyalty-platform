@@ -311,6 +311,9 @@
     "lookup": "Cerca",
     "cameraError": "Fotocamera non disponibile",
     "cameraErrorDesc": "Consenti l'accesso alla fotocamera o usa l'inserimento manuale",
+    "cameraDeniedTitle": "Accesso fotocamera bloccato",
+    "cameraDeniedDesc": "Hai negato il permesso. Per riprovare devi riattivarlo dalle impostazioni del browser (icona del lucchetto vicino all'URL) e ricaricare la pagina.",
+    "reloadPage": "Ricarica pagina",
     "invalidQR": "QR code non valido",
     "customerNotFound": "Cliente non trovato",
     "customerProfile": {

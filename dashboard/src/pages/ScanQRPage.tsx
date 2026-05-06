@@ -15,7 +15,7 @@ export default function ScanQRPage() {
   const { t } = useTranslation();
   const { isOnline } = useOnline();
   const [scanning, setScanning] = useState(false);
-  const [cameraError, setCameraError] = useState(false);
+  const [cameraError, setCameraError] = useState<null | 'denied' | 'generic'>(null);
   const [showManualInput, setShowManualInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<MerchantCustomer[]>([]);
@@ -116,7 +116,7 @@ export default function ScanQRPage() {
 
     if (scanner.isScanning) return;
 
-    setCameraError(false);
+    setCameraError(null);
 
     // Calculate QR box size responsively (80% of viewport width, max 300px)
     const qrBoxSize = Math.min(window.innerWidth * 0.8, 300);
@@ -135,11 +135,16 @@ export default function ScanQRPage() {
       )
       .then(() => {
         setScanning(true);
-        setCameraError(false);
+        setCameraError(null);
       })
       .catch((err) => {
         console.error('Camera start failed:', err);
-        setCameraError(true);
+        const name = err instanceof Error ? err.name : '';
+        const msg = err instanceof Error ? err.message : String(err);
+        const denied = name === 'NotAllowedError'
+          || /permission/i.test(msg)
+          || /denied/i.test(msg);
+        setCameraError(denied ? 'denied' : 'generic');
         setScanning(false);
       });
   }, [onScanSuccess]);
@@ -238,13 +243,20 @@ export default function ScanQRPage() {
         {cameraError ? (
           <div className="scan-qr-error">
             <Camera size={48} strokeWidth={1.5} />
-            <h2>{t('scanQR.cameraError')}</h2>
-            <p>{t('scanQR.cameraErrorDesc')}</p>
+            <h2>{cameraError === 'denied' ? t('scanQR.cameraDeniedTitle') : t('scanQR.cameraError')}</h2>
+            <p>{cameraError === 'denied' ? t('scanQR.cameraDeniedDesc') : t('scanQR.cameraErrorDesc')}</p>
             <div className="scan-qr-error-actions">
-              <button className="btn-primary" onClick={() => { setCameraError(false); hasStartedRef.current = false; startCamera(); }}>
-                <Camera size={20} />
-                {t('scanQR.retryCamera', 'Retry Camera')}
-              </button>
+              {cameraError === 'denied' ? (
+                <button className="btn-primary" onClick={() => window.location.reload()}>
+                  <Camera size={20} />
+                  {t('scanQR.reloadPage')}
+                </button>
+              ) : (
+                <button className="btn-primary" onClick={() => { setCameraError(null); hasStartedRef.current = false; startCamera(); }}>
+                  <Camera size={20} />
+                  {t('scanQR.retryCamera', 'Retry Camera')}
+                </button>
+              )}
               <button className="btn-primary scan-qr-secondary-btn" onClick={() => setShowManualInput(true)}>
                 <Search size={20} />
                 {t('scanQR.manualEntry')}
@@ -258,7 +270,7 @@ export default function ScanQRPage() {
               <div className="scan-qr-overlay">
                 <div className="scan-qr-frame" />
               </div>
-              {!scanning && !cameraError && (
+              {!scanning && cameraError === null && (
                 <div className="scan-qr-loading">{t('common.loading')}</div>
               )}
             </div>
