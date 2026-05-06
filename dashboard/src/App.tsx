@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './AuthContext';
 import { OnlineProvider } from './contexts/OnlineContext';
 import { SyncProvider } from './contexts/SyncContext';
+import { useKeyboardAwareFocus } from './hooks/useKeyboardAwareFocus';
 import Header from './components/Header';
 import BottomNavBar from './components/BottomNavBar';
 import LoginPage from './pages/LoginPage';
@@ -100,13 +101,18 @@ function AppRoutes() {
   );
 }
 
+function AppShell() {
+  useKeyboardAwareFocus();
+  return <AppRoutes />;
+}
+
 export default function App() {
   return (
     <BrowserRouter basename="/dashboard">
       <OnlineProvider>
         <SyncProvider>
           <AuthProvider>
-            <AppRoutes />
+            <AppShell />
           </AuthProvider>
         </SyncProvider>
       </OnlineProvider>

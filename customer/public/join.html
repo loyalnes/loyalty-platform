@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Join the loyalty program</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -566,6 +566,26 @@
     });
 
     init();
+  </script>
+  <script>
+    // Keep focused input visible above the virtual keyboard.
+    (function () {
+      var sel = 'input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),textarea,select';
+      var t = 0;
+      function scrollFocused() {
+        var el = document.activeElement;
+        if (el && el.matches && el.matches(sel)) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+      document.addEventListener('focusin', function (e) {
+        if (!e.target.matches || !e.target.matches(sel)) return;
+        clearTimeout(t); t = setTimeout(scrollFocused, 250);
+      });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function () {
+          clearTimeout(t); t = setTimeout(scrollFocused, 50);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
