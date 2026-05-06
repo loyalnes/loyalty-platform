@@ -170,7 +170,24 @@
   },
   "notifications": {
     "title": "Notifiche",
-    "empty": "Tutto in ordine · nessuna notifica"
+    "empty": "Tutto in ordine · nessuna notifica",
+    "types": {
+      "reward_ready": {
+        "title": "Clienti pronti a riscattare",
+        "description_one": "{{count}} cliente può riscattare ora.",
+        "description_other": "{{count}} clienti possono riscattare ora."
+      },
+      "near_reward": {
+        "title": "Clienti vicini al premio",
+        "description_one": "{{count}} cliente è vicino al prossimo livello.",
+        "description_other": "{{count}} clienti sono vicini al prossimo livello."
+      },
+      "inactive": {
+        "title": "Clienti inattivi da oltre 30 giorni",
+        "description_one": "{{count}} cliente da riattivare.",
+        "description_other": "{{count}} clienti da riattivare."
+      }
+    }
   },
   "insights": {
     "title": "Statistiche",

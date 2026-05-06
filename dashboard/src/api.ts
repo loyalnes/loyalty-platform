@@ -198,6 +198,7 @@ export interface InsightsSentiment {
 export interface InsightsNotification {
   id: string;
   type: 'reward_ready' | 'near_reward' | 'inactive';
+  count?: number;
   title: string;
   description: string;
   actionPath: string;

@@ -170,7 +170,24 @@
   },
   "notifications": {
     "title": "Notifications",
-    "empty": "All caught up · no notifications"
+    "empty": "All caught up · no notifications",
+    "types": {
+      "reward_ready": {
+        "title": "Customers ready to redeem",
+        "description_one": "{{count}} customer can redeem now.",
+        "description_other": "{{count}} customers can redeem now."
+      },
+      "near_reward": {
+        "title": "Customers close to reward",
+        "description_one": "{{count}} customer is close to the next tier.",
+        "description_other": "{{count}} customers are close to the next tier."
+      },
+      "inactive": {
+        "title": "Inactive customers over 30 days",
+        "description_one": "{{count}} customer needs re-engagement.",
+        "description_other": "{{count}} customers need re-engagement."
+      }
+    }
   },
   "insights": {
     "title": "Insights",
@@ -208,6 +225,11 @@
     "noData": "N/A"
   },
   "campaigns": {
+    "howItWorks": "How it works",
+    "step1": "Customers play",
+    "step1Desc": "They scan your QR and try a scratch card or spin wheel.",
+    "step2": "They win prizes",
+    "step2Desc": "You set the prizes and odds — the rest is automatic.",
     "title": "Campaigns",
     "subtitle": "Manage gamification campaigns",
     "empty": "No campaigns yet",
@@ -373,6 +395,12 @@
     }
   },
   "settings": {
+    "comingSoon": "Coming soon",
+    "profileSection": "Business profile",
+    "profileSectionDesc": "Edit your business name, address, contacts and opening hours.",
+    "planSection": "Plan & billing",
+    "planSectionDesc": "Manage your subscription, payment method and invoices.",
+    "sessionTitle": "Session",
     "title": "Settings",
     "subtitle": "Configure your business settings",
     "reviewFlow": "Review Flow",

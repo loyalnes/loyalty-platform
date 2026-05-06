@@ -247,8 +247,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <div className="footer-bottom">
               <p>&copy; {new Date().getFullYear()} Loyali. {t('footer.copyright')}</p>
               <div className="footer-legal-links">
-                <a href="/privacy/">{t('footer.linkPrivacy')}</a>
-                <a href="/terms/">{t('footer.linkTerms')}</a>
+                <a href={`/${locale}/privacy/`}>{t('footer.linkPrivacy')}</a>
               </div>
             </div>
           </footer>

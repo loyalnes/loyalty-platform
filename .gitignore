@@ -23,3 +23,6 @@ service-account.json
 # Local development artifacts
 .playwright-mcp/
 dev.db
+.claude/
+qa-artifacts/
+/tmp/*.log

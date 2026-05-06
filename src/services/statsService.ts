@@ -311,6 +311,7 @@ export async function getSentimentAnalysis(merchantId: string, window: Window): 
 export interface Notification {
   id: string;
   type: "reward_ready" | "near_reward" | "inactive";
+  count: number;
   title: string;
   description: string;
   actionPath: string;
@@ -326,10 +327,12 @@ export async function getNotifications(merchantId: string): Promise<Notification
 
   const notifications: Notification[] = [];
 
+  // English fallback strings — clients SHOULD localize using `type` + `count`.
   if (rewardReadyCustomers > 0) {
     notifications.push({
       id: "reward-ready",
       type: "reward_ready",
+      count: rewardReadyCustomers,
       title: "Customers ready to redeem",
       description: `${rewardReadyCustomers} customer${rewardReadyCustomers === 1 ? "" : "s"} can redeem now.`,
       actionPath: "/customers",
@@ -341,8 +344,9 @@ export async function getNotifications(merchantId: string): Promise<Notification
     notifications.push({
       id: "near-reward",
       type: "near_reward",
+      count: nearRewardCustomers,
       title: "Customers close to reward",
-      description: `${nearRewardCustomers} customer${nearRewardCustomers === 1 ? "" : "s"} are close to next tier.`,
+      description: `${nearRewardCustomers} customer${nearRewardCustomers === 1 ? " is" : "s are"} close to next tier.`,
       actionPath: "/insights",
       severity: "medium",
     });
@@ -352,6 +356,7 @@ export async function getNotifications(merchantId: string): Promise<Notification
     notifications.push({
       id: "inactive-customers",
       type: "inactive",
+      count: inactiveCustomers,
       title: "Inactive customers over 30 days",
       description: `${inactiveCustomers} customer${inactiveCustomers === 1 ? "" : "s"} need re-engagement.`,
       actionPath: "/customers",

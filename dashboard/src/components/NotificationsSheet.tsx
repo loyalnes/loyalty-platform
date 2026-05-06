@@ -147,7 +147,14 @@ export default function NotificationsSheet({ open, onClose }: NotificationsSheet
               <p>{t('notifications.empty')}</p>
             </div>
           ) : (
-            visible.map((item) => (
+            visible.map((item) => {
+              const count = item.count ?? 0;
+              const localizedTitle = t(`notifications.types.${item.type}.title`, { defaultValue: item.title });
+              const localizedDescription = t(`notifications.types.${item.type}.description`, {
+                count,
+                defaultValue: item.description,
+              });
+              return (
               <article key={item.id} className={`notification-item notification-${item.severity}`}>
                 <button
                   type="button"
@@ -156,8 +163,8 @@ export default function NotificationsSheet({ open, onClose }: NotificationsSheet
                 >
                   <span className="notification-icon material-symbols-outlined">{iconFor(item.type)}</span>
                   <span className="notification-text">
-                    <span className="notification-title">{item.title}</span>
-                    <span className="notification-description">{item.description}</span>
+                    <span className="notification-title">{localizedTitle}</span>
+                    <span className="notification-description">{localizedDescription}</span>
                   </span>
                   <span className="notification-chevron material-symbols-outlined">chevron_right</span>
                 </button>
@@ -170,7 +177,8 @@ export default function NotificationsSheet({ open, onClose }: NotificationsSheet
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </article>
-            ))
+              );
+            })
           )}
         </div>
       </div>
