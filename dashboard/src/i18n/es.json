@@ -170,7 +170,24 @@
   },
   "notifications": {
     "title": "Notificaciones",
-    "empty": "Todo al día · sin notificaciones"
+    "empty": "Todo al día · sin notificaciones",
+    "types": {
+      "reward_ready": {
+        "title": "Clientes listos para canjear",
+        "description_one": "{{count}} cliente puede canjear ahora.",
+        "description_other": "{{count}} clientes pueden canjear ahora."
+      },
+      "near_reward": {
+        "title": "Clientes cerca de la recompensa",
+        "description_one": "{{count}} cliente está cerca del siguiente nivel.",
+        "description_other": "{{count}} clientes están cerca del siguiente nivel."
+      },
+      "inactive": {
+        "title": "Clientes inactivos hace más de 30 días",
+        "description_one": "{{count}} cliente necesita reactivación.",
+        "description_other": "{{count}} clientes necesitan reactivación."
+      }
+    }
   },
   "insights": {
     "title": "Estadísticas",

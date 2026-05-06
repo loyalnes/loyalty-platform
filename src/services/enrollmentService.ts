@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
 import { getOrCreateWalletPass, getOrCreateWalletAccessToken } from "./walletTokens";
+import { applyWelcomeBonus } from "./welcomeBonus";
 
 interface EnrollInput {
   firstName: string;
@@ -109,6 +110,15 @@ export async function enrollCustomer(
 
     return { customer: cust, card: crd, alreadyEnrolled: enrolled, isNewCustomer: newCustomer };
   });
+
+  // Welcome bonus: only on first enrolment for this merchant (skip if the
+  // card pre-existed). Best-effort — a missing program or a transient DB
+  // error must not roll back the enrolment itself.
+  if (!alreadyEnrolled) {
+    await applyWelcomeBonus({ merchantId, loyaltyCardId: card.id }).catch((err) => {
+      console.error("Failed to apply welcome bonus:", err);
+    });
+  }
 
   // Wallet pass / token generation is idempotent + best-effort outside the tx
   // so a transient external failure can't roll back the enrolment.

@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import prisma from "../prisma";
 import { ApiError } from "../middleware/errorHandler";
 import { buildWalletSummary } from "../services/walletSummary";
+import { applyWelcomeBonus } from "../services/welcomeBonus";
 import { generateRedemptionCode } from "../utils/redemptionCode";
 import { gamificationRateLimiter } from "../middleware/rateLimiter";
 
@@ -224,6 +225,10 @@ router.post("/:merchantId/claim", async (req: Request, res: Response, next: Next
           merchantId,
           customerId: customer.id,
         },
+      });
+      // Apply welcome bonus on first enrollment via gamification flow
+      await applyWelcomeBonus({ merchantId, loyaltyCardId: loyaltyCard.id }).catch((err) => {
+        console.error("Failed to apply welcome bonus:", err);
       });
     }
 

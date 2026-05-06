@@ -214,7 +214,11 @@ export default function CustomersPage() {
     {selectedCustomer && !loadingCustomerDetail && (
       <CustomerProfileModal
         customer={selectedCustomer}
-        onClose={() => setSelectedCustomer(null)}
+        onClose={() => {
+          setSelectedCustomer(null);
+          // Refresh the list so newly-added points show up immediately
+          void loadCustomers(1, debouncedQuery, false);
+        }}
       />
     )}
     {showAddModal && (

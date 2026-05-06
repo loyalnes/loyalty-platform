@@ -74,10 +74,26 @@ router.get("/by-email/:email", async (req: Request, res: Response, next: NextFun
 });
 
 // GET /merchants/me — Get current authenticated merchant (must come BEFORE /:id)
+// SECURITY: Never return passwordHash to clients — even hashed credentials are sensitive.
 router.get("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.merchantId! },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        city: true,
+        country: true,
+        plan: true,
+        settings: true,
+        preferredLocale: true,
+        active: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     if (!merchant) {
@@ -145,7 +161,9 @@ router.patch("/me", authenticateMerchant, async (req: Request, res: Response, ne
       data,
     });
 
-    res.json(merchant);
+    // SECURITY: never return passwordHash to clients
+    const { passwordHash: _omit, ...safe } = merchant as { passwordHash?: string } & Record<string, unknown>;
+    res.json(safe);
   } catch (err) {
     next(err);
   }
@@ -171,7 +189,8 @@ router.patch("/:id", validateUuid("id"), authenticateMerchant, async (req: Reque
       data,
     });
 
-    res.json(merchant);
+    const { passwordHash: _omit2, ...safe } = merchant as { passwordHash?: string } & Record<string, unknown>;
+    res.json(safe);
   } catch (err) {
     next(err);
   }

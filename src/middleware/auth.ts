@@ -3,6 +3,21 @@ import prisma from "../prisma";
 import { ApiError } from "./errorHandler";
 import { isLegacyApiKey, verifyApiKey, isValidApiKeyFormat } from "../utils/apiKey";
 
+/**
+ * Legacy UUID-as-API-key authentication.
+ *
+ * SECURITY: this path is DISABLED by default. It used to look up a merchant
+ * by `merchant.id` when the X-API-Key header was a UUID — but `merchant.id`
+ * is publicly embedded in customer-facing QR URLs (`/app/join/:merchantId`,
+ * `/app/play/:merchantId`, `/app/review/:merchantId`), so anyone scanning a
+ * customer QR could extract a valid API key. All merchants must now sign in
+ * to receive a hashed `loy_{live|test}_*` key issued by `/api/auth/login`.
+ *
+ * Set ALLOW_LEGACY_API_KEYS=true only as a temporary escape hatch during a
+ * migration window — and rotate keys immediately after.
+ */
+const ALLOW_LEGACY_API_KEYS = process.env.ALLOW_LEGACY_API_KEYS === "true";
+
 declare global {
   namespace Express {
     interface Request {
@@ -34,8 +49,16 @@ export async function authenticateMerchant(
 
     let merchantId: string | null = null;
 
-    // Handle legacy UUID-based API keys (backward compatibility)
+    // Handle legacy UUID-based API keys — DISABLED by default for security.
+    // See ALLOW_LEGACY_API_KEYS comment at top of file.
     if (isLegacyApiKey(apiKey)) {
+      if (!ALLOW_LEGACY_API_KEYS) {
+        throw new ApiError(
+          401,
+          "Legacy UUID API keys are no longer accepted — please sign in again to obtain a new key"
+        );
+      }
+
       console.warn(`[DEPRECATED] Legacy UUID API key used: ${apiKey.substring(0, 8)}...`);
 
       const merchant = await prisma.merchant.findUnique({
