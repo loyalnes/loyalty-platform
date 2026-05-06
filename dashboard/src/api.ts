@@ -30,6 +30,17 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
+    // 401 means the stored key is dead (rotated, revoked, or a stale legacy
+    // UUID after the security migration). Wipe it and bounce to login so the
+    // app doesn't loop on a doomed key.
+    if (res.status === 401 && getApiKey()) {
+      localStorage.removeItem('merchantApiKey');
+      // Avoid redirect loop if we're already on /login or /signup
+      const onAuthPage = /\/dashboard\/(login|signup)\b/.test(window.location.pathname);
+      if (!onAuthPage) {
+        window.location.assign('/dashboard/login');
+      }
+    }
     throw new Error(body.error || `Request failed: ${res.status}`);
   }
 
