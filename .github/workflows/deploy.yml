@@ -4,16 +4,7 @@ on:
   push:
     branches:
       - main
-      - staging
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Target environment"
-        required: true
-        type: choice
-        options:
-          - staging
-          - production
 
 concurrency:
   group: deploy-${{ github.ref_name }}
@@ -62,199 +53,32 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy-staging:
-    needs: build-image
-    if: github.ref == 'refs/heads/staging' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
-    runs-on: ubuntu-latest
-    environment: staging
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to staging
-        uses: appleboy/ssh-action@v1
-        env:
-          WALLETWALLET_API_KEY: ${{ secrets.WALLETWALLET_API_KEY }}
-          WALLETWALLET_COLOR_PRESET: dark
-          GOOGLE_WALLET_ISSUER_ID: ${{ secrets.GOOGLE_WALLET_ISSUER_ID }}
-          GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
-          GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
-          PUBLIC_URL: https://staging.loyali.online
-        with:
-          host: ${{ secrets.HETZNER_STAGING_HOST }}
-          username: ${{ secrets.HETZNER_SSH_USER }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,GOOGLE_MAPS_API_KEY,PUBLIC_URL
-          script: |
-            cd /opt/loyalty-platform
-            export IMAGE_TAG=staging
-            export DOCKER_REGISTRY=ghcr.io
-            export DOCKER_IMAGE=${{ github.repository }}
-            export WALLETWALLET_API_KEY
-            export WALLETWALLET_COLOR_PRESET
-            export GOOGLE_WALLET_ISSUER_ID
-            export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
-            export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY
-            export GOOGLE_MAPS_API_KEY
-            export PUBLIC_URL
-            bash deploy/deploy.sh staging
-
-  bootstrap-production:
-    needs: build-image
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
-    runs-on: ubuntu-latest
-    environment: production
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Bootstrap server if needed
-        uses: appleboy/ssh-action@v1
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-        with:
-          host: ${{ secrets.HETZNER_PROD_HOST }}
-          username: ${{ secrets.HETZNER_SSH_USER }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
-          command_timeout: 10m
-          envs: GH_TOKEN,REPO
-          script: |
-            set -euo pipefail
-            # Skip bootstrap if server is already set up
-            if command -v docker &>/dev/null && [ -d /opt/loyalty-platform/.git ]; then
-              echo "==> Server already bootstrapped, skipping setup"
-              exit 0
-            fi
-
-            echo "==> First-time server bootstrap..."
-            apt-get update && apt-get install -y git
-
-            # Clone repo
-            if [ ! -d /opt/loyalty-platform/.git ]; then
-              rm -rf /opt/loyalty-platform
-              git clone https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git /opt/loyalty-platform
-              cd /opt/loyalty-platform
-              git remote set-url origin https://github.com/${REPO}.git
-            fi
-
-            cd /opt/loyalty-platform
-            bash deploy/setup-server.sh
-
-            # Set up deploy user SSH access
-            mkdir -p /home/deploy/.ssh
-            cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
-            chown -R deploy:deploy /home/deploy/.ssh
-            chmod 700 /home/deploy/.ssh
-            chmod 600 /home/deploy/.ssh/authorized_keys
-
-            # Configure nginx with basic auth
-            cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf
-            cp deploy/nginx-production.conf /etc/nginx/sites-available/loyalty-platform
-            ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
-            rm -f /etc/nginx/sites-enabled/default
-
-            # Create basic auth credentials (pre-launch protection)
-            if [ ! -f /etc/nginx/.htpasswd ]; then
-              apt-get install -y apache2-utils 2>/dev/null || true
-              HTPASSWD=$(openssl rand -base64 16 | tr -d '/+=' | head -c 16)
-              htpasswd -bc /etc/nginx/.htpasswd loyali "$HTPASSWD"
-              echo "==> Basic auth created — user: loyali, password: $HTPASSWD"
-              echo "==> SAVE THIS PASSWORD — it will not be shown again"
-            fi
-
-            nginx -t && systemctl reload nginx
-
-            # Generate .env.prod
-            DB_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | head -c 32)
-            cat > /opt/loyalty-platform/deploy/.env.prod <<ENVEOF
-            DB_USER=loyalty
-            DB_PASSWORD=${DB_PASSWORD}
-            DOCKER_REGISTRY=ghcr.io
-            DOCKER_IMAGE=${REPO}
-            NODE_ENV=production
-            ENVEOF
-            sed -i 's/^            //' /opt/loyalty-platform/deploy/.env.prod
-
-            chown -R deploy:deploy /opt/loyalty-platform
-
-            # GHCR login
-            echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
-            echo "==> Bootstrap complete!"
-
   deploy-production:
-    needs: [build-image, bootstrap-production]
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    needs: build-image
+    if: needs.build-image.result == 'success'
     runs-on: ubuntu-latest
     environment: production
     permissions:
       contents: read
-      packages: read
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to production
-        uses: appleboy/ssh-action@v1
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WALLETWALLET_API_KEY: ${{ secrets.WALLETWALLET_API_KEY }}
-          WALLETWALLET_COLOR_PRESET: dark
-          GOOGLE_WALLET_ISSUER_ID: ${{ secrets.GOOGLE_WALLET_ISSUER_ID }}
-          GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL }}
-          GOOGLE_WALLET_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_WALLET_SERVICE_ACCOUNT_KEY }}
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PUBLIC_URL: https://loyali.online
-        with:
-          host: ${{ secrets.HETZNER_PROD_HOST }}
-          username: ${{ secrets.HETZNER_SSH_USER }}
-          key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: GH_TOKEN,WALLETWALLET_API_KEY,WALLETWALLET_COLOR_PRESET,GOOGLE_WALLET_ISSUER_ID,GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL,GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,GOOGLE_MAPS_API_KEY,GITHUB_REPOSITORY,PUBLIC_URL
-          script: |
-            # Fail fast on any error so silent failures (especially in the
-            # git fetch below) become visible instead of leaving the server
-            # running stale config.
-            set -euo pipefail
-            # Re-auth GHCR (token may have changed)
-            echo "${GH_TOKEN}" | docker login ghcr.io -u x-access-token --password-stdin
-            cd /opt/loyalty-platform
-            git config --global --add safe.directory /opt/loyalty-platform
-            # Fetch with token embedded in the URL — the on-disk repo's
-            # cached credentials had expired and silently broke this for
-            # months, freezing deploy.sh and docker-compose.yml on the VPS.
-            git fetch "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" main
-            git reset --hard FETCH_HEAD
-            export IMAGE_TAG=latest
-            export DOCKER_REGISTRY=ghcr.io
-            export DOCKER_IMAGE=${{ github.repository }}
-            export WALLETWALLET_API_KEY
-            export WALLETWALLET_COLOR_PRESET
-            export GOOGLE_WALLET_ISSUER_ID
-            export GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL
-            export GOOGLE_WALLET_SERVICE_ACCOUNT_KEY
-            export GOOGLE_MAPS_API_KEY
-            export PUBLIC_URL
-            bash deploy/deploy.sh production
-
-      # Fallback nginx sync — runs as root because the deploy user
-      # has no sudo. The same SSH key is authorized on root (bootstrap
-      # copied it from /root/.ssh/authorized_keys). If root SSH is
-      # disabled this step fails and we know to do it manually.
-      - name: Sync nginx config as root
-        uses: appleboy/ssh-action@v1
-        continue-on-error: true
+      # The SSH key referenced below is restricted on the multisite server
+      # (159.69.4.205) via an OpenSSH `restrict,command="…"` entry in
+      # /root/.ssh/authorized_keys. The key can ONLY trigger the per-service
+      # deploy script and nothing else. Whatever we send as `script` is
+      # ignored. Change deploy behavior by editing the script on the server,
+      # not this workflow.
+      #
+      # Required GitHub repo secrets:
+      #   HETZNER_PROD_HOST  — multisite host IP (source of truth for address)
+      #   HETZNER_SSH_KEY    — dedicated loyali-github-deploy ed25519 private key
+      #                        (NOT the personal multisite-cms-hetzner key)
+      - name: Trigger restricted deploy on multisite
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         with:
           host: ${{ secrets.HETZNER_PROD_HOST }}
           username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          script: |
-            cd /opt/loyalty-platform
-            if [ -f deploy/nginx-production.conf ]; then
-              echo "==> Copying production nginx config..."
-              cp deploy/nginx-production.conf /etc/nginx/sites-available/loyalty-platform
-              cp deploy/nginx-rate-limit.conf /etc/nginx/conf.d/rate-limit.conf 2>/dev/null || true
-              ln -sf /etc/nginx/sites-available/loyalty-platform /etc/nginx/sites-enabled/
-              nginx -t && systemctl reload nginx && echo "==> Nginx reloaded"
-            fi
+          # `script` is ignored by the server thanks to the forced command;
+          # we send a no-op so the action's stdout still shows the deploy log.
+          script: ":"
