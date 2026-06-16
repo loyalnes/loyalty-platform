@@ -245,6 +245,23 @@ export default function ScanQRPage() {
             <Camera size={48} strokeWidth={1.5} />
             <h2>{cameraError === 'denied' ? t('scanQR.cameraDeniedTitle') : t('scanQR.cameraError')}</h2>
             <p>{cameraError === 'denied' ? t('scanQR.cameraDeniedDesc') : t('scanQR.cameraErrorDesc')}</p>
+            {cameraError === 'denied' && (() => {
+              const standalone = window.matchMedia('(display-mode: standalone)').matches
+                || (window.navigator as { standalone?: boolean }).standalone === true;
+              const ua = window.navigator.userAgent;
+              const isIOS = /iPad|iPhone|iPod/.test(ua);
+              const isAndroid = /Android/.test(ua);
+              const stepsKey = standalone
+                ? (isIOS ? 'scanQR.cameraDeniedStepsIosPwa' : isAndroid ? 'scanQR.cameraDeniedStepsAndroidPwa' : 'scanQR.cameraDeniedStepsBrowser')
+                : 'scanQR.cameraDeniedStepsBrowser';
+              const stepsRaw = t(stepsKey, { returnObjects: true }) as unknown;
+              const steps = Array.isArray(stepsRaw) ? (stepsRaw as string[]) : [];
+              return steps.length > 0 ? (
+                <ol className="scan-qr-error-steps">
+                  {steps.map((step, i) => (<li key={i}>{step}</li>))}
+                </ol>
+              ) : null;
+            })()}
             <div className="scan-qr-error-actions">
               {cameraError === 'denied' ? (
                 <button className="btn-primary" onClick={() => window.location.reload()}>

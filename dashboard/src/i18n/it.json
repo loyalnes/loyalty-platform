@@ -312,7 +312,22 @@
     "cameraError": "Fotocamera non disponibile",
     "cameraErrorDesc": "Consenti l'accesso alla fotocamera o usa l'inserimento manuale",
     "cameraDeniedTitle": "Accesso fotocamera bloccato",
-    "cameraDeniedDesc": "Hai negato il permesso. Per riprovare devi riattivarlo dalle impostazioni del browser (icona del lucchetto vicino all'URL) e ricaricare la pagina.",
+    "cameraDeniedDesc": "Hai negato il permesso. Riattivalo seguendo questi passi e poi ricarica la pagina.",
+    "cameraDeniedStepsBrowser": [
+      "Tocca l'icona del lucchetto vicino all'URL",
+      "Apri \"Impostazioni del sito\" → \"Fotocamera\"",
+      "Imposta \"Consenti\" e ricarica la pagina"
+    ],
+    "cameraDeniedStepsIosPwa": [
+      "Apri Impostazioni iOS → Safari → Fotocamera",
+      "Trova \"loyali.online\" e imposta \"Consenti\"",
+      "Torna qui e ricarica la pagina"
+    ],
+    "cameraDeniedStepsAndroidPwa": [
+      "Apri Impostazioni → App → Loyali → Permessi",
+      "Tocca \"Fotocamera\" e seleziona \"Consenti\"",
+      "Torna qui e ricarica la pagina"
+    ],
     "reloadPage": "Ricarica pagina",
     "invalidQR": "QR code non valido",
     "customerNotFound": "Cliente non trovato",

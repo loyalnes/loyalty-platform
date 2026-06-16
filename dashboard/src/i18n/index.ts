@@ -75,6 +75,7 @@ i18n
     interpolation: {
       escapeValue: false,
     },
+    returnObjects: false,
     detection: {
       order: ['localStorage'],
       lookupLocalStorage: 'preferredLocale',

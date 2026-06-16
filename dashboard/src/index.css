@@ -6609,3 +6609,17 @@ textarea.form-input,
   color: var(--text-secondary);
   font-feature-settings: "tnum";
 }
+
+.scan-qr-error-steps {
+  margin: 8px 0 4px;
+  padding-left: 1.25rem;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 360px;
+}
+
+.scan-qr-error-steps li {
+  margin-bottom: 4px;
+}

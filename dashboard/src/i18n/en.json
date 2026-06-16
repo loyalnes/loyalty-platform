@@ -336,7 +336,22 @@
     "cameraError": "Camera not available",
     "cameraErrorDesc": "Please allow camera access or use manual entry",
     "cameraDeniedTitle": "Camera access blocked",
-    "cameraDeniedDesc": "You denied camera permission. To try again, re-enable it in your browser settings (lock icon near the URL) and reload the page.",
+    "cameraDeniedDesc": "You denied camera permission. Re-enable it with the steps below, then reload.",
+    "cameraDeniedStepsBrowser": [
+      "Tap the lock icon next to the URL",
+      "Open \"Site settings\" → \"Camera\"",
+      "Set to \"Allow\" and reload the page"
+    ],
+    "cameraDeniedStepsIosPwa": [
+      "Open iOS Settings → Safari → Camera",
+      "Find \"loyali.online\" and set to \"Allow\"",
+      "Come back here and reload"
+    ],
+    "cameraDeniedStepsAndroidPwa": [
+      "Open Settings → Apps → Loyali → Permissions",
+      "Tap \"Camera\" and select \"Allow\"",
+      "Come back here and reload"
+    ],
     "reloadPage": "Reload page",
     "invalidQR": "Invalid QR code",
     "customerNotFound": "Customer not found",
