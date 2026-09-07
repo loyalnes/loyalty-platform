@@ -80,11 +80,23 @@ app.get("/app/review/:merchantId", (_req, res) => {
   res.sendFile(path.join(customerPath, "review.html"));
 });
 
-// Favicon
+// Favicon: marketing/out (the served marketing dir) ships favicon.svg, but
+// browsers still ask for /favicon.ico. Serve the SVG with image/svg+xml so
+// neither tab icon nor PWA install errors out. Falls back to marketing/ if
+// repo root /public/ wasn't copied into the container (it isn't in our
+// production Dockerfile).
 app.get("/favicon.ico", (_req, res) => {
-  res.sendFile(path.join(process.cwd(), "public/favicon.svg"), {
-    headers: { "Content-Type": "image/svg+xml" },
-  });
+  const candidates = [
+    path.join(process.cwd(), "marketing", "favicon.svg"),
+    path.join(process.cwd(), "public", "favicon.svg"),
+  ];
+  for (const file of candidates) {
+    if (require("fs").existsSync(file)) {
+      res.setHeader("Content-Type", "image/svg+xml");
+      return res.sendFile(file);
+    }
+  }
+  res.status(204).end();
 });
 
 // Serve the marketing website at root /
