@@ -32,47 +32,6 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   }
 });
 
-// GET /merchants — List all merchants (public for MVP)
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
-    const skip = (page - 1) * limit;
-
-    const [merchants, total] = await Promise.all([
-      prisma.merchant.findMany({
-        where: { active: true },
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.merchant.count({ where: { active: true } }),
-    ]);
-
-    res.json({ data: merchants, total, page, limit });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// GET /merchants/by-email/:email — Lookup merchant by email (for dashboard login)
-router.get("/by-email/:email", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const merchant = await prisma.merchant.findUnique({
-      where: { email: req.params.email },
-      include: { cardTemplates: true },
-    });
-
-    if (!merchant) {
-      throw new ApiError(404, "No merchant found with this email");
-    }
-
-    res.json(merchant);
-  } catch (err) {
-    next(err);
-  }
-});
-
 // GET /merchants/me — Get current authenticated merchant (must come BEFORE /:id)
 // SECURITY: Never return passwordHash to clients — even hashed credentials are sensitive.
 router.get("/me", authenticateMerchant, async (req: Request, res: Response, next: NextFunction) => {
@@ -106,12 +65,13 @@ router.get("/me", authenticateMerchant, async (req: Request, res: Response, next
   }
 });
 
-// GET /merchants/:id — Get merchant by ID
+// GET /merchants/:id — Public: only what a customer-facing page needs (no email, phone, settings
+// or password hash). The full profile of the signed-in merchant is GET /merchants/me.
 router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const merchant = await prisma.merchant.findUnique({
       where: { id: req.params.id },
-      include: { cardTemplates: true },
+      select: { id: true, name: true, city: true, country: true, preferredLocale: true, active: true },
     });
 
     if (!merchant) {
