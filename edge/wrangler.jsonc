@@ -1,0 +1,24 @@
+{
+  "name": "loyali",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  // Version preview URLs would be extra public entry points to the same code.
+  "preview_urls": false,
+  "assets": {
+    "directory": "../cloudflare/dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "loyali-spike",
+      "database_id": "75b2797d-dc59-4b2d-8a5f-17cba1a096ea"
+    }
+  ],
+  // Origin used in the links sent to customers (wallet and loyalty-card URLs).
+  "vars": {
+    "PUBLIC_URL": "https://loyali.dot-shopfully.workers.dev"
+  }
+}
