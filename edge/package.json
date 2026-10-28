@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "seed:demo": "node scripts/seed-demo.mjs"
   },
   "dependencies": {
     "hono": "^4.9.0"
