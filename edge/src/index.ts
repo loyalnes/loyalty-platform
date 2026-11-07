@@ -1,8 +1,8 @@
 // loyali on Cloudflare, one Worker: the static apps from Workers Static Assets and the API on
 // Hono + D1. Sized for the Workers Free plan (10 ms CPU per request).
-// Phase 1 API: sign-up and sign-in, merchant profile, programs, cards, customers and points.
-// Stats, campaigns, feedback, the customer-facing join and card pages, wallet and manual-add
-// come in the next phases.
+// API: sign-up and sign-in, merchant profile, programs, cards, customers, points, stats,
+// campaigns, feedback, gamification, join, wallet and manual-add. Merchant routes need X-API-Key.
+// Replaces the Express app in ../../src, which is kept as the legacy stack.
 
 import { Hono } from "hono";
 import auth, { authenticateMerchant } from "./auth";
