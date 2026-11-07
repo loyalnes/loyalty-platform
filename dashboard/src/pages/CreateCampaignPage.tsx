@@ -23,7 +23,7 @@ export default function CreateCampaignPage() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [gameType, setGameType] = useState<GameType>('SCRATCH_CARD');
+  const gameType: GameType = 'SCRATCH_CARD';
   const [prizes, setPrizes] = useState<PrizeForm[]>([
     { name: '', description: '', prizeType: 'PHYSICAL', prizeValue: '', probability: 100, validityDays: DEFAULT_VALIDITY_DAYS },
   ]);
@@ -106,39 +106,6 @@ export default function CreateCampaignPage() {
               {error}
             </div>
           )}
-
-          <section className="app-form-section">
-            <div className="app-section-header">
-              <div>
-                <span className="section-kicker">{t('campaigns.gameType', 'Game Type')}</span>
-                <h2 className="app-section-title">{t('campaigns.gameType', 'Game Type')}</h2>
-              </div>
-            </div>
-            <div className="app-choice-grid">
-              <label className={`app-choice-card ${gameType === 'SCRATCH_CARD' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  value="SCRATCH_CARD"
-                  checked={gameType === 'SCRATCH_CARD'}
-                  onChange={(e) => setGameType(e.target.value as GameType)}
-                />
-                <div className="app-choice-card-body">
-                  <div className="app-choice-title">{t('campaigns.scratchCard', 'Scratch Card')}</div>
-                </div>
-              </label>
-              <label className={`app-choice-card ${gameType === 'SPIN_WHEEL' ? 'active' : ''}`}>
-                <input
-                  type="radio"
-                  value="SPIN_WHEEL"
-                  checked={gameType === 'SPIN_WHEEL'}
-                  onChange={(e) => setGameType(e.target.value as GameType)}
-                />
-                <div className="app-choice-card-body">
-                  <div className="app-choice-title">{t('campaigns.spinWheel', 'Spin Wheel')}</div>
-                </div>
-              </label>
-            </div>
-          </section>
 
           <section className="app-form-section">
             <div className="app-section-header">

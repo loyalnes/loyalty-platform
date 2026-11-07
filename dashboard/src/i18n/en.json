@@ -231,7 +231,7 @@
   "campaigns": {
     "howItWorks": "How it works",
     "step1": "Customers play",
-    "step1Desc": "They scan your QR and try a scratch card or spin wheel.",
+    "step1Desc": "They scan your QR and try a scratch card.",
     "step2": "They win prizes",
     "step2Desc": "You set the prizes and odds — the rest is automatic.",
     "title": "Campaigns",
@@ -433,7 +433,7 @@
     "title": "Menu",
     "acquisition": "Acquisition",
     "campaigns": "Gamification Campaigns",
-    "campaignsDesc": "Scratch cards, spin wheels & prizes",
+    "campaignsDesc": "Scratch cards & prizes",
     "reviews": "Review settings",
     "reviewsDesc": "Forward 5★ ratings to Google",
     "settings": "Settings",

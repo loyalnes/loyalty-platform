@@ -85,7 +85,7 @@ export default function CampaignsPage() {
               </span>
               <div>
                 <strong>{t('campaigns.step1', 'Customers play')}</strong>
-                <p>{t('campaigns.step1Desc', 'They scan your QR and try a scratch card or spin wheel.')}</p>
+                <p>{t('campaigns.step1Desc', 'They scan your QR and try a scratch card.')}</p>
               </div>
             </li>
             <li>
