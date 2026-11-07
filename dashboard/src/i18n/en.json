@@ -439,9 +439,6 @@
     "settings": "Settings",
     "account": "Account Settings",
     "accountDesc": "Profile, plan & preferences",
-    "support": "Support",
-    "help": "Help & Documentation",
-    "helpDesc": "Guides, FAQs & support",
     "logout": "Logout"
   },
   "locale": {

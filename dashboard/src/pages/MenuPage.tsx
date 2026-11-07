@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Gift, Star, Settings, HelpCircle, ChevronRight, Languages } from 'lucide-react';
+import { Gift, Star, Settings, ChevronRight, Languages } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { SUPPORTED_LOCALES, type SupportedLocale } from '../i18n';
@@ -71,14 +71,6 @@ export default function MenuPage() {
     label: t('menu.account', 'Account Settings'),
     description: t('menu.accountDesc', 'Profile, plan & preferences'),
     path: '/settings',
-    color: '#666',
-  };
-
-  const supportItem: MenuItem = {
-    icon: HelpCircle,
-    label: t('menu.help', 'Help & Documentation'),
-    description: t('menu.helpDesc', 'Guides, FAQs & support'),
-    path: '/help',
     color: '#666',
   };
 
@@ -245,16 +237,6 @@ export default function MenuPage() {
           </div>
 
           {renderMenuItem(accountItem, 'account')}
-        </div>
-      </section>
-
-      {/* Support */}
-      <section className="app-menu-section">
-        <div>
-          <span className="section-kicker">{t('menu.support', 'Support')}</span>
-        </div>
-        <div className="app-menu-list">
-          {renderMenuItem(supportItem, 'help')}
         </div>
       </section>
     </div>
