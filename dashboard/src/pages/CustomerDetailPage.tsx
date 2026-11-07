@@ -98,7 +98,7 @@ export default function CustomerDetailPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate('/customers')}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate('/customers')}>
             <ChevronLeft size={24} />
           </button>
           <div className="app-page-header-copy">

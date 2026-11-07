@@ -52,7 +52,7 @@ export default function CampaignDetailPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate('/campaigns')}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate('/campaigns')}>
           <ArrowLeft size={20} />
         </button>
           <div className="app-page-header-copy">

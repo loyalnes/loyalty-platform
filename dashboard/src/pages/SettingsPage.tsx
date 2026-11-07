@@ -17,7 +17,7 @@ export default function SettingsPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate('/menu')}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
           <div className="app-page-header-copy">
