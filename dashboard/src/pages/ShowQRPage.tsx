@@ -36,8 +36,10 @@ export default function ShowQRPage() {
   const apiOrigin = window.location.port === '5174' || window.location.port === '5173' || window.location.port === '5175'
     ? 'http://localhost:8787'
     : window.location.origin;
-  const route = hasActiveCampaign ? 'play' : 'join';
-  const signupUrl = `${apiOrigin}/app/${route}/${merchant?.id}`;
+  // Always /app/play: the page checks for a playable campaign itself and falls back to the join form
+  // when there is none. Choosing here depended on a fetch that is still pending, or failed, when the
+  // merchant copies the link, and sent customers straight to the form.
+  const signupUrl = `${apiOrigin}/app/play/${merchant?.id}`;
 
   async function handleCopy() {
     try {
