@@ -53,7 +53,7 @@ export default function MenuPage() {
     {
       icon: Gift,
       label: t('menu.campaigns', 'Gamification Campaigns'),
-      description: t('menu.campaignsDesc', 'Scratch cards, spin wheels & prizes'),
+      description: t('menu.campaignsDesc', 'Scratch cards & prizes'),
       path: '/campaigns',
       color: '#667eea',
     },
