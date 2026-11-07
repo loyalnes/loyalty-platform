@@ -18,7 +18,13 @@ export default function ShowQRPage() {
     listCampaigns()
       .then((campaigns) => {
         if (cancelled) return;
-        setHasActiveCampaign(campaigns.some((c) => c.active));
+        // Same rule as the API (edge/src/gamification.ts findActiveCampaign): the active flag AND
+        // now inside the start/end window. A scheduled or ended campaign makes /app/play answer 404
+        // and redirect the customer to the join form.
+        const now = new Date().toISOString();
+        setHasActiveCampaign(
+          campaigns.some((c) => c.active && (!c.startDate || c.startDate <= now) && (!c.endDate || c.endDate >= now))
+        );
       })
       .catch(() => !cancelled && setHasActiveCampaign(false));
     return () => {
@@ -68,7 +74,7 @@ export default function ShowQRPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate('/')}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate('/')}>
             <X size={24} />
           </button>
           <div className="app-page-header-copy">
