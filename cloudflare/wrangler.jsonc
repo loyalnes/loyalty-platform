@@ -1,0 +1,28 @@
+{
+  "name": "loyali",
+  "main": "worker.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "alias": {
+    "iconv-lite": "./stubs/iconv-lite.js"
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash"
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "f1af7a77cdfc45e1805bddad96ed5bd2",
+      "localConnectionString": "postgresql://loyalty:loyalty@127.0.0.1:5433/loyalty_platform"
+    }
+  ],
+  // Secrets (wrangler secret put): WALLETWALLET_API_KEY, GOOGLE_WALLET_SERVICE_ACCOUNT_KEY,
+  // GOOGLE_MAPS_API_KEY, RESEND_API_KEY. Plain vars below.
+  "vars": {
+    "NODE_ENV": "production",
+    "PUBLIC_URL": "https://loyali.dot-shopfully.workers.dev"
+  }
+}

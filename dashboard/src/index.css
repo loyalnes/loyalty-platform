@@ -870,6 +870,44 @@ h3, .h3 {
   background: var(--primary-hover);
 }
 
+/* Secondary: outlined, brand colour. Was used on 10 buttons without any rule. */
+.btn-secondary {
+  background: var(--surface-container-lowest);
+  color: var(--primary-hover);
+  border: 1.5px solid var(--primary);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-light);
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1.5px solid var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--primary-hover);
+}
+
+.btn-text:hover {
+  background: var(--primary-light);
+}
+
+.btn-sm {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.875rem;
+  min-height: 44px;
+}
+
 .btn-block {
   display: flex;
   width: 100%;
@@ -1850,7 +1888,7 @@ h3, .h3 {
   right: clamp(0.75rem, 3vw, 1rem);
   background: var(--surface);
   color: var(--primary);
-  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border: 1.5px solid var(--primary);
   font-family: var(--font-headline);
   font-size: 0.8125rem;
   font-weight: 700;
@@ -3442,27 +3480,42 @@ h3, .h3 {
   background: rgba(163, 174, 192, 0.18);
 }
 
+/* Icon-only action buttons (edit, delete, pause/activate). Tinted fill + 1.5px border so the shape
+   reads on white cards; glyph colour is >= 4.5:1 on the fill. 44px hit area. */
 .app-action-icon {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   border-radius: 9999px;
-  border: 1px solid rgba(163, 174, 192, 0.22);
-  background: rgba(255, 255, 255, 0.75);
-  color: var(--on-surface-variant);
+  border: 1.5px solid var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-hover);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform var(--motion-micro) ease, background var(--motion-micro) ease, color var(--motion-micro) ease;
+  transition: background var(--motion-micro) ease, color var(--motion-micro) ease;
 }
 
 .app-action-icon:hover {
-  transform: translateY(-1px);
-  background: white;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.app-action-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .app-action-icon-danger {
-  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.app-action-icon-danger:hover {
+  background: var(--danger);
+  color: #fff;
 }
 
 .app-meta-list {
@@ -3628,13 +3681,20 @@ h3, .h3 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
   border-radius: 9999px;
-  border: 1px solid rgba(163, 174, 192, 0.18);
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--on-surface);
+  border: 1.5px solid var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-hover);
   cursor: pointer;
+  transition: background var(--motion-micro) ease, color var(--motion-micro) ease;
+}
+
+.app-page-back:hover {
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 .app-page-hero-actions {
@@ -3729,9 +3789,9 @@ h3, .h3 {
   width: 100%;
   min-height: 52px;
   border-radius: var(--radius-2xl);
-  border: 1px solid rgba(179, 27, 37, 0.16);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--danger);
+  border: 1.5px solid var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger-text);
   font-family: var(--font-headline);
   font-size: 0.95rem;
   font-weight: 800;
@@ -6552,6 +6612,10 @@ textarea.form-input,
 .customers-add-btn:focus-visible,
 .app-choice-card:focus-visible,
 .tier-delete:focus-visible,
+.app-page-back:focus-visible,
+.app-action-icon:focus-visible,
+.app-danger-button:focus-visible,
+.btn:focus-visible,
 .modal-close-btn:focus-visible,
 .add-tier-btn:focus-visible,
 .btn-edit:focus-visible {

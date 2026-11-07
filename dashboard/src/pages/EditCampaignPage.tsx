@@ -136,7 +136,7 @@ export default function EditCampaignPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate(`/campaigns/${id}`)}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate(`/campaigns/${id}`)}>
           <X size={24} />
         </button>
           <div className="app-page-header-copy">
@@ -221,7 +221,7 @@ export default function EditCampaignPage() {
                       type="button"
                       className="app-action-icon app-action-icon-danger"
                       onClick={() => removePrize(index)}
-                      aria-label="Remove"
+                      aria-label={t('common.remove', 'Remove')}
                     >
                       <Trash2 size={16} />
                     </button>

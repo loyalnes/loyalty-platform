@@ -121,7 +121,7 @@ export default function SetupWizardPage() {
       {step > 1 && (
         <header className="app-page-header">
           <div className="app-page-header-row">
-            <button className="app-page-back" onClick={() => setStep(step - 1)}>
+            <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => setStep(step - 1)}>
               <ChevronLeft size={20} />
             </button>
           </div>

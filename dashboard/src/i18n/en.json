@@ -1,5 +1,9 @@
 {
   "common": {
+    "back": "Back",
+    "pause": "Pause",
+    "activate": "Activate",
+    "remove": "Remove",
     "loading": "Loading...",
     "previous": "Previous",
     "next": "Next",

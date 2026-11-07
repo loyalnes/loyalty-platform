@@ -45,7 +45,7 @@ export default function ReviewQRPage() {
     <div className="app-page stack-lg show-review-qr-page">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate(-1)}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate(-1)}>
             <X size={20} />
           </button>
           <div className="app-page-header-copy">

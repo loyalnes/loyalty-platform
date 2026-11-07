@@ -59,7 +59,7 @@ export default function CampaignsPage() {
     <div className="app-page stack-lg">
       <header className="app-page-header">
         <div className="app-page-header-row">
-          <button className="app-page-back" onClick={() => navigate('/menu')}>
+          <button className="app-page-back" aria-label={t('common.back', 'Back')} onClick={() => navigate('/menu')}>
             <ArrowLeft size={20} />
           </button>
           <div className="app-page-header-copy">
@@ -162,7 +162,7 @@ export default function CampaignsPage() {
                   <button
                     className="app-action-icon"
                     onClick={(e) => toggleActive(campaign, e)}
-                    aria-label={campaign.active ? 'Pause' : 'Activate'}
+                    aria-label={campaign.active ? t('common.pause', 'Pause') : t('common.activate', 'Activate')}
                   >
                     {campaign.active ? <Pause size={16} /> : <Play size={16} />}
                   </button>

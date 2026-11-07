@@ -26,3 +26,9 @@ dev.db
 .claude/
 qa-artifacts/
 /tmp/*.log
+.neon
+
+# Cloudflare local secrets
+.dev.vars
+.wrangler/
+edge/node_modules/

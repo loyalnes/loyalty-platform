@@ -1,4 +1,12 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { type Options } from 'express-rate-limit';
+import type { RequestHandler } from 'express';
+
+// express-rate-limit starts a cleanup timer when a limiter is created. Workers forbid timers at
+// import time, so each limiter is built on its first request. Behaviour on Node is unchanged.
+function lazyRateLimit(options: Partial<Options>): RequestHandler {
+  let limiter: RequestHandler | undefined;
+  return (req, res, next) => (limiter ??= rateLimit({ ...options, validate: { creationStack: false } }))(req, res, next);
+}
 
 /**
  * Rate limiter for authentication endpoints (login, register)
@@ -6,7 +14,7 @@ import rateLimit from 'express-rate-limit';
  * - 5 requests per minute per IP for login
  * - 3 requests per hour per IP for register
  */
-export const authRateLimiter = rateLimit({
+export const authRateLimiter = lazyRateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // 5 requests per window
   message: {
@@ -18,7 +26,7 @@ export const authRateLimiter = rateLimit({
   skipSuccessfulRequests: false,
 });
 
-export const registerRateLimiter = rateLimit({
+export const registerRateLimiter = lazyRateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3, // 3 registrations per hour per IP
   message: {
@@ -34,7 +42,7 @@ export const registerRateLimiter = rateLimit({
  * Prevents abuse of prize system
  * - 10 plays per minute per IP
  */
-export const gamificationRateLimiter = rateLimit({
+export const gamificationRateLimiter = lazyRateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10,
   message: {
@@ -50,7 +58,7 @@ export const gamificationRateLimiter = rateLimit({
  * Prevents spam reviews
  * - 10 submissions per minute per IP
  */
-export const feedbackRateLimiter = rateLimit({
+export const feedbackRateLimiter = lazyRateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10,
   message: {
@@ -65,7 +73,7 @@ export const feedbackRateLimiter = rateLimit({
  * General rate limiter for public API endpoints
  * - 100 requests per minute per IP
  */
-export const generalRateLimiter = rateLimit({
+export const generalRateLimiter = lazyRateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100,
   message: {

@@ -11,17 +11,21 @@ The MVP focuses on pillar 1 (loyalty) + QR-based customer acquisition.
 
 ## Architecture
 
-**Monorepo** with three frontend apps + one backend:
+**Monorepo**: three frontend apps and two backends. Read `README.md` first for the status table, routing and API map.
 
 ```
-src/                  → Express API server (TypeScript, Prisma, PostgreSQL)
-dashboard/            → B2B merchant dashboard (React 19, Vite, React Router)
-customer/             → B2C customer web app (planned — not yet built)
+edge/                 → CURRENT API: Hono + Cloudflare D1, one Worker that also serves the static apps
+                        (entry edge/src/index.ts, schema in edge/migrations/*.sql)
+src/, prisma/         → LEGACY API: Express + Prisma + PostgreSQL (still built by deploy.yml, Docker to Hetzner)
+cloudflare/           → build-assets.sh (used by edge/); worker.ts is a superseded Express-on-Workers experiment
+dashboard/            → B2B merchant PWA (React 19, Vite, React Router)
+customer/public/      → B2C static pages: join, loyalty, play, review (plain HTML, no build)
 marketing/            → Marketing website (Next.js, static export)
-packages/ui/          → Shared design system (@loyali/ui)
-deploy/               → Server provisioning and deploy scripts
-prisma/               → Database schema and migrations
+packages/ui/          → Design tokens (@loyali/ui)
+deploy/               → Server provisioning and deploy scripts (legacy stack)
 ```
+
+Production runs on `edge/`. Backend changes go in `edge/src/` only; do not touch `src/`, `prisma/` or `deploy/`, which are legacy and slated for removal. The sections below that cover Prisma, Hetzner, nginx, Docker, preview deploys and `deploy.yml` describe that legacy stack and are history, not current process. The equivalent edge file for a `src/` path is `edge/src/<same name>.ts`. Deploy the Worker with `cd edge && npx wrangler deploy` after `bash cloudflare/build-assets.sh`.
 
 ## Tech Stack
 
@@ -32,7 +36,8 @@ prisma/               → Database schema and migrations
 - **Database**: PostgreSQL 16 via `@prisma/adapter-pg` (PrismaPg adapter required)
 - **Docker**: Multi-stage Dockerfile, docker-compose files for dev/staging/prod
 - **CI/CD**: GitHub Actions — ci.yml, deploy.yml, preview.yml
-- **Server**: Hetzner VPS (46.224.138.230), Nginx reverse proxy, Let's Encrypt SSL
+- **Edge (current)**: Hono 4 on Cloudflare Workers, D1 (SQLite), Workers Static Assets, `wrangler deploy`
+- **Server (legacy)**: Hetzner multisite host, Nginx, Let's Encrypt. Host address is a GitHub secret (`HETZNER_PROD_HOST`), see `deploy.yml`.
 
 ## URLs
 
@@ -95,7 +100,7 @@ Note: If port 5432 is in use, change the DB port in docker-compose.dev.yml.
 
 ## API Authentication
 
-- **B2B (merchants)**: `X-API-Key` header with merchant UUID
+- **B2B (merchants)**: `X-API-Key` header, value `loy_live_<64 hex>` issued by `POST /api/auth/signup` or `/login`. Only its SHA-256 is stored (`api_keys.key_hash`). Legacy Express compared bcrypt hashes; edge uses an indexed lookup.
 - **B2C (customers)**: Planned — email magic link + JWT Bearer token
 - **Public B2C endpoints** (no auth):
   - `GET  /api/loyalty/:merchantId/public-summary` — feeds the join page
@@ -220,7 +225,10 @@ Co-Authored-By: Paperclip <noreply@paperclip.ing>
 
 ## Key Files
 
-- `src/index.ts` — Express server entry point, route mounting
+- `edge/src/index.ts` — current Worker entry: routing, Hono route mounting, auth middleware wiring
+- `edge/src/auth.ts` — `authenticateMerchant`, sign-up, login
+- `edge/migrations/` — current D1 schema (0001..0007)
+- `src/index.ts`, `src/app.ts` — legacy Express entry point and app
 - `src/middleware/auth.ts` — Merchant X-API-Key authentication
 - `src/routes/` — API route handlers (merchants, cards, points, loyalty join/public-summary)
 - `src/services/walletSummary.ts` — wallet payload incl. `nextReward`
