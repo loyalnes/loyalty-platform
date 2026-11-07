@@ -11,42 +11,30 @@ The MVP focuses on pillar 1 (loyalty) + QR-based customer acquisition.
 
 ## Architecture
 
-**Monorepo**: three frontend apps and two backends. Read `README.md` first for the status table, routing and API map.
+One Cloudflare Worker (`edge/`) serves the API and the three static apps. Read `README.md` first for routing, auth and the API map.
 
 ```
-edge/                 → CURRENT API: Hono + Cloudflare D1, one Worker that also serves the static apps
-                        (entry edge/src/index.ts, schema in edge/migrations/*.sql)
-src/, prisma/         → LEGACY API: Express + Prisma + PostgreSQL (still built by deploy.yml, Docker to Hetzner)
-cloudflare/           → build-assets.sh (used by edge/); worker.ts is a superseded Express-on-Workers experiment
-dashboard/            → B2B merchant PWA (React 19, Vite, React Router)
+edge/                 → API (Hono + D1) and Worker entry (edge/src/index.ts), D1 migrations in edge/migrations/
+dashboard/            → B2B merchant PWA (React 19, Vite, React Router), served at /dashboard/
 customer/public/      → B2C static pages: join, loyalty, play, review (plain HTML, no build)
-marketing/            → Marketing website (Next.js, static export)
+marketing/            → Marketing website (Next.js, static export), served at /
 packages/ui/          → Design tokens (@loyali/ui)
-deploy/               → Server provisioning and deploy scripts (legacy stack)
+cloudflare/           → build-assets.sh: assembles cloudflare/dist, the Worker's static assets
 ```
-
-Production runs on `edge/`. Backend changes go in `edge/src/` only; do not touch `src/`, `prisma/` or `deploy/`, which are legacy and slated for removal. The sections below that cover Prisma, Hetzner, nginx, Docker, preview deploys and `deploy.yml` describe that legacy stack and are history, not current process. The equivalent edge file for a `src/` path is `edge/src/<same name>.ts`. Deploy the Worker with `cd edge && npx wrangler deploy` after `bash cloudflare/build-assets.sh`.
 
 ## Tech Stack
 
-- **Backend**: Express.js + TypeScript + Prisma v7 + PostgreSQL 16
+- **API**: Hono 4 on Cloudflare Workers, D1 (SQLite), Workers Static Assets. Sized for the Workers Free plan (10 ms CPU per request): no bcrypt, no Prisma, Web Crypto only.
 - **Dashboard**: React 19 + Vite 8 + React Router 7 + i18next (en/it/es)
 - **Marketing**: Next.js 15 with static export (`output: 'export'`)
-- **Design System**: `packages/ui/` — CSS tokens (from `design/design-tokens.json`), shared React components
-- **Database**: PostgreSQL 16 via `@prisma/adapter-pg` (PrismaPg adapter required)
-- **Docker**: Multi-stage Dockerfile, docker-compose files for dev/staging/prod
-- **CI/CD**: GitHub Actions — ci.yml, deploy.yml, preview.yml
-- **Edge (current)**: Hono 4 on Cloudflare Workers, D1 (SQLite), Workers Static Assets, `wrangler deploy`
-- **Server (legacy)**: Hetzner multisite host, Nginx, Let's Encrypt. Host address is a GitHub secret (`HETZNER_PROD_HOST`), see `deploy.yml`.
+- **Design System**: `design/design-tokens.json` → `packages/ui/src/tokens.css`
 
 ## URLs
 
-| Environment | URL | Notes |
-|---|---|---|
-| Production | `https://loyali.online` | Public, no basic auth (removed in PR #45) |
-| Staging | `https://staging.loyali.online` | Behind nginx basic auth |
-| Preview | `http://pr-N.preview.loyali.online` | Auto-deployed per PR, behind nginx basic auth |
-| Analytics | `https://analytics.loyali.online` | Umami self-hosted (PR #49, awaiting DNS+SSL — see `ANALYTICS.md`) |
+| Environment | URL |
+|---|---|
+| Production | `https://loyali.dot-shopfully.workers.dev` (a custom domain is not recorded in the repo) |
+| Local | `http://localhost:8787` (`wrangler dev`) |
 
 ### URL Paths
 - `/` — Marketing website (client-side redirect to `/{locale}` based on cookie / browser language)
@@ -68,64 +56,39 @@ Customer pages fall back to `en` when `navigator.language` is not en/it/es.
 ## Development
 
 ```bash
-# Install dependencies
-npm install
-cd dashboard && npm install
-cd ../marketing && npm install
-
-# Generate Prisma client
-npx prisma generate
-
-# Run backend (requires DATABASE_URL in .env)
-npm run dev
-
-# Run dashboard dev server (proxies /api to localhost:3000)
-npm run dev:dashboard
-
-# Run marketing dev server
-cd marketing && npm run dev
-
-# Seed database
-npm run db:seed
-
-# Build everything
-npm run build
+(cd marketing && npm install && npm run build)
+(cd dashboard && npm install --legacy-peer-deps && npm run build)
+bash cloudflare/build-assets.sh
+cd edge && npm install
+npx wrangler d1 migrations apply loyali-spike --local
+npx wrangler dev                      # http://localhost:8787
 ```
 
-### Docker (local dev)
-```bash
-DB_PASSWORD=devpassword docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
-```
-Note: If port 5432 is in use, change the DB port in docker-compose.dev.yml.
+Dashboard hot reload: `cd dashboard && npm run dev` (port 5173, proxies `/api` to 8787). `npm install --legacy-peer-deps` is needed because `vite-plugin-pwa` 0.20 does not declare Vite 8.
+Demo data: `cd edge && LOYALI_EMAIL=... LOYALI_PASSWORD=... LOYALI_URL=http://localhost:8787 npm run seed:demo`.
 
 ## API Authentication
 
-- **B2B (merchants)**: `X-API-Key` header, value `loy_live_<64 hex>` issued by `POST /api/auth/signup` or `/login`. Only its SHA-256 is stored (`api_keys.key_hash`). Legacy Express compared bcrypt hashes; edge uses an indexed lookup.
+- **B2B (merchants)**: `X-API-Key` header, value `loy_live_<64 hex>` issued by `POST /api/auth/signup` or `/login`. Only its SHA-256 is stored (`api_keys.key_hash`).
 - **B2C (customers)**: Planned — email magic link + JWT Bearer token
 - **Public B2C endpoints** (no auth):
   - `GET  /api/loyalty/:merchantId/public-summary` — feeds the join page
   - `POST /api/loyalty/:merchantId/join` — idempotent enrollment (firstName req, lastName opt, email req, marketing consent opt; GDPR consent is implicit via Art. 6(1)(b))
-- **Nginx**: basic auth on `staging` + preview subdomains; production (`loyali.online`) is public. Catch-all server (IP/unknown host) requires basic auth.
+
 
 ## Environment Variables
 
-| Var | Where | Purpose |
-|---|---|---|
-| `DATABASE_URL` | backend | Postgres connection |
-| `GOOGLE_MAPS_API_KEY` | backend | **Required** for `extractPlaceIdFromUrl` Pattern 5 (hex CID → ChIJ resolution via Places Details API). Live in production: set as both a GitHub repo secret and a `production` environment secret, propagated through `.github/workflows/deploy.yml` (`env:` + `envs:` + script export) → `docker-compose.yml` `app` env block → `process.env.GOOGLE_MAPS_API_KEY`. Pattern 5 regex matches both `!1s0xHEX:0xHEX` and `ftid=0xHEX:0xHEX` (the latter is what `maps.app.goo.gl` expands to for many businesses). `src/routes/merchants.ts` clears `googlePlaceId` before re-extracting on every settings update so a stale ChIJ can't survive a failed re-extract. ~$17/1k lookups, $200/mo free tier. |
-| `UMAMI_DB_PASSWORD`, `UMAMI_APP_SECRET` | server | Auto-generated by `deploy/deploy.sh` on first run |
+Worker secrets (`wrangler secret put`): `GOOGLE_WALLET_SERVICE_ACCOUNT_KEY`, `WALLETWALLET_API_KEY` (Apple pass), `RESEND_API_KEY` (email; without it the wallet link is only shown in the dashboard), `GOOGLE_MAPS_API_KEY` (optional). `PUBLIC_URL` is a plain var in `edge/wrangler.jsonc`.
 
 ## Database
 
-- Schema: `prisma/schema.prisma`
-- Models: Merchant, Customer, LoyaltyCard, CardTemplate, PointsTransaction
-- Adapter: Must use `PrismaPg` adapter (not bare `PrismaClient()`)
-- Migrations: `prisma/migrations/` — run `npx prisma migrate deploy`
-- Seed: `prisma/seed/seed.ts` — creates 2 merchants, 2 customers, 3 cards, 6 transactions
+- D1 database `loyali-spike`, binding `DB`. Schema = `edge/migrations/0001..0007_*.sql`. Ids are UUID text, timestamps ISO-8601 text, enums are CHECK constraints.
+- Add a migration as the next numbered file, then `npx wrangler d1 migrations apply loyali-spike --remote` before deploying code that needs it.
+- Money-moving writes (earn, redeem, prize claim) are single D1 batches.
 
 ### Consent model (GDPR)
 
-Migration `20260501010000_move_consents_to_loyalty_card` moved `gdprConsentAt` and `marketingConsentAt` from `Customer` (global) to `LoyaltyCard` (per-merchant), and added `marketingRevokedAt`. Rationale: the **merchant is the data controller**, Loyali is processor — consent must be scoped per merchant relationship, not globally on the Customer record. The marketing consent text on the join form interpolates the merchant name to make the controller relationship explicit.
+The merchant is the data controller, Loyali the processor. `gdpr_consent_at` and `marketing_consent_at` live on the per-merchant `loyalty_cards` row, not on `customers`. The marketing consent text on the join form interpolates the merchant name. D1 has no `marketing_revoked_at` column yet.
 
 ## Design System
 
@@ -159,7 +122,7 @@ The marketing website (`marketing/`) is live at `https://loyali.online/`.
 One line per shipped feature; details live in the linked doc or in the code.
 
 - **Home redesign** (PR #70) — `LoyaltyHubPage` with Today's Activity card, secondary tile row, chartreuse "Add points" hero, and bell → `NotificationsSheet`. See `HOME_REDESIGN.md` and `dashboard/src/components/NotificationsSheet.tsx`.
-- **Insights extensions** — `InsightsKpis` adds `returningCustomers` + `reviewsCount` (`src/services/statsService.ts`). Time filter has a Custom date-range chip; backend accepts `?period=` or `?from=&to=` (`dashboard/src/components/TimeFilter.tsx`).
+- **Insights extensions** — `InsightsKpis` adds `returningCustomers` + `reviewsCount` (`edge/src/stats.ts`). Time filter has a Custom date-range chip; backend accepts `?period=` or `?from=&to=` (`dashboard/src/components/TimeFilter.tsx`).
 - **Menu page** — Active Program card at the top (PR #55). Language picker expandable inside Settings (PR #58); persists to `localStorage` and `Merchant.preferredLocale` via `PATCH /merchants/me` (`dashboard/src/pages/MenuPage.tsx`, `dashboard/src/AuthContext.tsx`). Logout moved to SettingsPage "Session" card.
 - **Reviews split** — Page split into two URLs:
   - `/review-qr` (`dashboard/src/pages/ReviewQRPage.tsx`) — home tile entry, shows QR + copy/share for `/app/review/:merchantId`.
@@ -169,7 +132,7 @@ One line per shipped feature; details live in the linked doc or in the code.
 - **Customers page fixes** — `customerService.getCustomers` now returns flat `{ data, total, page, limit, hasMore }` matching the dashboard's `PaginatedResponse` (was nested `pagination.*`, hence "0 of 0" counter). Multi-token search: 1 token → `startsWith` on any field; N tokens → first token EQUALS firstName, rest startsWith lastName/email/phone.
 - **Scan/redeem flow redesign** — `CustomerProfileModal` split per `LoyaltyProgram.type`: POINTS shows giant `€` input with live points conversion, STAMPS shows `+1 Timbro` hero + secondary `Add more` for custom counts. Header is one inline meta line (`Customer since X · N rewards redeemed` using a real `redemptionsCount` derived from `PointsTransaction(type=REDEEM)` count, NOT `totalRedeemed` which is a points sum). Multi-tier progress bar replaces the 3-stat tile row. Success uses a chartreuse check overlay (`Stamp added!` / `Points added!` / `Card completed`) and the modal stays open after redeem so the merchant can see the updated balance. Scan-page manual lookup replaced by debounced search by email/name/phone via `listCustomers` (`Cache-Control: no-store`). API client has a 5s `AbortController` timeout.
 - **Home → redeem entry** — `Riscatta` tile on `LoyaltyHubPage` navigates to `/scan-qr?mode=redeem`; `ScanQRPage` reads the param and passes `initialView` to `CustomerProfileModal` so it lands directly on the redeem view. Empty state when no eligible reward shows `Lock` + `N points/stamps to next reward` + chartreuse fallback to add-points view. The campaign `/redeem-code` flow described in `REDEEM_HOME.md` was de-scoped in favor of this simpler entry. See `REDEEM_HOME.md`.
-- **Manual customer add** — `+` button on `CustomersPage` opens `AddCustomerModal` (firstName, lastName, email, marketingConsent). `POST /api/customers/manual-add` (auth merchant) creates `Customer + LoyaltyCard + WalletPass + WalletAccessToken`, mails the wallet link via `src/services/mailer.ts`. Mailer uses Resend if `RESEND_API_KEY` is set, otherwise logs the link and the modal surfaces it as a copyable URL. Modals (`AddCustomerModal`, `CustomerProfileModal`) live OUTSIDE `PullToRefresh` because its `transform` breaks `position: fixed` on the modal-overlay.
+- **Manual customer add** — `+` button on `CustomersPage` opens `AddCustomerModal` (firstName, lastName, email, marketingConsent). `POST /api/customers/manual-add` (auth merchant) creates `Customer + LoyaltyCard + WalletPass + WalletAccessToken`, mails the wallet link via `edge/src/mailer.ts`. Mailer uses Resend if `RESEND_API_KEY` is set, otherwise logs the link and the modal surfaces it as a copyable URL. Modals (`AddCustomerModal`, `CustomerProfileModal`) live OUTSIDE `PullToRefresh` because its `transform` breaks `position: fixed` on the modal-overlay.
 - **Setup wizard merge** — Two steps instead of three: step 1 chooses POINTS/STAMPS, step 2 unifies base rule + welcome bonus + reward tiers. New `LoyaltyProgram.welcomePoints` (migration `20260505000000_add_welcome_points`). Per-tier live calc shows `Spend needed: €X` (POINTS) or `N visits needed` (STAMPS) folding `welcomePoints`/`welcomeStamps` into the math. Validation: ascending thresholds; STAMPS thresholds ≤ `goalStamps`; with a single tier or last tier of multi-tier the threshold MUST equal `goalStamps`. Threshold/order errors render under the row; missing reward name shows as a red border on the input only (so the live calc keeps showing).
 - **Program edit lock** — `GET /api/programs/mine` returns `hasTransactions` (true when any of the merchant's cards has `totalEarned > 0` or `totalRedeemed > 0`). The `Edit` button on `MenuPage` Active Program card hides as soon as that flips. Useful because `POST /programs` is create-only (409 on existing) — without the lock the Edit button leads to a dead-end. Active Program card now also lists every `RewardTier` with prize name + threshold.
 
@@ -180,41 +143,20 @@ For post-launch dashboard history use `git log --grep=dashboard`.
 Static HTML pages served from `customer/public/`, no build step.
 
 - `join.html` → `/app/join/:merchantId` — Material 3 floating-label "notched outline" inputs, confetti on submit + on each consent check. No required GDPR checkbox (submission = acceptance under Art. 6(1)(b)); inline note replaces it. Marketing consent line interpolates the merchant name.
-- `loyalty.html` → `/app/loyalty/:token` — chartreuse hero with points + progress bar to next reward, sticky "Show to earn points" CTA → fullscreen QR overlay (api.qrserver.com), Recent activity timeline. Backed by `WalletSummary` extended with `nextReward { rewardName, threshold, pointsToGo, progress }` (`src/services/walletSummary.ts`).
+- `loyalty.html` → `/app/loyalty/:token` — chartreuse hero with points + progress bar to next reward, sticky "Show to earn points" CTA → fullscreen QR overlay (api.qrserver.com), Recent activity timeline. Backed by `WalletSummary` extended with `nextReward { rewardName, threshold, pointsToGo, progress }` (`edge/src/wallet-summary.ts`).
+## Deploy
 
-### Analytics (in progress)
+The Worker is deployed by hand; there is no CI workflow.
 
-Self-hosted Umami at `https://analytics.loyali.online` — Phase 1 (infra) shipped in PR #49, awaiting DNS+SSL operator action. See `ANALYTICS.md`.
+```bash
+(cd marketing && npm run build)
+(cd dashboard && npm run build)
+bash cloudflare/build-assets.sh
+cd edge && npx wrangler deploy
+```
 
-## Deploy Pipeline
+`wrangler deploy` publishes to production immediately. Apply D1 migrations first when the change needs them.
 
-1. Push to `main` → GitHub Actions builds Docker image → pushes to GHCR → SSHs to server → runs `deploy/deploy.sh production`. A follow-up step then SSHs as `root` (same key) to copy the nginx config and reload (PR #47, needed because the deploy user can't sudo).
-2. Push to `staging` → same flow with `deploy/deploy.sh staging`
-3. PR opened → `preview.yml` builds image tagged `pr-N` → deploys preview on port 4000+N
-
-### Nginx config split (PR #48)
-The combined `deploy/nginx.conf` was split per environment so each host only references its own SSL certificates:
-- `deploy/nginx-production.conf` — `loyali.online` + preview subdomains + analytics:80 placeholder
-- `deploy/nginx-staging.conf` — `staging.loyali.online` only
-
-### Deploy Script (`deploy/deploy.sh`)
-- Selects the right `deploy/nginx-${ENV}.conf` and copies it via `sudo`
-- Generates `UMAMI_DB_PASSWORD` and `UMAMI_APP_SECRET` on first run (analytics)
-- Backs up database (production only)
-- Pulls Docker image from GHCR
-- Runs Prisma migrations (falls back to `db push`)
-- Starts containers (production also includes `docker-compose.umami.yml`)
-- Health check with auto-rollback on failure
-
-### Deploy hardening (PRs #92, #93)
-For months `git fetch origin` on the prod VPS silently failed with `fatal: Authentication failed`: the default `GITHUB_TOKEN` in the SSH-action env lacked `contents: read`, the script chained `git fetch && git reset` against a stale `origin/main`, and there was no `set -e`. The Docker image kept advancing (GHCR auth is separate) but every change to `deploy/deploy.sh`, `docker-compose.yml`, and nginx configs was ignored on the server.
-- `deploy-production` job now declares `permissions: { contents: read, packages: read }`.
-- SSH script embeds the token in the fetch URL: `git fetch "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" main`.
-- `set -euo pipefail` at the top of the SSH script — silent failures now go red.
-- `docker compose stop+rm app` then `up --force-recreate` so compose re-reads every file from disk.
-
-### Gotcha: changes to `deploy/deploy.sh` or `docker-compose.yml`
-Watch the deploy logs for `fatal: Authentication failed` and verify the change actually landed on the server (e.g. read `process.env.X` from inside the running container, or the nearest equivalent diagnostic). The git-fetch → reset → compose chain has more moving parts than it looks.
 
 ## Commit Convention
 
@@ -223,22 +165,19 @@ All commits must include:
 Co-Authored-By: Paperclip <noreply@paperclip.ing>
 ```
 
+
 ## Key Files
 
-- `edge/src/index.ts` — current Worker entry: routing, Hono route mounting, auth middleware wiring
+- `edge/src/index.ts` — Worker entry: routing, Hono route mounting, auth middleware wiring
 - `edge/src/auth.ts` — `authenticateMerchant`, sign-up, login
-- `edge/migrations/` — current D1 schema (0001..0007)
-- `src/index.ts`, `src/app.ts` — legacy Express entry point and app
-- `src/middleware/auth.ts` — Merchant X-API-Key authentication
-- `src/routes/` — API route handlers (merchants, cards, points, loyalty join/public-summary)
-- `src/services/walletSummary.ts` — wallet payload incl. `nextReward`
-- `src/utils/googleMaps.ts` — `extractPlaceIdFromUrl` (Pattern 5 = hex CID → ChIJ via Places API)
-- `customer/public/join.html`, `customer/public/loyalty.html` — B2C static pages
-- `prisma/schema.prisma` — Database schema (single source of truth)
+- `edge/src/<name>.ts` — one file per API area (points, programs, campaigns, wallet, ...)
+- `edge/migrations/` — D1 schema
+- `edge/wrangler.jsonc` — bindings, assets directory, `PUBLIC_URL`
+- `customer/public/join.html`, `loyalty.html`, `play.html`, `review.html` — B2C static pages
 - `packages/ui/src/tokens.css` — Design tokens (auto-generated, don't edit)
 - `design/design-tokens.json` — Design token source (edit this)
-- `deploy/deploy.sh` — Main deployment script
-- `.github/workflows/` — CI/CD pipelines
+- `cloudflare/build-assets.sh` — assembles the static bundle
+
 
 ## Agent routing
 
@@ -249,8 +188,6 @@ Use these specialized agents proactively without waiting to be asked. Match by t
 - **ux-researcher** — JTBD analysis, hierarchy critique, behavioral recommendations.
 - **product-manager** — scope decisions, prioritization, metric/outcome framing, paid-feature wedges.
 - **api-designer** — adding/refactoring `/api/*` endpoints, REST consistency, request/response shapes.
-- **postgres-pro** — Prisma schema migrations, advanced PostgreSQL features, indexes, constraints.
-- **database-optimizer** — slow queries, execution plan analysis, index strategy.
 - **architect-reviewer** — before shipping structural changes (new app, multi-tenancy, breaking infra changes).
 - **performance-engineer** — bundle size regressions, API latency, Vite build tuning.
 - **debugger** / **error-detective** — diagnosing reproducible bugs / triaging production errors.

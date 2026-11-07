@@ -32,9 +32,9 @@ export default function ShowQRPage() {
     };
   }, []);
 
-  // In development, Vite runs on different port than backend
+  // In development, Vite runs on a different port than the Worker (wrangler dev, 8787)
   const apiOrigin = window.location.port === '5174' || window.location.port === '5173' || window.location.port === '5175'
-    ? 'http://localhost:3000'
+    ? 'http://localhost:8787'
     : window.location.origin;
   const route = hasActiveCampaign ? 'play' : 'join';
   const signupUrl = `${apiOrigin}/app/${route}/${merchant?.id}`;

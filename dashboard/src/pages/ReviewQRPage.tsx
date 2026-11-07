@@ -11,9 +11,9 @@ export default function ReviewQRPage() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
-  // In dev, Vite runs on 5173 but /app/* is served by the Express backend on 3000.
+  // In dev, Vite runs on 5173 but /app/* is served by the Worker (wrangler dev) on 8787.
   const apiOrigin = ['5173', '5174', '5175'].includes(window.location.port)
-    ? 'http://localhost:3000'
+    ? 'http://localhost:8787'
     : window.location.origin;
   const reviewUrl = `${apiOrigin}/app/review/${merchant?.id}`;
 
